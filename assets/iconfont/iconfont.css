@@ -1,0 +1,127 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 4021199 */
+  src: url('iconfont.woff2?t=1682153131317') format('woff2'),
+       url('iconfont.woff?t=1682153131317') format('woff'),
+       url('iconfont.ttf?t=1682153131317') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-check:before {
+  content: "\e637";
+}
+
+.icon-close:before {
+  content: "\e60c";
+}
+
+.icon-station:before {
+  content: "\e65b";
+}
+
+.icon-random:before {
+  content: "\ea75";
+}
+
+.icon-add:before {
+  content: "\e689";
+}
+
+.icon-home:before {
+  content: "\e656";
+}
+
+.icon-edit:before {
+  content: "\e602";
+}
+
+.icon-delete:before {
+  content: "\e7ed";
+}
+
+.icon-quit:before {
+  content: "\e892";
+}
+
+.icon-share:before {
+  content: "\e739";
+}
+
+.icon-pause:before {
+  content: "\e69d";
+}
+
+.icon-volume:before {
+  content: "\e87a";
+}
+
+.icon-play:before {
+  content: "\e87c";
+}
+
+.icon-mute:before {
+  content: "\ea0b";
+}
+
+.icon-favoriteFill:before {
+  content: "\e611";
+}
+
+.icon-timer:before {
+  content: "\e645";
+}
+
+.icon-previous:before {
+  content: "\e6c8";
+}
+
+.icon-next:before {
+  content: "\e6c9";
+}
+
+.icon-favorite:before {
+  content: "\e622";
+}
+
+.icon-recently:before {
+  content: "\e62f";
+}
+
+.icon-record:before {
+  content: "\e652";
+}
+
+.icon-discovery:before {
+  content: "\e80f";
+}
+
+.icon-compactMode:before {
+  content: "\e693";
+}
+
+.icon-config:before {
+  content: "\e612";
+}
+
+.icon-notification:before {
+  content: "\e679";
+}
+
+.icon-search:before {
+  content: "\e60f";
+}
+
+.icon-star:before {
+  content: "\e62a";
+}
+
+.icon-theme:before {
+  content: "\e610";
+}
+

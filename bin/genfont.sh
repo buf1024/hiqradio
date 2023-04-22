@@ -1,0 +1,1 @@
+dart ./iconfont_builder.dart -f IconFont -i ../assets/iconfont/iconfont.css -o ../lib/src/app/iconfont.dart
