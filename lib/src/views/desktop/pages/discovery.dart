@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/views/desktop/components/station_icon.dart';
+import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 
 class Discovery extends StatefulWidget {
   const Discovery({super.key});
@@ -13,17 +14,23 @@ class _DiscoveryState extends State<Discovery>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    double height =
+        MediaQuery.of(context).size.height - kTitleBarHeight - kPlayBarHeight;
+
     return Container(
+      height: height,
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildRecommend(),
-          const SizedBox(
-            height: 20.0,
-          ),
-          Expanded(child: _buildContent())
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildRecommend(),
+            const SizedBox(
+              height: 20.0,
+            ),
+            _buildContent()
+          ],
+        ),
       ),
     );
   }
@@ -65,17 +72,86 @@ class _DiscoveryState extends State<Discovery>
     );
   }
 
-  
-
   Widget _buildContent() {
-    return Container(
-        width: 60,
-        child: ListView.builder(
-            itemCount: 20,
-            padding: const EdgeInsets.all(0),
-            itemBuilder: (context, index) {
-              return StationIcon();
-            }));
+    return Column(
+      children: [
+        _buildCatalogue(),
+        _buildMusic(),
+        _buildAge(),
+      ],
+    );
+  }
+
+  Widget _buildMusic() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
+          child: Text(
+            '音乐',
+            style:
+                TextStyle(fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
+          ),
+        ),
+        Wrap(
+          children: List.generate(10, (index) {
+            return Container(
+              padding: EdgeInsets.all(10.0),
+              child: StationIcon(),
+            );
+          }).toList(),
+        )
+      ],
+    );
+  }
+
+  Widget _buildAge() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
+          child: Text(
+            '年代',
+            style:
+                TextStyle(fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
+          ),
+        ),
+        Wrap(
+          children: List.generate(10, (index) {
+            return Container(
+              padding: EdgeInsets.all(10.0),
+              child: StationIcon(),
+            );
+          }).toList(),
+        )
+      ],
+    );
+  }
+
+  Widget _buildCatalogue() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
+          child: Text(
+            '类目',
+            style:
+                TextStyle(fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
+          ),
+        ),
+        Wrap(
+          children: List.generate(10, (index) {
+            return Container(
+              padding: EdgeInsets.all(10.0),
+              child: StationIcon(),
+            );
+          }).toList(),
+        )
+      ],
+    );
   }
 
   @override

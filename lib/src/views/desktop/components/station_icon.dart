@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
+import 'package:hiqradio/src/views/desktop/components/station_info.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class StationIcon extends StatelessWidget {
   final VoidCallback? onClicked;
@@ -13,39 +15,20 @@ class StationIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 60.0,
-      width: 60.0,
+      width: 180.0,
       child: Stack(
         children: [
-          SizedBox(
-            height: 60.0,
-            width: 60.0,
-            child: InkClick(
-              onTap: () => onClicked?.call(),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-                child: CachedNetworkImage(
-                  fit: BoxFit.fill,
-                  imageUrl:
-                      "https://pic.qtfm.cn/2012/0814/20120814015923282.jpg",
-                  placeholder: (context, url) {
-                    return Image.asset('assets/images/logo.png');
-                  },
-                  errorWidget: (context, url, error) {
-                    return Image.asset('assets/images/logo.png');
-                  },
-                ),
-              ),
-            ),
-          ),
+          StationInfo(
+              onClicked: () => onClicked?.call(), width: 180, height: 60),
           Positioned(
             bottom: 3.0,
-            right: 3.0,
+            left: 3.0,
             child: Container(
               width: 25.0,
               height: 25.0,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50.0),
-                color: Colors.red,
+                color: Colors.red.withOpacity(0.9),
               ),
               child: InkClick(
                 onTap: () => onPlayClicked?.call(),

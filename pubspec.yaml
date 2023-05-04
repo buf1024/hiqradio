@@ -38,13 +38,16 @@ dependencies:
   path: ^1.8.2
   window_manager: ^0.3.2
   flutter_bloc: ^8.1.1
-  bloc: ^8.1.0
   meta: ^1.8.0
   equatable: ^2.0.5
   crypto: ^3.0.2
   cached_network_image: ^3.2.3
-  just_audio: ^0.9.32
   data_table_2: ^2.4.1
+  url_launcher: ^6.1.10
+  dio: ^5.1.1
+  just_audio: ^0.9.32
+  flutter_hls_parser: ^2.0.1
+  hotkey_manager: ^0.1.7
 
 dev_dependencies:
   flutter_test:
@@ -72,7 +75,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/logo.png
-    - assets/files/emoji-flags.json
+    - assets/files/country.json
+    - assets/files/state.json
+    - assets/files/languages.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

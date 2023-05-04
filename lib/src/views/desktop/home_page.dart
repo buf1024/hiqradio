@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
+import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
+import 'package:hiqradio/src/views/desktop/components/play_ctrl.dart';
+import 'package:hiqradio/src/views/desktop/components/search.dart';
+import 'package:hiqradio/src/views/desktop/pages/customized.dart';
+import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:hiqradio/src/views/desktop/utils/nav.dart';
 import 'package:hiqradio/src/views/desktop/components/nav_bar.dart';
 import 'package:hiqradio/src/views/desktop/components/play_bar.dart';
 import 'package:hiqradio/src/views/desktop/components/title_bar.dart';
 import 'package:hiqradio/src/views/desktop/lock_page.dart';
-import 'package:hiqradio/src/views/desktop/pages/config.dart';
+import 'package:hiqradio/src/views/desktop/components/config.dart';
 import 'package:hiqradio/src/views/desktop/pages/discovery.dart';
 import 'package:hiqradio/src/views/desktop/pages/favorite.dart';
 import 'package:hiqradio/src/views/desktop/pages/station.dart';
@@ -28,15 +33,20 @@ class _HomePageState extends State<HomePage> {
 
   List<NavItem> topNavTabs = [
     NavItem(
-        type: NavType.discovery,
-        pos: NavPos.top,
-        label: '发现',
-        iconData: IconFont.discovery),
-    NavItem(
         type: NavType.station,
         pos: NavPos.top,
         label: '电台',
         iconData: IconFont.station),
+    NavItem(
+        type: NavType.customized,
+        pos: NavPos.top,
+        label: '自定',
+        iconData: IconFont.customized),
+    NavItem(
+        type: NavType.discovery,
+        pos: NavPos.top,
+        label: '发现',
+        iconData: IconFont.discovery),
   ];
 
   List<NavItem> bottomNavTabs = [
@@ -57,6 +67,9 @@ class _HomePageState extends State<HomePage> {
         iconData: IconFont.favorite),
   ];
 
+  bool isCompactMode = false;
+  Size preWinSize = const Size(900, 400);
+
   @override
   void initState() {
     super.initState();
@@ -76,23 +89,81 @@ class _HomePageState extends State<HomePage> {
       // backgroundColor: backgroundColor,
       body: Column(
         children: [
-          TitleBar(
-            // child: const Text('HiqRadio'),
-            onSearchChanged: (value) {},
-            onSearchClicked: () {},
-            onCompactClicked: () => onLockScreen(),
-            onConfigClicked: () async {
-              Size size = await windowManager.getSize();
-              // onShowConfigDialog(size.width - 80.0, size.height - 80.0);
-              onShowConfigDialog(400.0, size.height - 32);
-            },
-          ),
-          Expanded(
-            child: _buildBody(context),
-          ),
-          PlayBar(
-            onStatusTap: (type) => onStatusTap(type),
-          )
+          !isCompactMode
+              ? Expanded(
+                  child: Column(
+                    children: [
+                      TitleBar(
+                        onSearchChanged: (value) {},
+                        onSearchClicked: () async {
+                          
+                        },
+                        onCompactClicked: () async {
+                          Size size = await windowManager.getSize();
+                          preWinSize = size;
+
+                          await windowManager.setTitleBarStyle(
+                              TitleBarStyle.hidden,
+                              windowButtonVisibility: false);
+                          setState(() {
+                            isCompactMode = !isCompactMode;
+                          });
+                          await windowManager
+                              .setSize(const Size(314.0, kPlayBarHeight));
+                          await windowManager.setResizable(false);
+                        },
+                        onConfigClicked: () async {
+                          Size size = await windowManager.getSize();
+                          _onShowDlg(
+                              300.0,
+                              size.height - kTitleBarHeight - kPlayBarHeight,
+                              const Config());
+                        },
+                      ),
+                      Expanded(
+                        child: _buildBody(context),
+                      ),
+                      const PlayBar()
+                    ],
+                  ),
+                )
+              : SizedBox(
+                  height: kPlayBarHeight,
+                  child: Stack(
+                    children: [
+                      GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onPanStart: (details) {
+                          windowManager.startDragging();
+                        },
+                      ),
+                      Center(
+                        child: Row(
+                          children: [
+                            const PlayCtrl(),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: InkClick(
+                                child: const Icon(IconFont.quit, size: 20.0),
+                                onTap: () async {
+                                  await windowManager.setTitleBarStyle(
+                                      TitleBarStyle.hidden,
+                                      windowButtonVisibility: true);
+                                  await windowManager.setSize(preWinSize);
+
+                                  setState(() {
+                                    isCompactMode = !isCompactMode;
+                                  });
+                                },
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
         ],
       ),
     );
@@ -123,28 +194,13 @@ class _HomePageState extends State<HomePage> {
         controller: pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: const [
-          Discovery(),
           Station(),
+          Customized(),
+          Discovery(),
           Recently(),
           Record(),
           Favorite(),
         ]);
-    // return NavContent(
-    //   onContentResizeCallback: (width) {},
-    //   leftChild: PageView(
-    //     controller: pageController,
-    //     physics: const NeverScrollableScrollPhysics(),
-    //     children: const [
-    //       Discovery(),
-    //       Local(),
-    //       International(),
-    //       Recently(),
-    //       Record(),
-    //       Favorite(),
-    //     ],
-    //   ),
-    //   rightChild: const Text('right content'),
-    // );
   }
 
   void _onNavTabTap(NavPos pos, NavItem item) {
@@ -165,34 +221,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void onStatusTap(NavType type) async {
-    int index = topNavTabs.indexWhere((item) => item.type == type);
-    if (index >= 0) {
-      pageController.jumpToPage(index);
-      setState(() {
-        actNavItem = topNavTabs[index];
-      });
-    } else {
-      // if (type == NavType.notification) {
-      //   Size size = await windowManager.getSize();
-      //   onShowNotificationDialog(size.width - 80.0, size.height - 80.0);
-      // }
-    }
-  }
-
-  void onLockScreen() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const LockPage(),
-      ),
-    );
-  }
-
-  void onShowNotificationDialog(double width, double height) {
-    onShowConfigDialog(width, height);
-  }
-
-  void onShowConfigDialog(double width, double height) {
+  void _onShowDlg(double width, double height, Widget child) {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -200,56 +229,21 @@ class _HomePageState extends State<HomePage> {
       builder: (BuildContext context) {
         return Dialog(
           alignment: Alignment.centerRight,
-          insetPadding:
-              const EdgeInsets.only(top: 32.0, bottom: 0, right: 0, left: 0),
-          // backgroundColor: Colors.blue.withOpacity(0.8),
+          insetPadding: const EdgeInsets.only(
+              top: kTitleBarHeight, bottom: kPlayBarHeight, right: 0, left: 0),
           elevation: 2.0,
           shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10.0))),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(8.0),
+              bottomLeft: Radius.circular(8.0),
+            ),
+          ),
           child: SizedBox(
             width: width,
             height: height,
             child: Column(
               children: <Widget>[
-                Container(
-                  height: 32.0,
-                  decoration: const BoxDecoration(
-                    color: Colors.orangeAccent,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10.0),
-                        topRight: Radius.circular(10.0)),
-                  ),
-                  alignment: Alignment.center,
-                  child: const Text(
-                    '系统参数配置',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-                const Expanded(child: ConfigView()),
-                ButtonBar(
-                  children: <Widget>[
-                    MaterialButton(
-                      color: Colors.purple,
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text(
-                        '取消',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    MaterialButton(
-                      color: Colors.red,
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text(
-                        '确定',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                )
+                Expanded(child: child),
               ],
             ),
           ),

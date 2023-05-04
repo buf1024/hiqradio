@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
-import 'package:hiqradio/src/views/desktop/components/search_option.dart';
 import 'package:hiqradio/src/views/desktop/components/station_icon.dart';
 
-class Station extends StatefulWidget {
-  const Station({super.key});
+class Customized extends StatefulWidget {
+  const Customized({super.key});
 
   @override
-  State<Station> createState() => _StationState();
+  State<Customized> createState() => _CustomizedState();
 }
 
-class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
-  TextEditingController searchEditController = TextEditingController();
-  bool isOptionShow = false;
-
+class _CustomizedState extends State<Customized>
+    with AutomaticKeepAliveClientMixin {
   TextEditingController pageSizeEditController = TextEditingController();
   FocusNode pageSizeFocusNode = FocusNode();
   bool isPageSizeEditing = false;
@@ -49,7 +46,6 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
   @override
   void dispose() {
     super.dispose();
-    searchEditController.dispose();
 
     pageSizeEditController.dispose();
     pageSizeFocusNode.dispose();
@@ -66,10 +62,6 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSearch(),
-          const SizedBox(
-            height: 8.0,
-          ),
           _buildJumpInfo(),
           const SizedBox(
             height: 8.0,
@@ -77,55 +69,6 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
           Expanded(child: _buildContent())
         ],
       ),
-    );
-  }
-
-  Widget _buildSearch() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Text(
-                '搜索: ',
-                style: TextStyle(
-                    fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
-              ),
-            ),
-            SizedBox(
-              width: 250,
-              child: _searchField(searchEditController, (value) {
-                print('onsubmit: ${value}');
-              }),
-            ),
-            InkClick(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.5),
-                  ),
-                  borderRadius: BorderRadius.circular(4.0),
-                ),
-                child: Text(
-                  isOptionShow ? '隐藏选项' : '显示选项',
-                  style: TextStyle(
-                    fontSize: 13.0,
-                    color: Colors.white.withOpacity(0.8),
-                  ),
-                ),
-              ),
-              onTap: () {
-                setState(() {
-                  isOptionShow = !isOptionShow;
-                });
-              },
-            )
-          ],
-        ),
-        isOptionShow ? const SearchOption() : Container()
-      ],
     );
   }
 
@@ -317,55 +260,6 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
             child: StationIcon(),
           );
         }).toList(),
-      ),
-    );
-  }
-
-  Widget _searchField(
-      TextEditingController controller, ValueChanged valueChanged) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 4.0),
-      height: 26.0,
-      child: TextField(
-        controller: controller,
-        autofocus: true,
-        autocorrect: false,
-        obscuringCharacter: '*',
-        cursorWidth: 1.0,
-        cursorColor: Colors.grey.withOpacity(0.8),
-        style: TextStyle(fontSize: 12.0, color: Colors.grey.withOpacity(0.8)),
-        decoration: InputDecoration(
-          prefixIcon: Icon(Icons.search_outlined,
-              size: 18.0, color: Colors.grey.withOpacity(0.8)),
-          suffixIcon: controller.text.isNotEmpty
-              ? GestureDetector(
-                  onTap: () {
-                    controller.text = '';
-                    setState(() {});
-                  },
-                  child: Icon(Icons.close_outlined,
-                      size: 16.0, color: Colors.grey.withOpacity(0.8)),
-                )
-              : null,
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
-          fillColor: Colors.grey.withOpacity(0.2),
-          filled: true,
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
-            // borderRadius: BorderRadius.circular(50.0),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
-            // borderRadius: BorderRadius.circular(50.0),
-          ),
-        ),
-        onChanged: (value) {
-          setState(() {});
-        },
-        onSubmitted: (value) {
-          valueChanged.call(value);
-        },
       ),
     );
   }

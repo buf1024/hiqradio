@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 enum NavType {
   discovery,
   station,
+  customized,
   recently,
   record,
   mine

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiqradio/src/views/desktop/components/search.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:window_manager/window_manager.dart';
@@ -34,12 +35,22 @@ class _TitleBarState extends State<TitleBar> {
   TextEditingController searchEditController = TextEditingController();
   FocusNode searchEditNode = FocusNode();
 
+  OverlayEntry? searchOverlay;
+  bool isSearchOverlayShowing = false;
+  bool isMouseInSearchOverlay = false;
+
   @override
   void initState() {
     super.initState();
     // TODO from database
     themeMode = HiqThemeMode.system;
     searchEditNode.unfocus();
+
+    // searchEditNode.addListener(() {
+    //   if (!searchEditNode.hasFocus) {
+    //     _closeOverlay();
+    //   }
+    // });
   }
 
   @override
@@ -64,6 +75,7 @@ class _TitleBarState extends State<TitleBar> {
                 onPanStart: (details) {
                   windowManager.startDragging();
                 },
+                onTap: () => _closeOverlay(),
               ),
               Center(child: widget.child ?? Container()),
               _funcButtons()
@@ -130,50 +142,61 @@ class _TitleBarState extends State<TitleBar> {
       height: 26.0,
       width: 220.0,
       child: TextField(
-        controller: searchEditController,
-        focusNode: searchEditNode,
-        autofocus: true,
-        autocorrect: false,
-        obscuringCharacter: '*',
-        cursorWidth: 1.0,
-        showCursor: searchEditNode.hasFocus,
-        cursorColor: Colors.grey.withOpacity(0.8),
-        style: const TextStyle(fontSize: 12.0),
-        decoration: InputDecoration(
-          hintText: '电台搜索',
-          prefixIcon: Icon(Icons.search_outlined,
-              size: 18.0, color: Colors.grey.withOpacity(0.8)),
-          suffixIcon: searchEditController.text.isNotEmpty
-              ? GestureDetector(
-                  onTap: () {
-                    searchEditController.text = '';
-                    setState(() {});
-                    widget.onSearchChanged?.call('');
-                  },
-                  child: Icon(Icons.close_outlined,
-                      size: 16.0, color: Colors.grey.withOpacity(0.8)),
-                )
-              : null,
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
-          fillColor: Colors.grey.withOpacity(0.2),
-          filled: true,
-          focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
-              borderRadius: BorderRadius.circular(50.0)),
-          enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
-              borderRadius: BorderRadius.circular(50.0)),
-        ),
-        onChanged: (value) {
-          setState(() {});
-          widget.onSearchChanged?.call(value);
-        },
-        onTap: () {
-          setState(() {});
-          widget.onSearchClicked?.call();
-        },
-      ),
+          controller: searchEditController,
+          focusNode: searchEditNode,
+          autofocus: true,
+          autocorrect: false,
+          obscuringCharacter: '*',
+          cursorWidth: 1.0,
+          showCursor: searchEditNode.hasFocus,
+          cursorColor: Colors.grey.withOpacity(0.8),
+          style: const TextStyle(fontSize: 12.0),
+          decoration: InputDecoration(
+            hintText: '电台搜索',
+            prefixIcon: Icon(Icons.search_outlined,
+                size: 18.0, color: Colors.grey.withOpacity(0.8)),
+            suffixIcon: searchEditController.text.isNotEmpty
+                ? GestureDetector(
+                    onTap: () {
+                      searchEditController.text = '';
+                      setState(() {});
+                      widget.onSearchChanged?.call('');
+                    },
+                    child: Icon(Icons.close_outlined,
+                        size: 16.0, color: Colors.grey.withOpacity(0.8)),
+                  )
+                : null,
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
+            fillColor: Colors.grey.withOpacity(0.2),
+            filled: true,
+            focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
+                borderRadius: BorderRadius.circular(50.0)),
+            enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
+                borderRadius: BorderRadius.circular(50.0)),
+          ),
+          onChanged: (value) {
+            setState(() {});
+            widget.onSearchChanged?.call(value);
+          },
+          onTap: () async {
+            if (!isSearchOverlayShowing) {
+              setState(() {
+                isSearchOverlayShowing = true;
+                isMouseInSearchOverlay = false;
+              });
+
+              Size size = await windowManager.getSize();
+              _showSearchDlg(
+                  size.height - kTitleBarHeight - kPlayBarHeight, 300);
+              widget.onSearchClicked?.call();
+            }
+          },
+          onSubmitted: (value) {
+            searchEditNode.requestFocus();
+          }),
     );
   }
 
@@ -192,7 +215,7 @@ class _TitleBarState extends State<TitleBar> {
       }, '系统配置', IconFont.config),
       const SizedBox(width: 10.0),
       _funcButton((details) {
-        showThemeSwitchDialog(details.globalPosition);
+        _showThemeSwitchDialog(details.globalPosition);
       }, '主题: ${themeLabelMap[themeMode]}', IconFont.theme),
       const SizedBox(
         width: 16.0,
@@ -200,7 +223,7 @@ class _TitleBarState extends State<TitleBar> {
     ]);
   }
 
-  void showThemeSwitchDialog(Offset offset) {
+  void _showThemeSwitchDialog(Offset offset) {
     showMenu(
         context: context,
         shape: RoundedRectangleBorder(
@@ -244,11 +267,57 @@ class _TitleBarState extends State<TitleBar> {
         elevation: 8.0);
   }
 
-  void onThemeSwitch(HiqThemeMode mode) {
-    if (themeMode != mode) {
-      setState(() {
-        themeMode = mode;
-      });
+  // void _onThemeSwitch(HiqThemeMode mode) {
+  //   if (themeMode != mode) {
+  //     setState(() {
+  //       themeMode = mode;
+  //     });
+  //   }
+  // }
+
+  void _showSearchDlg(double height, double width) {
+    searchOverlay ??= OverlayEntry(
+        opaque: false,
+        builder: (context) {
+          // 猥琐发育
+          return Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.only(top: kTitleBarHeight),
+                child: ModalBarrier(
+                  onDismiss: () => _closeOverlay(),
+                ),
+              ),
+              Positioned(
+                top: kTitleBarHeight,
+                right: 0.0,
+                child: Material(
+                  child: MouseRegion(
+                    onEnter: (event) {
+                      isMouseInSearchOverlay = true;
+                    },
+                    onExit: (event) => isMouseInSearchOverlay = false,
+                    child: SizedBox(
+                      height: height,
+                      width: width,
+                      child: const Search(),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          );
+        });
+    Overlay.of(context).insert(searchOverlay!);
+  }
+
+  void _closeOverlay() {
+    if (searchOverlay != null &&
+        isSearchOverlayShowing &&
+        !isMouseInSearchOverlay) {
+      searchOverlay!.remove();
+      isSearchOverlayShowing = false;
+      isMouseInSearchOverlay = false;
     }
   }
 }

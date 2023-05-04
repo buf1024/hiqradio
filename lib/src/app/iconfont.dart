@@ -3,6 +3,9 @@ import 'package:flutter/widgets.dart';
 
 class IconFont {
   IconFont._();
+  static const IconData playlist = IconData(0xea71, fontFamily: "IconFont");
+  static const IconData stop = IconData(0xea89, fontFamily: "IconFont");
+  static const IconData customized = IconData(0xe605, fontFamily: "IconFont");
   static const IconData check = IconData(0xe637, fontFamily: "IconFont");
   static const IconData close = IconData(0xe60c, fontFamily: "IconFont");
   static const IconData station = IconData(0xe65b, fontFamily: "IconFont");
