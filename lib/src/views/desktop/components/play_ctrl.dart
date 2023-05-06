@@ -2,8 +2,11 @@ import 'dart:io';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hls_parser/flutter_hls_parser.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
+import 'package:hiqradio/src/blocs/app_cubit.dart';
+import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
 import 'package:hiqradio/src/utils/record.dart';
 import 'package:just_audio/just_audio.dart';
@@ -17,85 +20,65 @@ class PlayCtrl extends StatefulWidget {
 }
 
 class _PlayCtrlState extends State<PlayCtrl> {
-  final AudioPlayer player = AudioPlayer();
-
   final String url = '';
 
   late Isolate recordIsolate;
   late SendPort recordSendPort;
 
-  void _initIsolate() async {
-    ReceivePort recordReceivePort = ReceivePort();
-    recordIsolate =
-        await Isolate.spawn(doRecordWork, recordReceivePort.sendPort);
+  // void _initIsolate() async {
+  //   ReceivePort recordReceivePort = ReceivePort();
+  //   recordIsolate =
+  //       await Isolate.spawn(doRecordWork, recordReceivePort.sendPort);
 
-    recordReceivePort.listen((message) {
-      String cmd = message[0];
-      if (cmd == 'new') {
-        recordSendPort = message[1];
-      } else {
-        print('root receive: $message');
-      }
-    });
-  }
+  //   recordReceivePort.listen((message) {
+  //     String cmd = message[0];
+  //     if (cmd == 'new') {
+  //       recordSendPort = message[1];
+  //     } else {
+  //       print('root receive: $message');
+  //     }
+  //   });
+  // }
 
-  static void doRecordWork(SendPort sendPort) {
-    ReceivePort wReceivePort = ReceivePort();
-    SendPort wSendPort = wReceivePort.sendPort;
-    wReceivePort.listen((message) {
-      String cmd = message[0];
-      if (cmd == 'start') {
-        String url = message[1];
-        Record.start(url);
-        sendPort.send(['recording', '']);
-      } else if (cmd == 'stop') {
-        Record.stop();
-        sendPort.send(['recorded', '']);
-      }
-    });
-    sendPort.send(['new', wSendPort]);
-  }
+  // static void doRecordWork(SendPort sendPort) {
+  //   ReceivePort wReceivePort = ReceivePort();
+  //   SendPort wSendPort = wReceivePort.sendPort;
+  //   wReceivePort.listen((message) {
+  //     String cmd = message[0];
+  //     if (cmd == 'start') {
+  //       String url = message[1];
+  //       Record.start(url);
+  //       sendPort.send(['recording', '']);
+  //     } else if (cmd == 'stop') {
+  //       Record.stop();
+  //       sendPort.send(['recorded', '']);
+  //     }
+  //   });
+  //   sendPort.send(['new', wSendPort]);
+  // }
 
   @override
   void initState() {
     super.initState();
 
-    _initPlayer();
-    _initIsolate();
+    // _initIsolate();
   }
 
   @override
   void dispose() {
     super.dispose();
-    player.dispose();
-  }
-
-  Future<void> _initPlayer() async {
-    // Inform the operating system of our app's audio attributes etc.
-    // We pick a reasonable default for an app that plays speech.
-    final session = await AudioSession.instance;
-
-    await session.configure(const AudioSessionConfiguration.speech());
-
-    // Listen to errors during playback.
-    player.playbackEventStream.listen((event) {},
-        onError: (Object e, StackTrace stackTrace) {
-      print('A stream error occurred: $e');
-    });
-  }
-
-  Future<void> _setPlayerUrl(String url) async {
-    // Try to load audio from a source and catch any errors.
-    try {
-      await player.setAudioSource(AudioSource.uri(Uri.parse(url)));
-      print('done set audio');
-    } catch (e) {
-      print("Error loading audio source: $e");
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    Station? playingStation = context
+        .select<AppCubit, Station?>((value) => value.state.playingStation);
+
+    bool isPlaying =
+        context.select<AppCubit, bool>((value) => value.state.isPlaying);
+
+    bool isBuffering =
+        context.select<AppCubit, bool>((value) => value.state.isBuffering);
     return Container(
       width: 280.0,
       height: 54.0,
@@ -126,33 +109,10 @@ class _PlayCtrlState extends State<PlayCtrl> {
             child: InkClick(
               child: Icon(IconFont.previous,
                   size: 20.0, color: Colors.red.withOpacity(0.8)),
-              onTap: () async {
-                // String codes =
-                //     await rootBundle.loadString('assets/files/emoji-flags.json');
-                // List<dynamic> js = jsonDecode(codes);
-                // var map = HashMap<String, String>();
-                // js.forEach((element) {
-                //   Map<String, dynamic> jt = element as Map<String, dynamic>;
-                //   var c = jt['code'];
-                //   var emoji = jt['emoji'];
-                //   if (!map.containsKey(c)) {
-                //     map[c] = emoji;
-                //   }
-                // });
-                // print('CN=${map["CN"]}');
-              },
+              onTap: () async {},
             ),
           ),
-          StreamBuilder(
-            stream: player.playerStateStream,
-            builder: ((context, snapshot) {
-              final playerState = snapshot.data;
-              final processingState = playerState?.processingState;
-              final playing = playerState?.playing;
-
-              print('processingState: $processingState, playing: $playing');
-
-              return InkClick(
+          InkClick(
                 child: Container(
                   width: 50.0,
                   height: 50.0,
@@ -167,12 +127,12 @@ class _PlayCtrlState extends State<PlayCtrl> {
                           children: [
                             // 不能完全居中
                             SizedBox(
-                              width: ProcessingState.idle == processingState ||
-                          ProcessingState.completed == processingState ? 18.0 : 15.0,
+                              width: !isPlaying
+                                  ? 18.0
+                                  : 15.0,
                             ),
                             Icon(
-                              ProcessingState.idle == processingState ||
-                          ProcessingState.completed == processingState
+                              !isPlaying
                                   ? IconFont.play
                                   : IconFont.stop,
                               size: 20,
@@ -180,8 +140,7 @@ class _PlayCtrlState extends State<PlayCtrl> {
                           ],
                         ),
                       ),
-                      if (ProcessingState.buffering == processingState ||
-                          ProcessingState.loading == processingState)
+                      if (isBuffering)
                         Center(
                           child: SizedBox(
                             height: 50.0,
@@ -196,21 +155,16 @@ class _PlayCtrlState extends State<PlayCtrl> {
                   ),
                 ),
                 onTap: () async {
-                  if (playing != null && playing) {
-                    player.stop();
+                  if (isPlaying) {
+                    context.read<AppCubit>().stop();
                     // recordSendPort.send(['stop', '']);
                   } else {
-                    // String url =
-                    //     'https://live-play.cctvnews.cctv.com/cctv/hqzx192.m3u8';
-                    String url = 'https://lhttp.qtfm.cn/live/1259/64k.mp3';
-                    await _setPlayerUrl(url);
-                    player.play();
-                    // recordSendPort.send(['start', url]);
+                    if(playingStation != null) {
+                      context.read<AppCubit>().play(playingStation);
+                    }
                   }
                 },
-              );
-            }),
-          ),
+              ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: InkClick(

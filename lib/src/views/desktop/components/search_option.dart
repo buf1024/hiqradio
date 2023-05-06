@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
-import 'package:hiqradio/src/blocs/search_opt_cubit.dart';
-import 'package:hiqradio/src/blocs/search_opt_state.dart';
 import 'package:hiqradio/src/models/country.dart';
 import 'package:hiqradio/src/models/country_state.dart';
 import 'package:hiqradio/src/models/language.dart';
 import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
 import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
+import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:window_manager/window_manager.dart';
 
 class CountInfo<T> {
@@ -20,8 +19,19 @@ class CountInfo<T> {
 }
 
 class SearchOption extends StatefulWidget {
-  final Function(String?, String?, String?, List<String>?)? optionChanged;
-  const SearchOption({super.key, this.optionChanged});
+  final Function(String, String, String, List<String>) onOptionChanged;
+  final List<String> selectedTags;
+  final String selectedLanguage;
+  final String selectedCountry;
+  final String selectedState;
+  const SearchOption({
+    super.key,
+    required this.onOptionChanged,
+    required this.selectedTags,
+    required this.selectedLanguage,
+    required this.selectedCountry,
+    required this.selectedState,
+  });
 
   @override
   State<SearchOption> createState() => _MyWidgetState();
@@ -33,9 +43,52 @@ class _MyWidgetState extends State<SearchOption> {
   TextEditingController countryController = TextEditingController();
   TextEditingController stateController = TextEditingController();
 
+  OverlayEntry? optOverlay;
+
+  late String selectedLanguage;
+  late String selectedCountry;
+  late String selectedState;
+  late List<String> selectedTags;
+
+  String displaySelectedLanguage = '';
+  String displaySelectedCountry = '';
+  String displaySelectedState = '';
+
   @override
   void initState() {
     super.initState();
+
+    selectedLanguage = widget.selectedLanguage;
+    selectedCountry = widget.selectedCountry;
+    selectedState = widget.selectedState;
+    selectedTags = widget.selectedTags;
+
+    _getDisplay();
+  }
+
+  @override
+  void didUpdateWidget(covariant SearchOption oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    bool isUpdate = false;
+    if (oldWidget.selectedLanguage != widget.selectedLanguage) {
+      selectedLanguage = widget.selectedLanguage;
+      isUpdate = true;
+    }
+    if (oldWidget.selectedCountry != widget.selectedCountry) {
+      selectedCountry = widget.selectedCountry;
+      isUpdate = true;
+    }
+    if (oldWidget.selectedState != widget.selectedState) {
+      selectedState = widget.selectedState;
+      isUpdate = true;
+    }
+    if (oldWidget.selectedTags != widget.selectedTags) {
+      selectedTags = widget.selectedTags;
+      isUpdate = true;
+    }
+    if (isUpdate) {
+      _getDisplay();
+    }
   }
 
   @override
@@ -45,6 +98,23 @@ class _MyWidgetState extends State<SearchOption> {
     languageController.dispose();
     countryController.dispose();
     stateController.dispose();
+  }
+
+  void _getDisplay() {
+    displaySelectedLanguage =
+        selectedLanguage.isNotEmpty ? _getLangDisplay(selectedLanguage) : '';
+
+    displaySelectedCountry =
+        selectedCountry.isNotEmpty ? _getCountryDisplay(selectedCountry) : '';
+
+    displaySelectedState =
+        selectedState.isNotEmpty ? _getStateDisplay(selectedState) : '';
+  }
+
+  void _onOptionChanged() {
+    widget.onOptionChanged
+        .call(selectedCountry, selectedState, selectedLanguage, selectedTags);
+    setState(() {});
   }
 
   @override
@@ -66,33 +136,23 @@ class _MyWidgetState extends State<SearchOption> {
   }
 
   Widget _buildCountry() {
-    bool isCountryLoading = context.select<SearchOptCubit, bool>(
-        (value) => value.state.isCountriesLoading);
-    String selectedCountry = context
-        .select<SearchOptCubit, String>((value) => value.state.selectedCountry);
+    bool isCountryLoading = context
+        .select<AppCubit, bool>((value) => value.state.isCountriesLoading);
 
-    if (selectedCountry.isNotEmpty) {
-      selectedCountry = _getCountryDisplay(selectedCountry);
-    }
-    List<Country> countries = context.select<SearchOptCubit, List<Country>>(
-        (value) => value.state.countries);
+    List<Country> countries = context
+        .select<AppCubit, List<Country>>((value) => value.state.countries);
 
-    bool isStateLoading = context
-        .select<SearchOptCubit, bool>((value) => value.state.isStateLoading);
-    String selectedState = context
-        .select<SearchOptCubit, String>((value) => value.state.selectedState);
+    bool isStateLoading =
+        context.select<AppCubit, bool>((value) => value.state.isStateLoading);
 
-    if (selectedState.isNotEmpty) {
-      selectedState = _getStateDisplay(selectedState);
-    }
     List<CountryState> states =
-        context.select<SearchOptCubit, List<CountryState>>((value) {
+        context.select<AppCubit, List<CountryState>>((value) {
       if (value.state.states.isEmpty ||
-          value.state.selectedCountry.isEmpty ||
-          value.state.states[value.state.selectedCountry] == null) {
+          selectedCountry.isEmpty ||
+          value.state.states[selectedCountry] == null) {
         return const [];
       } else {
-        return value.state.states[value.state.selectedCountry]!;
+        return value.state.states[selectedCountry]!;
       }
     });
 
@@ -119,7 +179,9 @@ class _MyWidgetState extends State<SearchOption> {
             child: Row(
               children: [
                 Text(
-                  selectedCountry.isEmpty ? '国家/地区' : selectedCountry,
+                  displaySelectedCountry.isEmpty
+                      ? '国家/地区'
+                      : displaySelectedCountry,
                   style: TextStyle(
                     fontSize: 13.0,
                     color: Colors.white.withOpacity(0.8),
@@ -140,7 +202,7 @@ class _MyWidgetState extends State<SearchOption> {
           ),
           onTap: () async {
             if (countries.isEmpty) {
-              countries = await context.read<SearchOptCubit>().loadCountries();
+              countries = await context.read<AppCubit>().loadCountries();
             }
             if (countries.isNotEmpty) {
               List<CountInfo<Country>> allCountries = countries.map(
@@ -159,20 +221,22 @@ class _MyWidgetState extends State<SearchOption> {
                   onConfirmed: (isModified, selected, selectedInfo) {
                     if (isModified) {
                       String tmp = selected.isEmpty ? '' : selected[0];
-                      if (tmp != selectedCountry) {
-                        selectedCountry = tmp;
-                        String countryCode = '';
-                        if (selectedCountry.isNotEmpty) {
+                      if (tmp != displaySelectedCountry) {
+                        displaySelectedCountry = tmp;
+
+                        selectedCountry = '';
+                        if (displaySelectedCountry.isNotEmpty) {
                           Country country = selectedInfo[0].data!;
-                          countryCode = country.countrycode!;
+                          selectedCountry = country.countrycode!;
                         }
-                        context
-                            .read<SearchOptCubit>()
-                            .selectCountry(countryCode);
+
+                        _onOptionChanged();
                       }
                     }
                   },
-                  selected: selectedCountry.isEmpty ? [] : [selectedCountry],
+                  selected: displaySelectedCountry.isEmpty
+                      ? []
+                      : [displaySelectedCountry],
                   isMulSelected: false,
                   width: size.width * 0.3,
                   height: size.height * 0.7);
@@ -195,7 +259,7 @@ class _MyWidgetState extends State<SearchOption> {
             child: Row(
               children: [
                 Text(
-                  selectedState.isEmpty ? '省/州' : selectedState,
+                  displaySelectedState.isEmpty ? '省/州' : displaySelectedState,
                   style: TextStyle(
                     fontSize: 14.0,
                     color: Colors.white.withOpacity(0.8),
@@ -216,7 +280,8 @@ class _MyWidgetState extends State<SearchOption> {
           ),
           onTap: () async {
             if (states.isEmpty && selectedCountry.isNotEmpty) {
-              states = await context.read<SearchOptCubit>().loadStates();
+              states =
+                  await context.read<AppCubit>().loadStates(selectedCountry);
             }
             if (states.isNotEmpty) {
               List<CountInfo<CountryState>> allStates = states.map(
@@ -234,18 +299,22 @@ class _MyWidgetState extends State<SearchOption> {
                   onConfirmed: (isModified, selected, selectedInfo) {
                     if (isModified) {
                       String tmp = selected.isEmpty ? '' : selected[0];
-                      if (tmp != selectedState) {
-                        selectedState = tmp;
-                        String theState = '';
-                        if (selectedState.isNotEmpty) {
+                      if (tmp != displaySelectedState) {
+                        displaySelectedState = tmp;
+
+                        selectedState = '';
+                        if (displaySelectedState.isNotEmpty) {
                           CountryState countryState = selectedInfo[0].data!;
-                          theState = countryState.state!;
+                          selectedState = countryState.state!;
                         }
-                        context.read<SearchOptCubit>().selectState(theState);
+
+                        _onOptionChanged();
                       }
                     }
                   },
-                  selected: selectedState.isEmpty ? [] : [selectedState],
+                  selected: displaySelectedState.isEmpty
+                      ? []
+                      : [displaySelectedState],
                   isMulSelected: false,
                   width: size.width * 0.3,
                   height: size.height * 0.7);
@@ -263,16 +332,11 @@ class _MyWidgetState extends State<SearchOption> {
   }
 
   Widget _buildLanguage() {
-    bool isLoading = context
-        .select<SearchOptCubit, bool>((value) => value.state.isLangLoading);
-    String selectedLanguage = context.select<SearchOptCubit, String>(
-        (value) => value.state.selectedLanguage);
+    bool isLangLoading =
+        context.select<AppCubit, bool>((value) => value.state.isLangLoading);
 
-    if (selectedLanguage.isNotEmpty) {
-      selectedLanguage = _getLangDisplay(selectedLanguage);
-    }
-    List<Language> languages = context.select<SearchOptCubit, List<Language>>(
-        (value) => value.state.languages);
+    List<Language> languages = context
+        .select<AppCubit, List<Language>>((value) => value.state.languages);
 
     return Row(
       children: [
@@ -297,13 +361,15 @@ class _MyWidgetState extends State<SearchOption> {
             child: Row(
               children: [
                 Text(
-                  selectedLanguage.isEmpty ? '所有' : selectedLanguage,
+                  displaySelectedLanguage.isEmpty
+                      ? '所有'
+                      : displaySelectedLanguage,
                   style: TextStyle(
                     fontSize: 13.0,
                     color: Colors.white.withOpacity(0.8),
                   ),
                 ),
-                if (isLoading)
+                if (isLangLoading)
                   Container(
                     height: 20.0,
                     width: 20.0,
@@ -318,7 +384,7 @@ class _MyWidgetState extends State<SearchOption> {
           ),
           onTap: () async {
             if (languages.isEmpty) {
-              languages = await context.read<SearchOptCubit>().loadLanguage();
+              languages = await context.read<AppCubit>().loadLanguage();
             }
             if (languages.isNotEmpty) {
               List<CountInfo<Language>> allLanguages = languages.map(
@@ -337,18 +403,21 @@ class _MyWidgetState extends State<SearchOption> {
                   onConfirmed: (isModified, selected, selectedInfo) {
                     if (isModified) {
                       String tmp = selected.isEmpty ? '' : selected[0];
-                      if (tmp != selectedLanguage) {
-                        selectedLanguage = tmp;
-                        String langCode = '';
-                        if (selectedLanguage.isNotEmpty) {
+                      if (tmp != displaySelectedLanguage) {
+                        displaySelectedLanguage = tmp;
+
+                        selectedLanguage = '';
+                        if (displaySelectedLanguage.isNotEmpty) {
                           Language language = selectedInfo[0].data!;
-                          langCode = language.languagecode!;
+                          selectedLanguage = language.languagecode!;
                         }
-                        context.read<SearchOptCubit>().selectLanguage(langCode);
+                        _onOptionChanged();
                       }
                     }
                   },
-                  selected: selectedLanguage.isEmpty ? [] : [selectedLanguage],
+                  selected: displaySelectedLanguage.isEmpty
+                      ? []
+                      : [displaySelectedLanguage],
                   isMulSelected: false,
                   width: size.width * 0.3,
                   height: size.height * 0.7);
@@ -360,13 +429,11 @@ class _MyWidgetState extends State<SearchOption> {
   }
 
   Widget _buildTagList() {
-    bool isTagLoading = context
-        .select<SearchOptCubit, bool>((value) => value.state.isTagLoading);
-    List<String> selectedTags = context.select<SearchOptCubit, List<String>>(
-        (value) => value.state.selectedTags);
+    bool isTagLoading =
+        context.select<AppCubit, bool>((value) => value.state.isTagLoading);
 
     List<Tag> tags =
-        context.select<SearchOptCubit, List<Tag>>((value) => value.state.tags);
+        context.select<AppCubit, List<Tag>>((value) => value.state.tags);
 
     return Row(
       children: [
@@ -381,8 +448,8 @@ class _MyWidgetState extends State<SearchOption> {
         InkClick(
           child: Container(
               height: 28.0,
-              width: 30.0,
-              padding: const EdgeInsets.symmetric(horizontal: 2.0),
+              width: !isTagLoading ? 30.0 : 48.0,
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               decoration: BoxDecoration(
                 border: Border.all(
                   color: Colors.white.withOpacity(0.5),
@@ -409,7 +476,7 @@ class _MyWidgetState extends State<SearchOption> {
               )),
           onTap: () async {
             if (tags.isEmpty) {
-              tags = await context.read<SearchOptCubit>().loadTags();
+              tags = await context.read<AppCubit>().loadTags();
             }
             if (tags.isNotEmpty) {
               List<CountInfo<Tag>> allTags = tags.map(
@@ -427,7 +494,7 @@ class _MyWidgetState extends State<SearchOption> {
                   onConfirmed: (isModified, selected, selectedInfo) {
                     if (isModified) {
                       selectedTags = selected;
-                      context.read<SearchOptCubit>().selectTag(selectedTags);
+                      _onOptionChanged();
                     }
                   },
                   selected: selectedTags,
@@ -443,7 +510,7 @@ class _MyWidgetState extends State<SearchOption> {
         selectedTags.isNotEmpty
             ? Expanded(
                 child: SizedBox(
-                  height: 22,
+                  height: 28.0,
                   child: ListView.builder(
                     itemCount: selectedTags.length,
                     scrollDirection: Axis.horizontal,
@@ -454,8 +521,8 @@ class _MyWidgetState extends State<SearchOption> {
                           InkClick(
                             child: Container(
                               height: 28.0,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 4.0),
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   color: Colors.white.withOpacity(0.5),
@@ -471,12 +538,8 @@ class _MyWidgetState extends State<SearchOption> {
                               ),
                             ),
                             onTap: () {
-                              setState(() {
-                                selectedTags.remove(tag);
-                                context
-                                    .read<SearchOptCubit>()
-                                    .selectTag(selectedTags);
-                              });
+                              selectedTags.remove(tag);
+                              _onOptionChanged();
                             },
                           ),
                           const SizedBox(
@@ -493,6 +556,13 @@ class _MyWidgetState extends State<SearchOption> {
     );
   }
 
+  void _popOverlay() {
+    if (optOverlay != null) {
+      optOverlay!.remove();
+      optOverlay = null;
+    }
+  }
+
   void _onShowDialog(
       {required TextEditingController editingController,
       required List<CountInfo> infos,
@@ -501,36 +571,94 @@ class _MyWidgetState extends State<SearchOption> {
       required bool isMulSelected,
       required double width,
       required double height}) async {
-    await showDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.0),
-      builder: (BuildContext context) {
-        return StatefulBuilder(builder: (context, setState) {
-          return Dialog(
+    // 为了弹出框事标题能够移动，只能猥琐发育
+    optOverlay = OverlayEntry(
+        opaque: false,
+        builder: (context) {
+          // 猥琐发育
+          return Stack(
             alignment: Alignment.center,
-            elevation: 2.0,
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10.0))),
-            child: Container(
-              width: width,
-              height: height,
-              padding: const EdgeInsets.all(8.0),
-              child: DialogContent(
-                editController: editingController,
-                infos: infos,
-                onConfirmed: (isModified, selected, selectedInfo) {
-                  onConfirmed.call(isModified, selected, selectedInfo);
-                  Navigator.of(context).pop(isModified);
-                },
-                selected: selected,
-                isMulSelected: isMulSelected,
+            children: [
+              Container(
+                padding: const EdgeInsets.only(top: kTitleBarHeight),
+                child: ModalBarrier(
+                  onDismiss: () {
+                    _popOverlay();
+                  },
+                ),
               ),
-            ),
+              Positioned(
+                top: (MediaQuery.of(context).size.height -
+                            height -
+                            kTitleBarHeight) /
+                        2 +
+                    kTitleBarHeight,
+                child: Material(
+                  child: StatefulBuilder(
+                    builder: (context, setState) {
+                      return Dialog(
+                        alignment: Alignment.center,
+                        elevation: 2.0,
+                        insetPadding: const EdgeInsets.all(0),
+                        shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10.0))),
+                        child: SizedBox(
+                          width: width,
+                          height: height,
+                          // padding: const EdgeInsets.all(8.0),
+                          child: DialogContent(
+                            editController: editingController,
+                            infos: infos,
+                            onConfirmed: (isModified, selected, selectedInfo) {
+                              onConfirmed.call(
+                                  isModified, selected, selectedInfo);
+                              // Navigator.of(context).pop(isModified);
+                              _popOverlay();
+                            },
+                            selected: selected,
+                            isMulSelected: isMulSelected,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
           );
         });
-      },
-    );
+    Overlay.of(context).insert(optOverlay!);
+    // await showDialog(
+    //   context: context,
+    //   barrierDismissible: true,
+    //   barrierColor: Colors.black.withOpacity(0.0),
+    //   builder: (BuildContext context) {
+    //     return StatefulBuilder(builder: (context, setState) {
+    //       return Dialog(
+    //         alignment: Alignment.center,
+    //         elevation: 2.0,
+    //         shape: const RoundedRectangleBorder(
+    //             borderRadius: BorderRadius.all(Radius.circular(10.0))),
+    //         child: Container(
+    //           width: width,
+    //           height: height,
+    //           padding: const EdgeInsets.all(8.0),
+    //           child: DialogContent(
+    //             editController: editingController,
+    //             infos: infos,
+    //             onConfirmed: (isModified, selected, selectedInfo) {
+    //               onConfirmed.call(isModified, selected, selectedInfo);
+    //               Navigator.of(context).pop(isModified);
+    //             },
+    //             selected: selected,
+    //             isMulSelected: isMulSelected,
+    //           ),
+    //         ),
+    //       );
+    //     });
+    //   },
+    // );
   }
 }
 
@@ -674,6 +802,9 @@ class _DialogContentState extends _OptionDialogState<DialogContent> {
             MaterialButton(
               onPressed: () {
                 setState(() {
+                  if (selected.isNotEmpty || selectedInfo.isNotEmpty) {
+                    isModified = true;
+                  }
                   selected = [];
                   selectedInfo = [];
                 });
@@ -718,8 +849,8 @@ abstract class _OptionDialogState<T extends StatefulWidget> extends State<T> {
   Widget searchField(
       TextEditingController controller, ValueChanged valueChanged) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 4.0),
-      height: 26.0,
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
+      height: 30.0,
       // width: 220.0,
       child: TextField(
         controller: controller,
@@ -729,7 +860,7 @@ abstract class _OptionDialogState<T extends StatefulWidget> extends State<T> {
         cursorWidth: 1.0,
         // showCursor: focusNode.hasFocus,
         cursorColor: Colors.grey.withOpacity(0.8),
-        style: TextStyle(fontSize: 12.0, color: Colors.grey.withOpacity(0.8)),
+        style: TextStyle(fontSize: 13.0, color: Colors.grey.withOpacity(0.8)),
         decoration: InputDecoration(
           // hintText: '过滤',
           prefixIcon: Icon(Icons.search_outlined,

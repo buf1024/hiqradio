@@ -25,6 +25,7 @@ class CountryInfo {
   final String flag;
   final String name;
   final String nameNative;
+  final String nameRemote;
   final String languageCode;
 
   CountryInfo({
@@ -32,6 +33,7 @@ class CountryInfo {
     required this.flag,
     required this.name,
     required this.nameNative,
+    required this.nameRemote,
     required this.languageCode,
   });
 
@@ -41,7 +43,12 @@ class CountryInfo {
         flag: js['f'],
         name: js['n'],
         nameNative: js['nn'],
+        nameRemote: js['nr'] ?? js['nn'],
         languageCode: js['l']);
+  }
+  @override
+  String toString() {
+    return 'CountryInfo{cca2: $cca2, flag: $flag, name: $name, nameNative: $nameNative, nameRemote: $nameRemote, languageCode: $languageCode}';
   }
 }
 // {"AW": {"f": "🇦🇼", "n": "Aruba", "nn": "Aruba", "l": "nl", "ln": "xxx", "lnn": "xxx"}
@@ -56,6 +63,7 @@ class ResManager {
   final Map<String, String> _stateR2LMap = HashMap();
   final Map<String, CountryInfo> _countryMap = HashMap();
   final Map<String, LanguageInfo> _langMap = HashMap();
+  final Map<String, String> _nativeLangMap = HashMap();
 
   Future<void> initRes() async {
     if (isInit) {
@@ -86,6 +94,13 @@ class ResManager {
     map.forEach((key, value) {
       _langMap[key] = LanguageInfo.fromJson(key, value);
     });
+
+    languages = await rootBundle.loadString('assets/files/languages-nmap.json');
+    map = jsonDecode(languages);
+    map.forEach((key, value) {
+      _nativeLangMap[key] = value.toString();
+    });
+
     isInit = true;
   }
 
@@ -93,4 +108,5 @@ class ResManager {
   get cnR2LMap => _stateR2LMap;
   get countryMap => _countryMap;
   get langMap => _langMap;
+  get nativeLangMap => _nativeLangMap;
 }

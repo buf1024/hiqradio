@@ -257,7 +257,10 @@ class _CustomizedState extends State<Customized>
         children: List.generate(100, (index) {
           return Container(
             padding: EdgeInsets.all(10.0),
-            child: StationIcon(),
+            child: 
+            // todo
+            // StationIcon(),
+            const Text('todo'),
           );
         }).toList(),
       ),

@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hiqradio/src/blocs/app_cubit.dart';
+import 'package:hiqradio/src/blocs/my_station_cubit.dart';
+import 'package:hiqradio/src/models/country_state.dart';
+import 'package:hiqradio/src/models/station.dart';
+import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
 import 'package:hiqradio/src/views/desktop/components/search_option.dart';
 import 'package:hiqradio/src/views/desktop/components/station_icon.dart';
 
-class Station extends StatefulWidget {
-  const Station({super.key});
+class MyStation extends StatefulWidget {
+  const MyStation({super.key});
 
   @override
-  State<Station> createState() => _StationState();
+  State<MyStation> createState() => _MyStationState();
 }
 
-class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
+class _MyStationState extends State<MyStation>
+    with AutomaticKeepAliveClientMixin {
   TextEditingController searchEditController = TextEditingController();
   bool isOptionShow = false;
 
@@ -22,16 +29,21 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
   FocusNode pageFocusNode = FocusNode();
   bool isPageEditing = false;
 
-  int pageSize = 20;
-  int page = 1;
-  int totalSize = 37002;
-
   @override
   void initState() {
     super.initState();
 
+    context.read<MyStationCubit>().initSearch();
+    searchEditController.text = context.read<MyStationCubit>().lastSearch();
+
     pageSizeFocusNode.addListener(() {
       if (!pageSizeFocusNode.hasFocus) {
+        if (isPageSizeEditing) {
+          int? pageSize = int.tryParse(pageSizeEditController.text);
+          if (pageSize != null) {
+            context.read<MyStationCubit>().changePageSize(pageSize);
+          }
+        }
         setState(() {
           isPageSizeEditing = !isPageSizeEditing;
         });
@@ -39,6 +51,13 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
     });
     pageFocusNode.addListener(() {
       if (!pageFocusNode.hasFocus) {
+        if (isPageEditing) {
+          int? page = int.tryParse(pageEditController.text);
+          if (page != null) {
+            context.read<MyStationCubit>().changePage(page);
+          }
+        }
+
         setState(() {
           isPageEditing = !isPageEditing;
         });
@@ -61,6 +80,10 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    bool isSearching = context
+        .select<MyStationCubit, bool>((value) => value.state.isSearching);
+        
     return Container(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -74,30 +97,73 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
           const SizedBox(
             height: 8.0,
           ),
-          Expanded(child: _buildContent())
+          Expanded(
+            child: !isSearching
+                ? _buildContent()
+                : Center(
+                    child: CircularProgressIndicator(
+                        color: Colors.white.withOpacity(0.8), strokeWidth: 2.0),
+                  ),
+          )
         ],
       ),
     );
   }
 
+  void _onSearch(String value, String country, String countryState,
+      String language, List<String> tags) {
+    context.read<MyStationCubit>().search(value,
+        country: country,
+        countryState: countryState,
+        language: language,
+        tags: tags);
+  }
+
   Widget _buildSearch() {
+    String selectedCountry = context
+        .select<MyStationCubit, String>((value) => value.state.selectedCountry);
+    String selectedState = context
+        .select<MyStationCubit, String>((value) => value.state.selectedState);
+    String selectedLanguage = context.select<MyStationCubit, String>(
+        (value) => value.state.selectedLanguage);
+    List<String> selectedTags = context.select<MyStationCubit, List<String>>(
+        (value) => value.state.selectedTags);
+
     return Column(
       children: [
         Row(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Text(
-                '搜索: ',
-                style: TextStyle(
-                    fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
-              ),
-            ),
             SizedBox(
               width: 250,
               child: _searchField(searchEditController, (value) {
-                print('onsubmit: ${value}');
+                _onSearch(searchEditController.text, selectedCountry,
+                    selectedState, selectedLanguage, selectedTags);
               }),
+            ),
+            InkClick(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.5),
+                  ),
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                child: Text(
+                  '搜索',
+                  style: TextStyle(
+                    fontSize: 13.0,
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                ),
+              ),
+              onTap: () {
+                _onSearch(searchEditController.text, selectedCountry,
+                    selectedState, selectedLanguage, selectedTags);
+              },
+            ),
+            const SizedBox(
+              width: 8.0,
             ),
             InkClick(
               child: Container(
@@ -124,16 +190,35 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
             )
           ],
         ),
-        isOptionShow ? const SearchOption() : Container()
+        isOptionShow
+            ? SearchOption(
+                onOptionChanged: (country, countryState, language, tags) {
+                  context.read<MyStationCubit>().changeSearchOption(
+                      country, countryState, language, tags);
+                },
+                selectedCountry: selectedCountry,
+                selectedLanguage: selectedLanguage,
+                selectedState: selectedState,
+                selectedTags: selectedTags)
+            : Container()
       ],
     );
   }
 
   Widget _buildJumpInfo() {
-    int totalPage = totalSize ~/ pageSize;
-    if (totalSize % pageSize > 0) {
-      totalPage += 1;
-    }
+    int totalPage =
+        context.select<MyStationCubit, int>((value) => value.state.totalPage);
+
+    int totalSize =
+        context.select<MyStationCubit, int>((value) => value.state.totalSize);
+
+    int pageSize =
+        context.select<MyStationCubit, int>((value) => value.state.pageSize);
+    pageSizeEditController.text = '$pageSize';
+
+    int page = context.select<MyStationCubit, int>((value) => value.state.page);
+    pageEditController.text = '$page';
+
     return Container(
       padding: const EdgeInsets.all(6.0),
       decoration: BoxDecoration(color: Colors.grey.withOpacity(0.1)),
@@ -177,12 +262,7 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
             ),
           ),
           _buildEditing(isPageSizeEditing, pageSizeEditController,
-              pageSizeFocusNode, '$pageSize', (value) {
-            int? v = int.tryParse(value);
-            if (v != null) {
-              pageSize = v;
-            }
-          }, () {
+              pageSizeFocusNode, '$pageSize', () {
             isPageSizeEditing = true;
             setState(() {});
           }),
@@ -218,13 +298,7 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
             ),
           ),
           _buildEditing(
-              isPageEditing, pageEditController, pageFocusNode, '$page',
-              (value) {
-            int? v = int.tryParse(value);
-            if (v != null) {
-              page = v;
-            }
-          }, () {
+              isPageEditing, pageEditController, pageFocusNode, '$page', () {
             isPageEditing = true;
             setState(() {});
           }),
@@ -236,6 +310,54 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
                   color: Colors.white.withOpacity(0.9), fontSize: 13.0),
             ),
           ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: InkClick(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.5),
+                  ),
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                child: Text(
+                  '前一页',
+                  style: TextStyle(
+                    fontSize: 13.0,
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                ),
+              ),
+              onTap: () {
+                context.read<MyStationCubit>().changePage(page - 1);
+              },
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: InkClick(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.5),
+                  ),
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                child: Text(
+                  '后一页',
+                  style: TextStyle(
+                    fontSize: 13.0,
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                ),
+              ),
+              onTap: () {
+                context.read<MyStationCubit>().changePage(page + 1);
+              },
+            ),
+          ),
           const SizedBox(
             width: 6.0,
           )
@@ -244,13 +366,8 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  Widget _buildEditing(
-      bool test,
-      TextEditingController controller,
-      FocusNode focusNode,
-      String text,
-      ValueChanged<String> onChanged,
-      VoidCallback onEditSwitch) {
+  Widget _buildEditing(bool test, TextEditingController controller,
+      FocusNode focusNode, String text, VoidCallback onEditSwitch) {
     return test
         ? SizedBox(
             // padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -280,7 +397,10 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
                     borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
                     borderRadius: BorderRadius.circular(5.0)),
               ),
-              onChanged: (value) => onChanged(value),
+              // onChanged: (value) => onChanged(value),
+              // onSubmitted: (value) {
+              //   print('onSubmitted: $value');
+              // },
             ),
           )
         : InkClick(
@@ -309,14 +429,50 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
   }
 
   Widget _buildContent() {
-    return SingleChildScrollView(
-      child: Wrap(
-        children: List.generate(100, (index) {
-          return Container(
-            padding: EdgeInsets.all(10.0),
-            child: StationIcon(),
-          );
-        }).toList(),
+    List<Station> stations = context.select<MyStationCubit, List<Station>>(
+        (value) => value.state.pagedStations);
+
+    Station? playingStation = context
+        .select<AppCubit, Station?>((value) => value.state.playingStation);
+
+    bool playingState =
+        context.select<AppCubit, bool>((value) => value.state.isPlaying);
+
+    bool bufferingState =
+        context.select<AppCubit, bool>((value) => value.state.isBuffering);
+
+    return SizedBox(
+      width: double.infinity,
+      child: SingleChildScrollView(
+        child: Wrap(
+          children: List.generate(stations.length, (index) {
+            Station station = stations[index];
+            bool isPlaying = playingStation != null &&
+                playingStation.urlResolved == station.urlResolved &&
+                playingState;
+            bool isBuffering = playingStation != null &&
+                playingStation.urlResolved == station.urlResolved &&
+                bufferingState;
+
+            return Container(
+              padding: const EdgeInsets.all(10.0),
+              child: StationIcon(
+                station: station,
+                isPlaying: isPlaying,
+                isBuffering: isBuffering,
+                onPlayClicked: () {
+                  print(
+                      'onPlayClicked station: ${station.name} isPlaying: $isPlaying isBuffering: $isBuffering');
+                  if (!isPlaying) {
+                    context.read<AppCubit>().play(station);
+                  } else {
+                    context.read<AppCubit>().stop();
+                  }
+                },
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -324,7 +480,7 @@ class _StationState extends State<Station> with AutomaticKeepAliveClientMixin {
   Widget _searchField(
       TextEditingController controller, ValueChanged valueChanged) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 4.0),
+      padding: const EdgeInsets.only(top: 1.0, bottom: 1.0, right: 8.0),
       height: 26.0,
       child: TextField(
         controller: controller,

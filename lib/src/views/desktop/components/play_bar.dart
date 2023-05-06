@@ -3,7 +3,10 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
+import 'package:hiqradio/src/blocs/app_cubit.dart';
+import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
 import 'package:hiqradio/src/views/desktop/components/play_ctrl.dart';
 import 'package:hiqradio/src/views/desktop/components/station_info.dart';
@@ -20,6 +23,9 @@ class PlayBar extends StatefulWidget {
 class _StatusBarState extends State<PlayBar> {
   @override
   Widget build(BuildContext context) {
+    Station? playingStation = context
+        .select<AppCubit, Station?>((value) => value.state.playingStation);
+
     Color dividerColor = Theme.of(context).dividerColor;
 
     return SizedBox(
@@ -38,7 +44,14 @@ class _StatusBarState extends State<PlayBar> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    StationInfo(onClicked: () => {}, width: 200, height: 54),
+                    playingStation == null
+                        ? Container()
+                        : StationInfo(
+                            onClicked: () => {},
+                            width: 200,
+                            height: 54,
+                            station: playingStation,
+                          ),
                     _buildFuncs(),
                   ],
                 ),

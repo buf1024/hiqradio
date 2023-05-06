@@ -60,7 +60,10 @@ class _DiscoveryState extends State<Discovery>
                   itemBuilder: (context, index) {
                     return const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 5.0),
-                      child: StationIcon(),
+                      child:
+                          // todo
+                          //  StationIcon(),
+                          Text('todo'),
                     );
                   },
                 ),
@@ -98,7 +101,10 @@ class _DiscoveryState extends State<Discovery>
           children: List.generate(10, (index) {
             return Container(
               padding: EdgeInsets.all(10.0),
-              child: StationIcon(),
+              child:
+                  // todo
+                  //  StationIcon(),
+                  const Text('todo'),
             );
           }).toList(),
         )
@@ -122,7 +128,10 @@ class _DiscoveryState extends State<Discovery>
           children: List.generate(10, (index) {
             return Container(
               padding: EdgeInsets.all(10.0),
-              child: StationIcon(),
+              child: 
+              // todo
+                      //  StationIcon(),
+                       Text('todo'),
             );
           }).toList(),
         )
@@ -146,7 +155,10 @@ class _DiscoveryState extends State<Discovery>
           children: List.generate(10, (index) {
             return Container(
               padding: EdgeInsets.all(10.0),
-              child: StationIcon(),
+              child: 
+              // todo
+                      //  StationIcon(),
+                       Text('todo'),
             );
           }).toList(),
         )

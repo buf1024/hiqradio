@@ -33,11 +33,12 @@ class Station extends Equatable {
   factory Station.fromJson(dynamic map) {
     return Station(
         stationuuid: map['stationuuid'],
-        name: map['name'],
+        name: (map['name'] as String).trim(),
         urlResolved: map['url_resolved'],
         homepage: map['homepage'],
         favicon: map['favicon'],
-        tags: map['tags'],
+        tags:
+            map['tags'] != null ? (map['tags'] as String).trim() : map['tags'],
         country: map['country'],
         countrycode: map['countrycode'],
         state: map['state'],
@@ -46,6 +47,52 @@ class Station extends Equatable {
         bitrate: map['bitrate']);
   }
 
+  Station copyWith({
+    int? id,
+    String? stationuuid,
+    String? name,
+    String? urlResolved,
+    String? homepage,
+    String? favicon,
+    String? tags,
+    String? country,
+    String? countrycode,
+    String? state,
+    String? language,
+    String? codec,
+    int? bitrate,
+  }) {
+    return Station(
+      id: id ?? this.id,
+      stationuuid: stationuuid ?? this.stationuuid,
+      name: name ?? this.name,
+      urlResolved: urlResolved ?? this.urlResolved,
+      homepage: homepage ?? this.homepage,
+      favicon: favicon ?? this.favicon,
+      tags: tags ?? this.tags,
+      country: country ?? this.country,
+      countrycode: countrycode ?? this.countrycode,
+      state: state ?? this.state,
+      language: language ?? this.language,
+      codec: codec ?? this.codec,
+      bitrate: bitrate ?? this.bitrate,
+    );
+  }
+
   @override
-  List<Object?> get props => [stationuuid];
+  List<Object?> get props => [
+        id,
+        stationuuid,
+        name,
+        urlResolved,
+        homepage,
+        favicon,
+        tags,
+        country,
+        countrycode,
+        state,
+        language,
+        codec,
+        bitrate
+      ];
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
+import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
 import 'package:hiqradio/src/views/desktop/components/play_ctrl.dart';
 import 'package:hiqradio/src/views/desktop/components/search.dart';
@@ -9,13 +11,13 @@ import 'package:hiqradio/src/views/desktop/utils/nav.dart';
 import 'package:hiqradio/src/views/desktop/components/nav_bar.dart';
 import 'package:hiqradio/src/views/desktop/components/play_bar.dart';
 import 'package:hiqradio/src/views/desktop/components/title_bar.dart';
-import 'package:hiqradio/src/views/desktop/lock_page.dart';
 import 'package:hiqradio/src/views/desktop/components/config.dart';
 import 'package:hiqradio/src/views/desktop/pages/discovery.dart';
 import 'package:hiqradio/src/views/desktop/pages/favorite.dart';
-import 'package:hiqradio/src/views/desktop/pages/station.dart';
+import 'package:hiqradio/src/views/desktop/pages/my_station.dart';
 import 'package:hiqradio/src/views/desktop/pages/recently.dart';
 import 'package:hiqradio/src/views/desktop/pages/record.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
 class HomePage extends StatefulWidget {
@@ -73,6 +75,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _registerHotKey();
 
     actNavItem = topNavTabs[0];
   }
@@ -81,6 +84,24 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     super.dispose();
     pageController.dispose();
+  }
+
+  void _registerHotKey() async {
+    HotKey hotKey = HotKey(
+      KeyCode.space,
+      // 设置热键范围（默认为 HotKeyScope.system）
+      scope: HotKeyScope.inapp, // 设置为应用范围的热键。
+    );
+    await hotKeyManager.register(
+      hotKey,
+      keyDownHandler: (hotKey) {
+        context.read<AppCubit>().pauseResume();
+      },
+      // 只在 macOS 上工作。
+      // keyUpHandler: (hotKey) {
+      //   print('onKeyUp+${hotKey.toJson()}');
+      // },
+    );
   }
 
   @override
@@ -95,9 +116,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       TitleBar(
                         onSearchChanged: (value) {},
-                        onSearchClicked: () async {
-                          
-                        },
+                        onSearchClicked: () async {},
                         onCompactClicked: () async {
                           Size size = await windowManager.getSize();
                           preWinSize = size;
@@ -194,7 +213,7 @@ class _HomePageState extends State<HomePage> {
         controller: pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: const [
-          Station(),
+          MyStation(),
           Customized(),
           Discovery(),
           Recently(),

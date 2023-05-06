@@ -167,8 +167,11 @@ class _SearchState extends State<Search> {
                   return ListTile(
                     contentPadding: const EdgeInsets.all(4.0),
                     splashColor: Colors.black.withOpacity(0),
-                    title: StationInfo(
-                        onClicked: () => {}, width: 200, height: 54),
+                    title: 
+                    // todo
+                    // StationInfo(
+                    //     onClicked: () => {}, width: 200, height: 54),
+                    const Text('todo'),
                     onTap: () => {},
                     mouseCursor: SystemMouseCursors.click,
                   );

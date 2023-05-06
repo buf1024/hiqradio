@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/app_theme_data.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
-import 'package:hiqradio/src/blocs/config_form/config_form_bloc.dart';
-import 'package:hiqradio/src/blocs/search_opt_cubit.dart';
+import 'package:hiqradio/src/blocs/my_station_cubit.dart';
 import 'package:hiqradio/src/views/desktop/components/win_ready.dart';
 import 'package:hiqradio/src/views/desktop/splash_page.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -37,34 +36,9 @@ void main() async {
     await windowManager.focus();
   });
 
-  await registerHotKey();
-
   runApp(const BlocWrap(child: MyApp()));
 
   // runApp(const MyApp());
-}
-
-Future<void> registerHotKey() async {
-  // ⌥ + Q
-  HotKey _hotKey = HotKey(
-    KeyCode.space,
-    // 设置热键范围（默认为 HotKeyScope.system）
-    scope: HotKeyScope.inapp, // 设置为应用范围的热键。
-  );
-  await hotKeyManager.register(
-    _hotKey,
-    keyDownHandler: (hotKey) {
-      print('onKeyDown+${hotKey.toJson()}');
-    },
-    // 只在 macOS 上工作。
-    keyUpHandler: (hotKey) {
-      print('onKeyUp+${hotKey.toJson()}');
-    },
-  );
-
-  // await hotKeyManager.unregister(_hotKey);
-
-  // await hotKeyManager.unregisterAll();
 }
 
 class BlocWrap extends StatelessWidget {
@@ -77,8 +51,8 @@ class BlocWrap extends StatelessWidget {
       BlocProvider<AppCubit>(
         create: (_) => AppCubit(),
       ),
-      BlocProvider<SearchOptCubit>(
-        create: (_) => SearchOptCubit(),
+      BlocProvider<MyStationCubit>(
+        create: (_) => MyStationCubit(),
       ),
     ], child: child);
   }
