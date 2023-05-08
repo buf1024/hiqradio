@@ -5,7 +5,7 @@ import 'package:hiqradio/src/blocs/my_station_cubit.dart';
 import 'package:hiqradio/src/models/country_state.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/constant.dart';
-import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
+import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/components/search_option.dart';
 import 'package:hiqradio/src/views/desktop/components/station_icon.dart';
 
@@ -34,7 +34,6 @@ class _MyStationState extends State<MyStation>
     super.initState();
 
     context.read<MyStationCubit>().initSearch();
-    searchEditController.text = context.read<MyStationCubit>().lastSearch();
 
     pageSizeFocusNode.addListener(() {
       if (!pageSizeFocusNode.hasFocus) {
@@ -83,7 +82,16 @@ class _MyStationState extends State<MyStation>
 
     bool isSearching = context
         .select<MyStationCubit, bool>((value) => value.state.isSearching);
-        
+
+    bool isFirstTrigger = context
+        .select<MyStationCubit, bool>((value) => value.state.isFirstTrigger);
+    if (isFirstTrigger) {
+      String searchText = context
+          .select<MyStationCubit, String>((value) => value.state.searchText);
+
+      searchEditController.text = searchText;
+    }
+
     return Container(
       padding: const EdgeInsets.all(8.0),
       child: Column(

@@ -104,6 +104,60 @@ class ResManager {
     isInit = true;
   }
 
+  String getLocationText(String? countrycode, String? countryState) {
+    String flag = '';
+    String country = '';
+    if (countrycode != null) {
+      Map<String, CountryInfo> map = ResManager.instance.countryMap;
+      CountryInfo? countryInfo = map[countrycode];
+      if (countryInfo != null) {
+        flag = countryInfo.flag;
+        country = countryInfo.nameNative;
+      }
+    }
+
+    countryState = countryState ?? '';
+
+    return '$flag $country $countryState';
+  }
+
+  String getLanguageText(String? language) {
+    language = language ?? '';
+    if (language.isNotEmpty) {
+      Map<String, String> map = ResManager.instance.nativeLangMap;
+      language = language.toLowerCase();
+      if (map.containsKey(language)) {
+        language = map[language]!;
+      }
+    }
+
+    return language;
+  }
+
+  String getStationInfoText(
+      String? countrycode, String? countryState, String? language) {
+    String flag = '';
+    if (countrycode != null) {
+      Map<String, CountryInfo> map = ResManager.instance.countryMap;
+      CountryInfo? countryInfo = map[countrycode];
+      if (countryInfo != null) {
+        flag = countryInfo.flag;
+      }
+    }
+    language = language ?? '';
+    if (language.isNotEmpty) {
+      Map<String, String> map = ResManager.instance.nativeLangMap;
+      language = language.toLowerCase();
+      if (map.containsKey(language)) {
+        language = map[language]!;
+      }
+    }
+
+    countryState = countryState ?? '';
+
+    return '$flag $language $countryState';
+  }
+
   get cnL2RMap => _stateL2RMap;
   get cnR2LMap => _stateR2LMap;
   get countryMap => _countryMap;

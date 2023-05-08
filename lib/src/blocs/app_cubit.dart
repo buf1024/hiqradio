@@ -2,15 +2,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/app_state.dart';
 import 'package:hiqradio/src/models/country.dart';
 import 'package:hiqradio/src/models/country_state.dart';
+import 'package:hiqradio/src/models/fav_group.dart';
 import 'package:hiqradio/src/models/language.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/models/tag.dart';
-import 'package:hiqradio/src/repository/radioapi/radioapi.dart';
+import 'package:hiqradio/src/repository/database/radiodb.dart';
+import 'package:hiqradio/src/repository/repository.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
 import 'package:just_audio/just_audio.dart';
 
 class AppCubit extends Cubit<AppState> {
   final AudioPlayer player = AudioPlayer();
+  final RadioRepository repo = RadioRepository.instance;
   AppCubit() : super(const AppState()) {
     player.playbackEventStream.listen((event) {},
         onError: (Object e, StackTrace stackTrace) {
@@ -39,6 +42,7 @@ class AppCubit extends Cubit<AppState> {
 
   void initApp() async {
     await ResManager.instance.initRes();
+    await RadioDB.create();
     await Future.delayed(const Duration(milliseconds: 1));
     emit(state.copyWith(isInit: true));
   }
@@ -51,7 +55,12 @@ class AppCubit extends Cubit<AppState> {
       if (state.playingStation != null && state.isPlaying) {
         await player.stop();
       }
-      emit(state.copyWith(playingStation: station));
+      FavGroup? group = await repo.loadGroup();
+      bool isFavStation = false;
+      if (group != null) {
+        isFavStation = await repo.isFavStation(station.stationuuid, group.id!);
+      }
+      emit(state.copyWith(playingStation: station, isFavStation: isFavStation));
       try {
         await player.setAudioSource(AudioSource.uri(Uri.parse(url)));
         await player.play();
@@ -87,22 +96,8 @@ class AppCubit extends Cubit<AppState> {
     if (state.languages.isEmpty) {
       emit(state.copyWith(isLangLoading: true));
 
-      RadioApi api = await RadioApi.create();
-      List<Language> languages = [];
-      var languageList = await api.languages();
-      for (var language in languageList) {
-        if (language['name'] == null ||
-            (language['name'] as String).isEmpty ||
-            language['iso_639'] == null ||
-            (language['iso_639'] as String).length > 2) {
-          continue;
-        }
-        String langCode = (language['iso_639'] as String).toLowerCase();
-        Map<String, LanguageInfo> map = ResManager.instance.langMap;
-        if (map.containsKey(langCode)) {
-          languages.add(Language.fromJson(language));
-        }
-      }
+      List<Language> languages = await RadioRepository.instance.loadLanguage();
+
       emit(state.copyWith(languages: languages, isLangLoading: false));
       return languages;
     }
@@ -113,22 +108,8 @@ class AppCubit extends Cubit<AppState> {
     if (state.countries.isEmpty) {
       emit(state.copyWith(isCountriesLoading: true));
 
-      RadioApi api = await RadioApi.create();
-      List<Country> countries = [];
-      var countriesList = await api.countries();
-      for (var country in countriesList) {
-        if (country['name'] == null ||
-            (country['name'] as String).isEmpty ||
-            country['iso_3166_1'] == null ||
-            (country['iso_3166_1'] as String).length > 2) {
-          continue;
-        }
-        String countryCode = (country['iso_3166_1'] as String).toUpperCase();
-        Map<String, CountryInfo> map = ResManager.instance.countryMap;
-        if (map.containsKey(countryCode)) {
-          countries.add(Country.fromJson(country));
-        }
-      }
+      List<Country> countries = await RadioRepository.instance.loadCountries();
+
       emit(state.copyWith(countries: countries, isCountriesLoading: false));
       return countries;
     }
@@ -139,51 +120,10 @@ class AppCubit extends Cubit<AppState> {
     if (selectedCountry.isNotEmpty) {
       if (state.states.isEmpty || state.states[selectedCountry] == null) {
         emit(state.copyWith(isStateLoading: true));
-        CountryInfo countryInfo =
-            ResManager.instance.countryMap[selectedCountry];
 
-        print('selectedCountry: $selectedCountry, countryInfo: $countryInfo');
-
-        Map<String, String> r2lMap = ResManager.instance.cnR2LMap;
-
-        RadioApi api = await RadioApi.create();
-        Map<String, CountryState> countryStatesMap = {};
-        var countryStatesList =
-            await api.states(country: countryInfo.nameRemote);
-        for (var countryState in countryStatesList) {
-          if (countryState['name'] == null ||
-              (countryState['name'] as String).isEmpty ||
-              countryState['country'] == null ||
-              (countryState['country'] as String).isEmpty) {
-            continue;
-          }
-
-          String? mlState = countryState['name'];
-          if (selectedCountry == 'CN') {
-            mlState = r2lMap[countryState['name']];
-          }
-          if (mlState != null) {
-            CountryState? mState = countryStatesMap[mlState];
-            CountryState tState = CountryState.fromJson(
-                countryState, countryInfo.name, countryInfo.cca2);
-            if (mState != null) {
-              countryStatesMap[mlState] = CountryState(
-                  country: countryInfo.name,
-                  countrycode: countryInfo.cca2,
-                  state: mlState,
-                  stationcount: tState.stationcount + mState.stationcount);
-            } else {
-              tState = CountryState(
-                  country: countryInfo.name,
-                  countrycode: countryInfo.cca2,
-                  state: mlState,
-                  stationcount: tState.stationcount);
-              countryStatesMap[mlState] = tState;
-            }
-          }
-        }
         var newState = Map.fromEntries(state.states.entries);
-        List<CountryState> countryStates = countryStatesMap.values.toList();
+        List<CountryState> countryStates =
+            await RadioRepository.instance.loadStates(selectedCountry);
         newState[selectedCountry] = countryStates;
         emit(state.copyWith(states: newState, isStateLoading: false));
         return countryStates;
@@ -198,18 +138,13 @@ class AppCubit extends Cubit<AppState> {
     if (state.tags.isEmpty) {
       emit(state.copyWith(isTagLoading: true));
 
-      RadioApi api = await RadioApi.create();
-      List<Tag> tags = [];
-      var tagsList = await api.tags();
-      for (var tag in tagsList) {
-        if (tag['name'] == null || (tag['name'] as String).isEmpty) {
-          continue;
-        }
-        tags.add(Tag.fromJson(tag));
-      }
+      List<Tag> tags = await RadioRepository.instance.loadTags();
       emit(state.copyWith(tags: tags, isTagLoading: false));
       return tags;
     }
     return state.tags;
+  }
+  void switchFavPlayingStation() {
+    emit(state.copyWith(isFavStation: !state.isFavStation));
   }
 }

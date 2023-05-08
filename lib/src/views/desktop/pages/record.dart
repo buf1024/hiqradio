@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
-import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
+import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 
 class Record extends StatefulWidget {
   const Record({super.key});

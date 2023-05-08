@@ -1,11 +1,14 @@
--- 缓存电台
-create table `cache`(
+//Auto Generated file. Do not edit.
+part of 'radiodb.dart';
+
+Future<void> createTables(Database db) async {
+    await db.execute("""create table `cache`(
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `table` VARCHAR(32) NOT NULL,
     `check_time` INTEGER NOT NULL
-);
-
-CREATE TABLE `station` (
+)
+""");
+  await db.execute("""CREATE TABLE `station` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `stationuuid` VARCHAR(40) NOT NULL,
     `name` VARCHAR(128) NOT NULL,
@@ -20,9 +23,9 @@ CREATE TABLE `station` (
     `codec` VARCHAR(16) NULL,
     `bitrate` INTEGER NULL,
     `is_custom` INTEGER NULL
-);
-
-create index `station_idx` on `station`(
+)
+""");
+  await db.execute("""create index `station_idx` on `station`(
     stationuuid,
     name,
     tags,
@@ -30,58 +33,63 @@ create index `station_idx` on `station`(
     countrycode,
     state,
     language
-);
-
-CREATE TABLE `playlist_detail` (
+)
+""");
+  await db.execute("""CREATE TABLE `playlist_detail` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `stationuuid` VARCHAR(40) NOT NULL,
     `playlist_id` INTEGER
-);
-
-create index `playlist_detail_idx` on `playlist_detail`(stationuuid, playlist_id);
-
-CREATE TABLE `playlist` (
+)
+""");
+  await db.execute("""create index `playlist_detail_idx` on `playlist_detail`(stationuuid, playlist_id)
+""");
+  await db.execute("""CREATE TABLE `playlist` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `create_time` INTEGER NOT NULL,
     `name` VARCHAR(255) NOT NULL,
     `desc` VARCHAR(1024) NULL
-);
-
-create index `playlist_name_idx` on `playlist`(name);
-
-
-
-CREATE TABLE `recently` (
+)
+""");
+  await db.execute("""create index `playlist_name_idx` on `playlist`(name)
+""");
+  await db.execute("""CREATE TABLE `recently` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `stationuuid` VARCHAR(40) NOT NULL,
     `start_time` INTEGER NOT NULL,
     `end_time` INTEGER NULL
-);
-
-create index `recently_idx` on `recently`(start_time, end_time);
-
-CREATE TABLE `record` (
+)
+""");
+  await db.execute("""create index `recently_idx` on `recently`(start_time, end_time)
+""");
+  await db.execute("""CREATE TABLE `record` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `stationuuid` VARCHAR(40) NOT NULL,
     `start_time` INTEGER NOT NULL,
     `end_time` INTEGER NULL,
     `file` VARCHAR(256) NULL
-);
-
-create index `record_idx` on `record`(start_time, end_time);
-
-CREATE TABLE `favorite` (
+)
+""");
+  await db.execute("""create index `record_idx` on `record`(start_time, end_time)
+""");
+  await db.execute("""CREATE TABLE `favorite` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `stationuuid` VARCHAR(40) NOT NULL,
     `group_id` INTEGER
-);
-
-CREATE TABLE `fav_group` (
+)
+""");
+  await db.execute("""CREATE TABLE `fav_group` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `create_time` INTEGER NOT NULL,
     `name` VARCHAR(255) NOT NULL,
     `desc` VARCHAR(1024) NULL,
     `is_def` INTEGER NULL
-);
+)
+""");
+  await db.execute("""create index `fav_group_idx` on `fav_group`(name)
+""");
+  await db.execute("""insert into
+    `fav_group`(create_time, name, desc, is_def)
+values
+    (1683473101747, '默认', '默认的Favorite分组', 1);""");
 
-create index `fav_group_idx` on `fav_group`(name);
+}

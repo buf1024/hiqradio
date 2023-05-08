@@ -1,1 +1,1 @@
-dart ./sql_builder.dart -i ./table.sql -o ../lib/src/data/tables.dart
+dart ./sql_builder.dart -i ./table.sql -o ../lib/src/repository/database/radiodb.g.dart

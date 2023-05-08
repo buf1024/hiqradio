@@ -1,19 +1,58 @@
+import 'dart:convert';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/my_station_state.dart';
 import 'package:hiqradio/src/models/station.dart';
-import 'package:hiqradio/src/repository/radioapi/radioapi.dart';
+import 'package:hiqradio/src/repository/repository.dart';
 import 'package:hiqradio/src/utils/constant.dart';
-import 'package:hiqradio/src/utils/res_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyStationCubit extends Cubit<MyStationState> {
   MyStationCubit() : super(const MyStationState());
 
-  String lastSearch() {
-    return state.searchText;
+  Future<Map<String, dynamic>?> _loadLastSearch() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    String? lastSearch = sp.getString(kSpMSLastSearch);
+    if (lastSearch != null) {
+      return jsonDecode(lastSearch);
+    }
+    return null;
+  }
+
+  void _saveLastSearch() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    Map<String, dynamic> map = {};
+    map['search'] = state.searchText;
+    map['opt_country'] = state.selectedCountry;
+    map['opt_state'] = state.selectedState;
+    map['opt_language'] = state.selectedLanguage;
+    map['opt_tags'] = state.selectedTags;
+
+    sp.setString(kSpMSLastSearch, jsonEncode(map));
   }
 
   void initSearch() async {
     if (state.isFirstTrigger) {
+      String searchText = state.searchText;
+      String country = state.selectedCountry;
+      String countryState = state.selectedState;
+      String language = state.selectedLanguage;
+      List<String> tags = state.selectedTags;
+      Map<String, dynamic>? map = await _loadLastSearch();
+      if (map != null) {
+        searchText = map['search'];
+        country = map['opt_country'];
+        countryState = map['opt_state'];
+        language = map['opt_language'];
+        tags = (map['opt_tags'] as List).map((e) => e as String).toList();
+
+        emit(state.copyWith(
+            searchText: searchText,
+            selectedCountry: country,
+            selectedState: countryState,
+            selectedLanguage: language,
+            selectedTags: tags));
+      }
       await search(state.searchText,
           country: state.selectedCountry,
           countryState: state.selectedState,
@@ -29,102 +68,28 @@ class MyStationCubit extends Cubit<MyStationState> {
       String language = '',
       List<String> tags = const []}) async {
     if (!state.isFirstTrigger) {
-      if (name == state.searchText &&
-          country == state.selectedCountry &&
-          countryState == state.selectedState &&
-          language == state.selectedLanguage &&
-          tags == state.selectedTags) {
+      if (!state.isConditionChanged && name == state.searchText) {
         return state.stations;
       }
     }
     if (!state.isSearching) {
+      _saveLastSearch();
+
       emit(state.copyWith(
         searchText: name,
+        isConditionChanged: false,
         isSearching: true,
         totalSize: 0,
         totalPage: 0,
         page: 0,
       ));
-      if (country.isNotEmpty) {
-        Map<String, CountryInfo> map = ResManager.instance.countryMap;
-        CountryInfo? countryInfo = map[country];
-        if (countryInfo != null) {
-          country = countryInfo.name;
-        }
-      }
-      List<String> cnStates = [];
-      if (countryState.isNotEmpty && country == 'China') {
-        Map<String, List<String>> map = ResManager.instance.cnL2RMap;
-        List<String>? stateInfo = map[countryState];
-        if (stateInfo != null) {
-          cnStates.addAll(stateInfo);
-        }
-      }
-      if (language.isNotEmpty) {
-        Map<String, LanguageInfo> map = ResManager.instance.langMap;
-        LanguageInfo? languageInfo = map[language];
-        if (languageInfo != null) {
-          language = languageInfo.name.toLowerCase();
-        }
-      }
-      print(
-          'search: $name, country: $country, countryState: $countryState, language: $language, tags: ${tags.join(',')}');
-      RadioApi api = await RadioApi.create();
-      List<Station> stations = [];
 
-      List<dynamic> stationsList = [];
-      if (cnStates.isEmpty) {
-        stationsList = await api.search(
-            name: name,
-            country: country.isEmpty ? null : country,
-            state: countryState.isEmpty ? null : countryState,
-            language: language.isEmpty ? null : language,
-            tagList: tags.isEmpty ? null : tags.join(','),
-            hidebroken: true);
-      } else {
-        for (var cnState in cnStates) {
-          List<dynamic> list = await api.search(
-              name: name,
-              country: country.isEmpty ? null : country,
-              state: cnState,
-              language: language.isEmpty ? null : language,
-              tagList: tags.isEmpty ? null : tags.join(','),
-              hidebroken: true);
-          stationsList.addAll(list);
-        }
-      }
+      List<Station> stations = await RadioRepository.instance.search(name,
+          country: country,
+          countryState: countryState,
+          language: language,
+          tags: tags);
 
-      Set<String> cache = {};
-
-      for (var station in stationsList) {
-        if (station['name'] == null ||
-            (station['name'] as String).isEmpty ||
-            station['url_resolved'] == null ||
-            (station['url_resolved'] as String).isEmpty) {
-          continue;
-        }
-        Station sStation = Station.fromJson(station);
-
-        if (sStation.countrycode != null &&
-            sStation.countrycode!.toUpperCase() == 'TW') {
-          continue;
-        }
-        if (!cache.contains(sStation.urlResolved)) {
-          if (((sStation.countrycode != null &&
-                      sStation.countrycode!.toUpperCase() == 'CN') ||
-                  (sStation.country != null &&
-                      sStation.country!.toUpperCase() == 'CHINA')) &&
-              (sStation.state != null && sStation.state!.isNotEmpty)) {
-            Map<String, String> map = ResManager.instance.cnR2LMap;
-            String? countryState = map[sStation.state];
-            sStation = sStation.copyWith(state: countryState ?? '');
-          }
-
-          stations.add(sStation);
-
-          cache.add(sStation.urlResolved);
-        }
-      }
       int totalSize = stations.length;
       int page = state.page;
       int totalPage = state.totalPage;
@@ -141,7 +106,7 @@ class MyStationCubit extends Cubit<MyStationState> {
           totalPage: totalPage,
           page: page,
           isSearching: false));
-      print('stations: ${stations.length}');
+
       return stations;
     }
     return state.stations;
@@ -173,25 +138,30 @@ class MyStationCubit extends Cubit<MyStationState> {
 
   void selectLanguage(String language) {
     if (state.selectedLanguage != language) {
-      emit(state.copyWith(selectedLanguage: language));
+      emit(
+          state.copyWith(selectedLanguage: language, isConditionChanged: true));
     }
   }
 
   void selectCountry(String country) {
     if (state.selectedCountry != country) {
-      emit(state.copyWith(selectedCountry: country, selectedState: ''));
+      emit(state.copyWith(
+          selectedCountry: country,
+          selectedState: '',
+          isConditionChanged: true));
     }
   }
 
   void selectState(String countryState) {
     if (state.selectedState != countryState) {
-      emit(state.copyWith(selectedState: countryState));
+      emit(state.copyWith(
+          selectedState: countryState, isConditionChanged: true));
     }
   }
 
   void selectTag(List<String> tags) {
     if (state.selectedTags != tags) {
-      emit(state.copyWith(selectedTags: tags));
+      emit(state.copyWith(selectedTags: tags, isConditionChanged: true));
     }
   }
 
@@ -222,7 +192,8 @@ class MyStationCubit extends Cubit<MyStationState> {
           selectedCountry: newCountry,
           selectedState: newCountryState,
           selectedLanguage: newLanguage,
-          selectedTags: newTags));
+          selectedTags: newTags,
+          isConditionChanged: true));
     }
   }
 }

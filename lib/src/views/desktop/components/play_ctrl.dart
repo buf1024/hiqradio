@@ -6,10 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hls_parser/flutter_hls_parser.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
+import 'package:hiqradio/src/blocs/favorite_cubit.dart';
+import 'package:hiqradio/src/blocs/favorite_state.dart';
 import 'package:hiqradio/src/models/station.dart';
-import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
-import 'package:hiqradio/src/utils/record.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 import 'dart:isolate';
 
 class PlayCtrl extends StatefulWidget {
@@ -79,6 +79,10 @@ class _PlayCtrlState extends State<PlayCtrl> {
 
     bool isBuffering =
         context.select<AppCubit, bool>((value) => value.state.isBuffering);
+
+    bool isFavStation =
+        context.select<AppCubit, bool>((value) => value.state.isFavStation);
+
     return Container(
       width: 280.0,
       height: 54.0,
@@ -96,11 +100,24 @@ class _PlayCtrlState extends State<PlayCtrl> {
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: InkClick(
               child: Icon(
-                IconFont.favoriteFill,
+                isFavStation ? IconFont.favoriteFill : IconFont.favorite,
                 size: 20.0,
-                color: Colors.red.withOpacity(0.8),
+                color: isFavStation
+                    ? Colors.red.withOpacity(0.8)
+                    : Colors.white.withOpacity(0.8),
               ),
-              onTap: () {},
+              onTap: () {
+                if (playingStation != null) {
+                  if (!isFavStation) {
+                    context
+                        .read<FavoriteCubit>()
+                        .addFavorite(null, playingStation);
+                  } else {
+                    context.read<FavoriteCubit>().delFavorite(playingStation);
+                  }
+                  context.read<AppCubit>().switchFavPlayingStation();
+                }
+              },
             ),
           ),
           const Spacer(),
@@ -113,58 +130,54 @@ class _PlayCtrlState extends State<PlayCtrl> {
             ),
           ),
           InkClick(
-                child: Container(
-                  width: 50.0,
-                  height: 50.0,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50.0),
-                    color: Colors.red.withOpacity(0.8),
+            child: Container(
+              width: 50.0,
+              height: 50.0,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50.0),
+                color: Colors.red.withOpacity(0.8),
+              ),
+              child: Stack(
+                children: [
+                  Center(
+                    child: Row(
+                      children: [
+                        // 不能完全居中
+                        SizedBox(
+                          width: !isPlaying ? 18.0 : 15.0,
+                        ),
+                        Icon(
+                          !isPlaying ? IconFont.play : IconFont.stop,
+                          size: 20,
+                        )
+                      ],
+                    ),
                   ),
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: Row(
-                          children: [
-                            // 不能完全居中
-                            SizedBox(
-                              width: !isPlaying
-                                  ? 18.0
-                                  : 15.0,
-                            ),
-                            Icon(
-                              !isPlaying
-                                  ? IconFont.play
-                                  : IconFont.stop,
-                              size: 20,
-                            )
-                          ],
+                  if (isBuffering)
+                    Center(
+                      child: SizedBox(
+                        height: 50.0,
+                        width: 50.0,
+                        child: CircularProgressIndicator(
+                          color: Colors.white.withOpacity(0.2),
+                          strokeWidth: 2.0,
                         ),
                       ),
-                      if (isBuffering)
-                        Center(
-                          child: SizedBox(
-                            height: 50.0,
-                            width: 50.0,
-                            child: CircularProgressIndicator(
-                              color: Colors.white.withOpacity(0.2),
-                              strokeWidth: 2.0,
-                            ),
-                          ),
-                        )
-                    ],
-                  ),
-                ),
-                onTap: () async {
-                  if (isPlaying) {
-                    context.read<AppCubit>().stop();
-                    // recordSendPort.send(['stop', '']);
-                  } else {
-                    if(playingStation != null) {
-                      context.read<AppCubit>().play(playingStation);
-                    }
-                  }
-                },
+                    )
+                ],
               ),
+            ),
+            onTap: () async {
+              if (isPlaying) {
+                context.read<AppCubit>().stop();
+                // recordSendPort.send(['stop', '']);
+              } else {
+                if (playingStation != null) {
+                  context.read<AppCubit>().play(playingStation);
+                }
+              }
+            },
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: InkClick(

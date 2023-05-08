@@ -8,8 +8,10 @@ class MyStationState extends Equatable {
   final List<Station> stations;
 
   final String searchText;
+  final bool isConditionChanged;
 
   final bool isSearching;
+  
 
   final int totalSize;
   final int pageSize;
@@ -25,6 +27,7 @@ class MyStationState extends Equatable {
     this.isFirstTrigger = true,
     this.stations = const [],
     this.searchText = kDefSearchText,
+    this.isConditionChanged = false,
     this.isSearching = false,
     this.totalSize = 0,
     this.pageSize = kDefPageSize,
@@ -40,6 +43,7 @@ class MyStationState extends Equatable {
     bool? isFirstTrigger,
     List<Station>? stations,
     String? searchText,
+    bool? isConditionChanged,
     bool? isSearching,
     int? totalSize,
     int? pageSize,
@@ -54,6 +58,7 @@ class MyStationState extends Equatable {
       isFirstTrigger: isFirstTrigger ?? this.isFirstTrigger,
       stations: stations ?? this.stations,
       searchText: searchText ?? this.searchText,
+      isConditionChanged: isConditionChanged ?? this.isConditionChanged,
       isSearching: isSearching ?? this.isSearching,
       totalSize: totalSize ?? this.totalSize,
       pageSize: pageSize ?? this.pageSize,
@@ -84,6 +89,8 @@ class MyStationState extends Equatable {
   List<Object?> get props => [
         isFirstTrigger,
         stations,
+        searchText,
+        isConditionChanged,
         isSearching,
         totalSize,
         pageSize,

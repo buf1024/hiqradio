@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
@@ -7,7 +8,7 @@ import 'package:hiqradio/src/models/country_state.dart';
 import 'package:hiqradio/src/models/language.dart';
 import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
-import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
+import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -629,36 +630,7 @@ class _MyWidgetState extends State<SearchOption> {
           );
         });
     Overlay.of(context).insert(optOverlay!);
-    // await showDialog(
-    //   context: context,
-    //   barrierDismissible: true,
-    //   barrierColor: Colors.black.withOpacity(0.0),
-    //   builder: (BuildContext context) {
-    //     return StatefulBuilder(builder: (context, setState) {
-    //       return Dialog(
-    //         alignment: Alignment.center,
-    //         elevation: 2.0,
-    //         shape: const RoundedRectangleBorder(
-    //             borderRadius: BorderRadius.all(Radius.circular(10.0))),
-    //         child: Container(
-    //           width: width,
-    //           height: height,
-    //           padding: const EdgeInsets.all(8.0),
-    //           child: DialogContent(
-    //             editController: editingController,
-    //             infos: infos,
-    //             onConfirmed: (isModified, selected, selectedInfo) {
-    //               onConfirmed.call(isModified, selected, selectedInfo);
-    //               Navigator.of(context).pop(isModified);
-    //             },
-    //             selected: selected,
-    //             isMulSelected: isMulSelected,
-    //           ),
-    //         ),
-    //       );
-    //     });
-    //   },
-    // );
+   
   }
 }
 
@@ -686,12 +658,20 @@ class _DialogContentState extends _OptionDialogState<DialogContent> {
   List<CountInfo> infos = [];
   bool isModified = false;
 
+  FocusNode focusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
     selected = List.from(widget.selected);
     infos = widget.infos;
     filterText = widget.editController.text;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    focusNode.dispose();
   }
 
   @override
@@ -703,6 +683,11 @@ class _DialogContentState extends _OptionDialogState<DialogContent> {
   }
 
   @override
+  void editFocusLost() {
+    focusNode.requestFocus();
+  }
+
+  @override
   Widget build(BuildContext context) {
     List<CountInfo> filteredInfo = filterText.isNotEmpty
         ? infos
@@ -711,149 +696,176 @@ class _DialogContentState extends _OptionDialogState<DialogContent> {
             .toList()
         : infos;
 
-    return Column(
-      children: <Widget>[
-        searchField(widget.editController, (value) {
-          setState(
-            () {
-              filterText = value;
+    return RawKeyboardListener(
+      focusNode: focusNode,
+      onKey: (event) {
+        if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
+          widget.onConfirmed.call(isModified, selected, selectedInfo);
+        }
+      },
+      child: Column(
+        children: <Widget>[
+          searchField(
+            widget.editController,
+            (value) {
+              setState(
+                () {
+                  filterText = value;
+                },
+              );
             },
-          );
-        }),
-        Expanded(
-          child: ListView.builder(
-            itemCount: filteredInfo.length,
-            itemBuilder: (BuildContext context, int index) {
-              CountInfo info = filteredInfo[index];
-              return InkClick(
-                onTap: () {
-                  if (widget.isMulSelected) {
-                    if (selected.contains(info.value)) {
-                      selected.remove(info.value);
-                      selectedInfo.remove(info);
-                    } else {
-                      selected.add(info.value);
-                      selectedInfo.add(info);
-                    }
-                  } else {
-                    if (selected.isEmpty) {
-                      selected = [info.value];
-                      selectedInfo = [info];
-                    } else {
-                      if (info.value == selected[0]) {
-                        selected = [];
-                        selectedInfo = [];
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredInfo.length,
+              itemBuilder: (BuildContext context, int index) {
+                CountInfo info = filteredInfo[index];
+                return InkClick(
+                  onTap: () {
+                    if (widget.isMulSelected) {
+                      if (selected.contains(info.value)) {
+                        selected.remove(info.value);
+                        selectedInfo.remove(info);
                       } else {
+                        selected.add(info.value);
+                        selectedInfo.add(info);
+                      }
+                    } else {
+                      if (selected.isEmpty) {
                         selected = [info.value];
                         selectedInfo = [info];
+                      } else {
+                        if (info.value == selected[0]) {
+                          selected = [];
+                          selectedInfo = [];
+                        } else {
+                          selected = [info.value];
+                          selectedInfo = [info];
+                        }
                       }
                     }
-                  }
 
-                  setState(() {
-                    isModified = true;
-                  });
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 5.0, horizontal: 2.0),
-                  child: Row(
-                    children: [
-                      selected.contains(info.value)
-                          ? Container(
-                              width: 20.0,
-                              padding: const EdgeInsets.all(2.0),
-                              child: const Icon(
-                                IconFont.check,
-                                size: 11.0,
+                    setState(() {
+                      isModified = true;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 5.0, horizontal: 2.0),
+                    child: Row(
+                      children: [
+                        selected.contains(info.value)
+                            ? Container(
+                                width: 20.0,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Icon(
+                                  IconFont.check,
+                                  size: 11.0,
+                                ),
+                              )
+                            : const SizedBox(
+                                width: 20.0,
                               ),
-                            )
-                          : const SizedBox(
-                              width: 20.0,
-                            ),
-                      Expanded(
-                        child: Text(
-                          info.value,
-                          overflow: TextOverflow.ellipsis,
+                        Expanded(
+                          child: Text(
+                            info.value,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 14.0,
+                                color: Colors.grey.withOpacity(0.8)),
+                          ),
+                        ),
+                        Text(
+                          '${info.count}',
                           style: TextStyle(
                               fontSize: 14.0,
                               color: Colors.grey.withOpacity(0.8)),
                         ),
-                      ),
-                      Text(
-                        '${info.count}',
-                        style: TextStyle(
-                            fontSize: 14.0,
-                            color: Colors.grey.withOpacity(0.8)),
-                      ),
-                      const SizedBox(
-                        width: 20.0,
-                      ),
-                    ],
+                        const SizedBox(
+                          width: 20.0,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
-        ButtonBar(
-          buttonPadding: const EdgeInsets.all(4.0),
-          children: <Widget>[
-            MaterialButton(
-              onPressed: () {
-                setState(() {
-                  if (selected.isNotEmpty || selectedInfo.isNotEmpty) {
-                    isModified = true;
-                  }
-                  selected = [];
-                  selectedInfo = [];
-                });
-              },
-              child: Text(
-                '清空',
-                style: TextStyle(
-                    color: Colors.white.withOpacity(0.8), fontSize: 13.0),
-              ),
-            ),
-            MaterialButton(
-              // color: Colors.red,
-              onPressed: () {
-                widget.onConfirmed.call(isModified, selected, selectedInfo);
-              },
-              child: Text('确定',
+          ButtonBar(
+            buttonPadding: const EdgeInsets.all(4.0),
+            children: <Widget>[
+              MaterialButton(
+                onPressed: () {
+                  setState(() {
+                    if (selected.isNotEmpty || selectedInfo.isNotEmpty) {
+                      isModified = true;
+                    }
+                    selected = [];
+                    selectedInfo = [];
+                  });
+                },
+                child: Text(
+                  '清空',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 13.0,
-                  )),
-            ),
-          ],
-        )
-      ],
+                      color: Colors.white.withOpacity(0.8), fontSize: 13.0),
+                ),
+              ),
+              MaterialButton(
+                // color: Colors.red,
+                onPressed: () {
+                  widget.onConfirmed.call(isModified, selected, selectedInfo);
+                },
+                child: Text('确定',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 13.0,
+                    )),
+              ),
+            ],
+          )
+        ],
+      ),
     );
   }
 }
 
 abstract class _OptionDialogState<T extends StatefulWidget> extends State<T> {
   String filterText = '';
+  final FocusNode _editFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
+    _editFocusNode.requestFocus();
+
+    _editFocusNode.addListener(() {
+      if(!_editFocusNode.hasFocus) {
+        editFocusLost();
+      }
+    });
   }
+    @override
+  void dispose() {
+    super.dispose();
+    _editFocusNode.dispose();
+  }
+
+  void editFocusLost() {}
 
   @override
   Widget build(BuildContext context) {
     return Container();
   }
 
-  Widget searchField(
-      TextEditingController controller, ValueChanged valueChanged) {
+  Widget searchField(TextEditingController controller,
+      ValueChanged valueChanged) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
       height: 30.0,
       // width: 220.0,
       child: TextField(
         controller: controller,
+        focusNode: _editFocusNode,
         autofocus: true,
         autocorrect: false,
         obscuringCharacter: '*',
@@ -890,7 +902,7 @@ abstract class _OptionDialogState<T extends StatefulWidget> extends State<T> {
         ),
         onChanged: (value) {
           valueChanged.call(value);
-        },
+        }
       ),
     );
   }

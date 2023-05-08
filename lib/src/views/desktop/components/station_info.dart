@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
-import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
+import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
+import 'package:hiqradio/src/views/desktop/components/station_placeholder.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class StationInfo extends StatelessWidget {
@@ -37,13 +38,22 @@ class StationInfo extends StatelessWidget {
                         fit: BoxFit.fill,
                         imageUrl: station.favicon!,
                         placeholder: (context, url) {
-                          return _placeHolder();
+                          return const StationPlaceholder(
+                            height: 60.0,
+                            width: 60.0,
+                          );
                         },
                         errorWidget: (context, url, error) {
-                          return _placeHolder();
+                          return const StationPlaceholder(
+                            height: 60.0,
+                            width: 60.0,
+                          );
                         },
                       )
-                    : _placeHolder(),
+                    : const StationPlaceholder(
+                        height: 60.0,
+                        width: 60.0,
+                      ),
               ),
             ),
           ),
@@ -58,7 +68,7 @@ class StationInfo extends StatelessWidget {
                 onTap: () async {
                   if (station.homepage != null) {
                     Uri url = Uri.parse(station.homepage!);
-                    !await launchUrl(url);
+                    await launchUrl(url);
                   }
                 },
                 child: SizedBox(
@@ -100,43 +110,7 @@ class StationInfo extends StatelessWidget {
   }
 
   String _getLocationText() {
-    String flag = '';
-    if (station.countrycode != null) {
-      Map<String, CountryInfo> map = ResManager.instance.countryMap;
-      CountryInfo? countryInfo = map[station.countrycode];
-      if (countryInfo != null) {
-        flag = countryInfo.flag;
-      }
-    }
-    String language = station.language ?? '';
-    if (language.isNotEmpty) {
-      Map<String, String> map = ResManager.instance.nativeLangMap;
-      language = language.toLowerCase();
-      if (map.containsKey(language)) {
-        language = map[language]!;
-      }
-    }
-
-    String countryState = station.state ?? '';
-
-    return '$flag $language $countryState';
-  }
-
-  Widget _placeHolder() {
-    return Container(
-      width: 60.0,
-      height: 60.0,
-      decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [
-        Colors.grey.withOpacity(0.3),
-        Colors.grey.withOpacity(0.5),
-      ])),
-      child: const Center(
-        child: Icon(
-          IconFont.station,
-          size: 25.0,
-        ),
-      ),
-    );
+    return ResManager.instance
+        .getStationInfoText(station.countrycode, station.state, station.language);
   }
 }

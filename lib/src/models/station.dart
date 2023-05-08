@@ -14,6 +14,7 @@ class Station extends Equatable {
   final String? language;
   final String? codec;
   final int? bitrate;
+  final int isCustom;
 
   const Station(
       {this.id,
@@ -28,23 +29,26 @@ class Station extends Equatable {
       this.state,
       this.language,
       this.codec,
-      this.bitrate});
+      this.bitrate,
+      this.isCustom = 0});
 
   factory Station.fromJson(dynamic map) {
     return Station(
-        stationuuid: map['stationuuid'],
-        name: (map['name'] as String).trim(),
-        urlResolved: map['url_resolved'],
-        homepage: map['homepage'],
-        favicon: map['favicon'],
-        tags:
-            map['tags'] != null ? (map['tags'] as String).trim() : map['tags'],
-        country: map['country'],
-        countrycode: map['countrycode'],
-        state: map['state'],
-        language: map['language'],
-        codec: map['codec'],
-        bitrate: map['bitrate']);
+      id: map['id'],
+      stationuuid: map['stationuuid'],
+      name: (map['name'] as String).trim(),
+      urlResolved: map['url_resolved'],
+      homepage: map['homepage'],
+      favicon: map['favicon'],
+      tags: map['tags'] != null ? (map['tags'] as String).trim() : map['tags'],
+      country: map['country'],
+      countrycode: map['countrycode'],
+      state: map['state'],
+      language: map['language'],
+      codec: map['codec'],
+      bitrate: map['bitrate'],
+      isCustom: map['is_custom'] ?? 0,
+    );
   }
 
   Station copyWith({
@@ -61,6 +65,7 @@ class Station extends Equatable {
     String? language,
     String? codec,
     int? bitrate,
+    int? isCustom,
   }) {
     return Station(
       id: id ?? this.id,
@@ -76,7 +81,28 @@ class Station extends Equatable {
       language: language ?? this.language,
       codec: codec ?? this.codec,
       bitrate: bitrate ?? this.bitrate,
+      isCustom: isCustom ?? this.isCustom,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> map = {
+      'id': id,
+      'stationuuid': stationuuid,
+      'name': name,
+      'url_resolved': urlResolved,
+      'homepage': homepage,
+      'favicon': favicon,
+      'tags': tags,
+      'country': country,
+      'countrycode': countrycode,
+      'state': state,
+      'language': language,
+      'codec': codec,
+      'bitrate': bitrate,
+      'is_custom': isCustom,
+    };
+    return map;
   }
 
   @override
@@ -93,6 +119,7 @@ class Station extends Equatable {
         state,
         language,
         codec,
-        bitrate
+        bitrate,
+        isCustom
       ];
 }

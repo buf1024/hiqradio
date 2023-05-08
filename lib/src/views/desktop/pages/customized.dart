@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hiqradio/src/views/desktop/components/InkClick.dart';
+import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/components/station_icon.dart';
 
 class Customized extends StatefulWidget {

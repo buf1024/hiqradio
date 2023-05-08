@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/app_theme_data.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
+import 'package:hiqradio/src/blocs/favorite_cubit.dart';
 import 'package:hiqradio/src/blocs/my_station_cubit.dart';
 import 'package:hiqradio/src/views/desktop/components/win_ready.dart';
 import 'package:hiqradio/src/views/desktop/splash_page.dart';
@@ -53,6 +54,9 @@ class BlocWrap extends StatelessWidget {
       ),
       BlocProvider<MyStationCubit>(
         create: (_) => MyStationCubit(),
+      ),
+      BlocProvider<FavoriteCubit>(
+        create: (_) => FavoriteCubit(),
       ),
     ], child: child);
   }

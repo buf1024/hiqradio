@@ -12,6 +12,7 @@ class AppState extends Equatable {
   final bool isPlaying;
   final bool isBuffering;
   final Station? playingStation;
+  final bool isFavStation;
 
   final bool isEditing;
 
@@ -30,6 +31,7 @@ class AppState extends Equatable {
     this.isPlaying = false,
     this.isBuffering = false,
     this.playingStation,
+    this.isFavStation = false,
     this.isEditing = false,
     this.languages = const [],
     this.states = const {},
@@ -46,6 +48,7 @@ class AppState extends Equatable {
     bool? isPlaying,
     bool? isBuffering,
     Station? playingStation,
+    bool? isFavStation,
     bool? isEditing,
     List<Language>? languages,
     Map<String, List<CountryState>>? states,
@@ -61,6 +64,7 @@ class AppState extends Equatable {
       isPlaying: isPlaying ?? this.isPlaying,
       isBuffering: isBuffering ?? this.isBuffering,
       playingStation: playingStation ?? this.playingStation,
+      isFavStation: isFavStation ?? this.isFavStation,
       isEditing: isEditing ?? this.isEditing,
       languages: languages ?? this.languages,
       states: states ?? this.states,
@@ -79,6 +83,7 @@ class AppState extends Equatable {
         isPlaying,
         isBuffering,
         playingStation,
+        isFavStation,
         isEditing,
         languages,
         states,

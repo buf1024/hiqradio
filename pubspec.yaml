@@ -48,6 +48,11 @@ dependencies:
   just_audio: ^0.9.32
   flutter_hls_parser: ^2.0.1
   hotkey_manager: ^0.1.7
+  sqflite: ^2.2.8+1
+  sqflite_common_ffi: ^2.2.5
+  shared_preferences: ^2.1.0
+  path_provider: ^2.0.14
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:
