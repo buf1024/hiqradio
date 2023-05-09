@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/favorite_cubit.dart';
+import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/models/fav_group.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
@@ -16,14 +17,14 @@ import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class Favorite extends StatefulWidget {
-  const Favorite({super.key});
+class MyFavorite extends StatefulWidget {
+  const MyFavorite({super.key});
 
   @override
-  State<Favorite> createState() => _FavoriteState();
+  State<MyFavorite> createState() => _MyFavoriteState();
 }
 
-class _FavoriteState extends State<Favorite>
+class _MyFavoriteState extends State<MyFavorite>
     with AutomaticKeepAliveClientMixin {
   bool isGroupEditing = false;
   TextEditingController groupEditingController = TextEditingController();
@@ -515,7 +516,11 @@ class _FavoriteState extends State<Favorite>
                     sSelected);
               },
               onDoubleTap: () {
+                if (isPlaying && playingStation != null) {
+                  context.read<RecentlyCubit>().updateRecently(playingStation);
+                }
                 context.read<AppCubit>().play(station);
+                context.read<RecentlyCubit>().addRecently(station);
               },
               cells: [
                 DataCell(
@@ -569,6 +574,7 @@ class _FavoriteState extends State<Favorite>
                       ),
                       Text(
                         station.name,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: Colors.white.withOpacity(0.8)),
                       )
                     ],
@@ -577,12 +583,14 @@ class _FavoriteState extends State<Favorite>
                 DataCell(
                   Text(
                     station.tags != null ? station.tags! : '',
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: Colors.white.withOpacity(0.8)),
                   ),
                 ),
                 DataCell(
                   Text(
                     ResManager.instance.getLanguageText(station.language),
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: Colors.white.withOpacity(0.8)),
                   ),
                 ),
@@ -590,20 +598,25 @@ class _FavoriteState extends State<Favorite>
                   Text(
                     ResManager.instance
                         .getLocationText(station.countrycode, station.state),
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: Colors.white.withOpacity(0.8)),
                   ),
                 ),
                 DataCell(
                   Text(
-                    station.codec != null ? station.codec!.toUpperCase() : '',
+                    station.codec != null && station.codec!.length <= 4
+                        ? station.codec!
+                        : '',
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: Colors.white.withOpacity(0.8)),
                   ),
                 ),
                 DataCell(
                   Text(
                     station.bitrate != null
-                        ? (station.bitrate! != 0 ? '${station.bitrate}' : '未知')
-                        : '未知',
+                        ? (station.bitrate! != 0 ? '${station.bitrate}' : '')
+                        : '',
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: Colors.white.withOpacity(0.8)),
                   ),
                 ),
@@ -709,8 +722,10 @@ class _FavoriteState extends State<Favorite>
               onTap: () {
                 if (isPlaying) {
                   context.read<AppCubit>().stop();
+                  context.read<RecentlyCubit>().updateRecently(station);
                 } else {
                   context.read<AppCubit>().play(station);
+                  context.read<RecentlyCubit>().addRecently(station);
                 }
               },
               icon: Icon(

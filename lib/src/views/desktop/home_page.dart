@@ -5,18 +5,18 @@ import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/components/play_ctrl.dart';
 import 'package:hiqradio/src/views/desktop/components/search.dart';
-import 'package:hiqradio/src/views/desktop/pages/customized.dart';
+import 'package:hiqradio/src/views/desktop/pages/my_customized.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:hiqradio/src/views/desktop/utils/nav.dart';
 import 'package:hiqradio/src/views/desktop/components/nav_bar.dart';
 import 'package:hiqradio/src/views/desktop/components/play_bar.dart';
 import 'package:hiqradio/src/views/desktop/components/title_bar.dart';
 import 'package:hiqradio/src/views/desktop/components/config.dart';
-import 'package:hiqradio/src/views/desktop/pages/discovery.dart';
-import 'package:hiqradio/src/views/desktop/pages/favorite.dart';
+import 'package:hiqradio/src/views/desktop/pages/my_discovery.dart';
+import 'package:hiqradio/src/views/desktop/pages/my_favorite.dart';
 import 'package:hiqradio/src/views/desktop/pages/my_station.dart';
-import 'package:hiqradio/src/views/desktop/pages/recently.dart';
-import 'package:hiqradio/src/views/desktop/pages/record.dart';
+import 'package:hiqradio/src/views/desktop/pages/my_recently.dart';
+import 'package:hiqradio/src/views/desktop/pages/my_record.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -214,11 +214,11 @@ class _HomePageState extends State<HomePage> {
         physics: const NeverScrollableScrollPhysics(),
         children: const [
           MyStation(),
-          Customized(),
-          Discovery(),
-          Recently(),
-          Record(),
-          Favorite(),
+          MyCustomized(),
+          MyDiscovery(),
+          MyRecently(),
+          MyRecord(),
+          MyFavorite(),
         ]);
   }
 

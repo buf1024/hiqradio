@@ -8,6 +8,7 @@ import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/favorite_cubit.dart';
 import 'package:hiqradio/src/blocs/favorite_state.dart';
+import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 import 'dart:isolate';
@@ -170,10 +171,14 @@ class _PlayCtrlState extends State<PlayCtrl> {
             onTap: () async {
               if (isPlaying) {
                 context.read<AppCubit>().stop();
+                if (playingStation != null) {
+                  context.read<RecentlyCubit>().updateRecently(playingStation);
+                }
                 // recordSendPort.send(['stop', '']);
               } else {
                 if (playingStation != null) {
                   context.read<AppCubit>().play(playingStation);
+                  context.read<RecentlyCubit>().addRecently(playingStation);
                 }
               }
             },

@@ -4,6 +4,7 @@ import 'package:hiqradio/src/app/app_theme_data.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/favorite_cubit.dart';
 import 'package:hiqradio/src/blocs/my_station_cubit.dart';
+import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/views/desktop/components/win_ready.dart';
 import 'package:hiqradio/src/views/desktop/splash_page.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -57,6 +58,9 @@ class BlocWrap extends StatelessWidget {
       ),
       BlocProvider<FavoriteCubit>(
         create: (_) => FavoriteCubit(),
+      ),
+      BlocProvider<RecentlyCubit>(
+        create: (_) => RecentlyCubit(),
       ),
     ], child: child);
   }

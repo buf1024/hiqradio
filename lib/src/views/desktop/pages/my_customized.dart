@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/components/station_icon.dart';
 
-class Customized extends StatefulWidget {
-  const Customized({super.key});
+class MyCustomized extends StatefulWidget {
+  const MyCustomized({super.key});
 
   @override
-  State<Customized> createState() => _CustomizedState();
+  State<MyCustomized> createState() => _MyCustomizedState();
 }
 
-class _CustomizedState extends State<Customized>
+class _MyCustomizedState extends State<MyCustomized>
     with AutomaticKeepAliveClientMixin {
   TextEditingController pageSizeEditController = TextEditingController();
   FocusNode pageSizeFocusNode = FocusNode();

@@ -1,4 +1,5 @@
 import 'package:hiqradio/src/models/fav_group.dart';
+import 'package:hiqradio/src/models/recently.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:sqflite_common/sqlite_api.dart' show Database;
 
@@ -93,8 +94,8 @@ class RadioDao {
             whereArgs: [stationuuid, oldGroupId]);
         for (var newGroup in newGroups) {
           gList = await txn
-          .query('fav_group', where: 'name = ?', whereArgs: [newGroup]);
-          if(gList.isEmpty) {
+              .query('fav_group', where: 'name = ?', whereArgs: [newGroup]);
+          if (gList.isEmpty) {
             continue;
           }
           var newGroupId = gList[0]['id'];
@@ -144,6 +145,13 @@ class RadioDao {
     return null;
   }
 
+  Future<Station?> queryStation(String stationuuid) async {
+    List<Map<String, Object?>> data = await db.query('station',
+        where: 'stationuuid = ?', whereArgs: [stationuuid], limit: 1);
+    List<Station> stations = data.map(Station.fromJson).toList();
+    return stations.isNotEmpty ? stations[0] : null;
+  }
+
   Future<bool> queryIsFavStation(String stationuuid, int groupId) async {
     List<Map<String, Object?>> data = await db.rawQuery(
         'select a.* from favorite a where a.group_id = ? and a.stationuuid = ?',
@@ -175,5 +183,37 @@ class RadioDao {
 
   Future<int> delFavorites(int groupId) async {
     return db.delete('favorite', where: 'group_id = ?', whereArgs: [groupId]);
+  }
+
+  Future<List<Recently>> queryRecently() async {
+    List<Map<String, Object?>> data =
+        await db.query('recently', orderBy: 'start_time desc');
+    return data.map(Recently.fromJson).toList();
+  }
+
+  Future<void> insertRecently(Station station) async {
+    db.transaction((txn) async {
+      List<Map<String, Object?>> list = await txn.query('station',
+          where: 'stationuuid = ?', whereArgs: [station.stationuuid], limit: 1);
+      if (list.isEmpty) {
+        var jsValues = station.toJson();
+        await txn.insert('station', jsValues);
+      }
+      Map<String, Object?> values = {
+        'stationuuid': station.stationuuid,
+        'start_time': DateTime.now().millisecondsSinceEpoch
+      };
+      await txn.insert('recently', values);
+    });
+  }
+
+  Future<int> updateRecently(int recentlyId) async {
+    return db.update(
+        'recently', {'end_time': DateTime.now().millisecondsSinceEpoch},
+        where: 'id =?', whereArgs: [recentlyId]);
+  }
+
+  Future<int> delRecently() async {
+    return db.delete('recently', where: '1 = ?', whereArgs: [1]);
   }
 }

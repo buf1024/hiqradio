@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hiqradio/src/views/desktop/components/station_icon.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 
-class Discovery extends StatefulWidget {
-  const Discovery({super.key});
+class MyDiscovery extends StatefulWidget {
+  const MyDiscovery({super.key});
 
   @override
-  State<Discovery> createState() => _DiscoveryState();
+  State<MyDiscovery> createState() => _MyDiscoveryState();
 }
 
-class _DiscoveryState extends State<Discovery>
+class _MyDiscoveryState extends State<MyDiscovery>
     with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {

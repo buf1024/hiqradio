@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 
-class Record extends StatefulWidget {
-  const Record({super.key});
+class MyRecord extends StatefulWidget {
+  const MyRecord({super.key});
 
   @override
-  State<Record> createState() => _RecordState();
+  State<MyRecord> createState() => _MyRecordState();
 }
 
-class _RecordState extends State<Record> with AutomaticKeepAliveClientMixin {
+class _MyRecordState extends State<MyRecord> with AutomaticKeepAliveClientMixin {
   TextEditingController searchEditController = TextEditingController();
   FocusNode searchEditNode = FocusNode();
 

@@ -6,3 +6,4 @@ const kDefSearchText = '新闻';
 
 
 const kSpMSLastSearch = 'MSLastSearchText';
+const kSpAppLastPlayStation = 'AppLastPlayStation';

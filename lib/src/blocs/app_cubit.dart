@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/app_state.dart';
 import 'package:hiqradio/src/models/country.dart';
@@ -8,8 +10,10 @@ import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/repository/database/radiodb.dart';
 import 'package:hiqradio/src/repository/repository.dart';
+import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppCubit extends Cubit<AppState> {
   final AudioPlayer player = AudioPlayer();
@@ -43,8 +47,13 @@ class AppCubit extends Cubit<AppState> {
   void initApp() async {
     await ResManager.instance.initRes();
     await RadioDB.create();
-    await Future.delayed(const Duration(milliseconds: 1));
-    emit(state.copyWith(isInit: true));
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    String? s = sp.getString(kSpAppLastPlayStation);
+    Station? playingStation;
+    if (s != null) {
+      playingStation = Station.fromJson(jsonDecode(s));
+    }
+    emit(state.copyWith(isInit: true, playingStation: playingStation));
   }
 
   void play(Station station) async {
@@ -52,6 +61,10 @@ class AppCubit extends Cubit<AppState> {
     if (state.playingStation == null ||
         state.playingStation!.urlResolved != url ||
         (state.playingStation!.urlResolved == url && !state.isPlaying)) {
+      // last play
+      SharedPreferences sp = await SharedPreferences.getInstance();
+      sp.setString(kSpAppLastPlayStation, jsonEncode(station.toJson()));
+
       if (state.playingStation != null && state.isPlaying) {
         await player.stop();
       }
@@ -96,7 +109,7 @@ class AppCubit extends Cubit<AppState> {
     if (state.languages.isEmpty) {
       emit(state.copyWith(isLangLoading: true));
 
-      List<Language> languages = await RadioRepository.instance.loadLanguage();
+      List<Language> languages = await repo.loadLanguage();
 
       emit(state.copyWith(languages: languages, isLangLoading: false));
       return languages;
@@ -108,7 +121,7 @@ class AppCubit extends Cubit<AppState> {
     if (state.countries.isEmpty) {
       emit(state.copyWith(isCountriesLoading: true));
 
-      List<Country> countries = await RadioRepository.instance.loadCountries();
+      List<Country> countries = await repo.loadCountries();
 
       emit(state.copyWith(countries: countries, isCountriesLoading: false));
       return countries;
@@ -138,12 +151,13 @@ class AppCubit extends Cubit<AppState> {
     if (state.tags.isEmpty) {
       emit(state.copyWith(isTagLoading: true));
 
-      List<Tag> tags = await RadioRepository.instance.loadTags();
+      List<Tag> tags = await repo.loadTags();
       emit(state.copyWith(tags: tags, isTagLoading: false));
       return tags;
     }
     return state.tags;
   }
+
   void switchFavPlayingStation() {
     emit(state.copyWith(isFavStation: !state.isFavStation));
   }

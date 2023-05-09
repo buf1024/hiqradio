@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/my_station_cubit.dart';
+import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/models/country_state.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/constant.dart';
@@ -473,8 +474,10 @@ class _MyStationState extends State<MyStation>
                       'onPlayClicked station: ${station.name} isPlaying: $isPlaying isBuffering: $isBuffering');
                   if (!isPlaying) {
                     context.read<AppCubit>().play(station);
+                    context.read<RecentlyCubit>().addRecently(station);
                   } else {
                     context.read<AppCubit>().stop();
+                    context.read<RecentlyCubit>().updateRecently(station);
                   }
                 },
               ),

@@ -4,11 +4,13 @@ import 'package:hiqradio/src/models/country.dart';
 import 'package:hiqradio/src/models/country_state.dart';
 import 'package:hiqradio/src/models/fav_group.dart';
 import 'package:hiqradio/src/models/language.dart';
+import 'package:hiqradio/src/models/recently.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/repository/database/radiodao.dart';
 import 'package:hiqradio/src/repository/database/radiodb.dart';
 import 'package:hiqradio/src/repository/radioapi/radioapi.dart';
+import 'package:hiqradio/src/utils/pair.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
 
 class RadioRepository {
@@ -277,5 +279,34 @@ class RadioRepository {
   Future<int> clearFavorites(int groupId) async {
     RadioDao dao = (await RadioDB.create()).dao;
     return await dao.delFavorites(groupId);
+  }
+
+// recently
+  Future<List<Pair<Station, Recently>>> loadRecently() async {
+    RadioDao dao = (await RadioDB.create()).dao;
+    List<Recently> recently = await dao.queryRecently();
+    List<Pair<Station, Recently>> data = [];
+    for (var r in recently) {
+      Station? station = await dao.queryStation(r.stationuuid);
+      if (station != null) {
+        data.add(Pair(station, r));
+      }
+    }
+    return data;
+  }
+
+  Future<void> addRecently(Station station) async {
+    RadioDao dao = (await RadioDB.create()).dao;
+    await dao.insertRecently(station);
+  }
+
+  Future<int> updateRecently(int recentlyId) async {
+    RadioDao dao = (await RadioDB.create()).dao;
+    return await dao.updateRecently(recentlyId);
+  }
+
+  Future<int> clearRecently() async {
+    RadioDao dao = (await RadioDB.create()).dao;
+    return await dao.delRecently();
   }
 }
