@@ -1,5 +1,3 @@
-enum HiqThemeMode { dark, light, system }
-
 const kTitleBarHeight = 32.0;
 const kNaviBarWidth = 55.0;
 const kMinNavContentWidth = 60.0;

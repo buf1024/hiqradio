@@ -1,17 +1,13 @@
-import 'dart:collection';
-import 'dart:convert';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
+import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/components/play_ctrl.dart';
 import 'package:hiqradio/src/views/desktop/components/station_info.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
-import 'package:flutter/services.dart' show rootBundle;
 
 class PlayBar extends StatefulWidget {
   const PlayBar({super.key});
@@ -67,6 +63,10 @@ class _StatusBarState extends State<PlayBar> {
   }
 
   Widget _buildFuncs() {
+    bool isPlaying =
+        context.select<AppCubit, bool>((value) => value.state.isPlaying);
+    Station? playingStation = context
+        .select<AppCubit, Station?>((value) => value.state.playingStation);
     return SizedBox(
       height: 54.0,
       child: Row(children: [
@@ -74,17 +74,35 @@ class _StatusBarState extends State<PlayBar> {
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: InkClick(
             child: const Icon(IconFont.random, size: 20.0),
-            onTap: () {},
+            onTap: () async {
+              Station? station =
+                  await context.read<AppCubit>().getRandomStation();
+              if (station != null) {
+                _play(station, playingStation, isPlaying);
+              }
+            },
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          child: InkClick(
-            child: const Icon(IconFont.volume, size: 20.0),
-            onTap: () {},
-          ),
-        ),
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        //   child: InkClick(
+        //     child: const Icon(IconFont.volume, size: 20.0),
+        //     onTap: () {},
+        //   ),
+        // ),
       ]),
     );
+  }
+
+  void _play(Station station, Station? playingStation, bool isPlaying) {
+    if (isPlaying) {
+      context.read<AppCubit>().stop();
+      if (playingStation != null) {
+        context.read<RecentlyCubit>().updateRecently(playingStation);
+      }
+    }
+
+    context.read<AppCubit>().play(station);
+    context.read<RecentlyCubit>().addRecently(station);
   }
 }

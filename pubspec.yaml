@@ -40,7 +40,6 @@ dependencies:
   flutter_bloc: ^8.1.1
   meta: ^1.8.0
   equatable: ^2.0.5
-  crypto: ^3.0.2
   cached_network_image: ^3.2.3
   data_table_2: ^2.4.1
   url_launcher: ^6.1.10
@@ -53,6 +52,9 @@ dependencies:
   shared_preferences: ^2.1.0
   path_provider: ^2.0.14
   intl: ^0.18.1
+  encrypt: ^5.0.1
+  ntp: ^2.0.0
+  oktoast: ^3.3.1
 
 dev_dependencies:
   flutter_test:

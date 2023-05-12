@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
 import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
@@ -33,7 +32,7 @@ class StationInfo extends StatelessWidget {
               width: height,
               child: ClipRRect(
                 borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-                child: station.favicon != null
+                child: station.favicon != null && station.favicon!.isNotEmpty
                     ? CachedNetworkImage(
                         fit: BoxFit.fill,
                         imageUrl: station.favicon!,
@@ -76,8 +75,7 @@ class StationInfo extends StatelessWidget {
                   child: Text(
                     station.name,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: 12.0, color: Colors.white.withOpacity(0.8)),
+                    style: const TextStyle(fontSize: 12.0),
                   ),
                 ),
               ),
@@ -110,7 +108,7 @@ class StationInfo extends StatelessWidget {
   }
 
   String _getLocationText() {
-    return ResManager.instance
-        .getStationInfoText(station.countrycode, station.state, station.language);
+    return ResManager.instance.getStationInfoText(
+        station.countrycode, station.state, station.language);
   }
 }

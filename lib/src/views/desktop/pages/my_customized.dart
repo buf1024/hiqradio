@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
-import 'package:hiqradio/src/views/desktop/components/station_icon.dart';
 
 class MyCustomized extends StatefulWidget {
   const MyCustomized({super.key});
@@ -203,12 +202,11 @@ class _MyCustomizedState extends State<MyCustomized>
               controller: controller,
               focusNode: focusNode,
               keyboardType: TextInputType.number,
-              autofocus: true,
               autocorrect: false,
               obscuringCharacter: '*',
               cursorWidth: 1.0,
               showCursor: true,
-              cursorColor: Colors.grey.withOpacity(0.8),
+              cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
               style: const TextStyle(fontSize: 13.0),
               decoration: InputDecoration(
                 // hintText: '10~100',
@@ -243,9 +241,6 @@ class _MyCustomizedState extends State<MyCustomized>
                 text,
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
-                ),
               ),
             ),
           );
@@ -256,11 +251,11 @@ class _MyCustomizedState extends State<MyCustomized>
       child: Wrap(
         children: List.generate(100, (index) {
           return Container(
-            padding: EdgeInsets.all(10.0),
-            child: 
-            // todo
-            // StationIcon(),
-            const Text('todo'),
+            padding: const EdgeInsets.all(10.0),
+            child:
+                // todo
+                // StationIcon(),
+                const Text('todo'),
           );
         }).toList(),
       ),

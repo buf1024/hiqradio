@@ -151,11 +151,8 @@ class _MyFavoriteState extends State<MyFavorite>
                         ),
                         InkClick(
                           onTap: () {},
-                          child: Text(
+                          child: const Text(
                             '分组：',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                            ),
                           ),
                         ),
                         group != null
@@ -168,12 +165,11 @@ class _MyFavoriteState extends State<MyFavorite>
                                     child: TextField(
                                       controller: groupEditingController,
                                       focusNode: groupFocusNode,
-                                      autofocus: true,
                                       autocorrect: false,
                                       obscuringCharacter: '*',
                                       cursorWidth: 1.0,
                                       showCursor: true,
-                                      cursorColor: Colors.grey.withOpacity(0.8),
+                                      cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
                                       style: const TextStyle(fontSize: 14.0),
                                       decoration: InputDecoration(
                                         hintText: '分组名称',
@@ -218,15 +214,13 @@ class _MyFavoriteState extends State<MyFavorite>
                                             group.name;
                                         isGroupEditing = true;
                                       });
-
+                                      context.read<AppCubit>().setEditing(true);
                                       groupFocusNode.requestFocus();
                                     },
                                     child: Text(
                                       group.name,
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                      ),
+                                      
                                     ),
                                   ))
                             : Container(),
@@ -261,7 +255,7 @@ class _MyFavoriteState extends State<MyFavorite>
                                       groupEditingController.text = g.name;
                                       isGroupEditing = true;
                                     });
-
+                                    context.read<AppCubit>().setEditing(true);
                                     groupFocusNode.requestFocus();
                                   });
                             },
@@ -289,11 +283,9 @@ class _MyFavoriteState extends State<MyFavorite>
                     height: 28.0,
                     child: Row(
                       children: [
-                        Text(
+                        const Text(
                           '创建时间: ',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                          ),
+                          
                         ),
                         Text(
                           group != null
@@ -301,9 +293,7 @@ class _MyFavoriteState extends State<MyFavorite>
                                   DateTime.fromMillisecondsSinceEpoch(
                                       group.createTime))
                               : '',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                          ),
+                          
                         ),
                       ],
                     ),
@@ -312,17 +302,13 @@ class _MyFavoriteState extends State<MyFavorite>
                     height: 28.0,
                     child: Row(
                       children: [
-                        Text(
+                        const Text(
                           '电台数量: ',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                          ),
+                          
                         ),
                         Text(
                           '${stations.length}',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                          ),
+                          
                         ),
                       ],
                     ),
@@ -337,11 +323,9 @@ class _MyFavoriteState extends State<MyFavorite>
                             color: Colors.black.withOpacity(0),
                           ),
                         ),
-                        Text(
+                        const Text(
                           '简介: ',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                          ),
+                          
                         ),
                         group != null
                             ? (isGroupDescEditing
@@ -353,12 +337,11 @@ class _MyFavoriteState extends State<MyFavorite>
                                     child: TextField(
                                       controller: groupDescEditingController,
                                       focusNode: groupDescFocusNode,
-                                      autofocus: true,
                                       autocorrect: false,
                                       obscuringCharacter: '*',
                                       cursorWidth: 1.0,
                                       showCursor: true,
-                                      cursorColor: Colors.grey.withOpacity(0.8),
+                                      cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
                                       style: const TextStyle(fontSize: 14.0),
                                       decoration: InputDecoration(
                                         hintText: '分组描述',
@@ -399,15 +382,13 @@ class _MyFavoriteState extends State<MyFavorite>
                                             group.desc ?? '';
                                         isGroupDescEditing = true;
                                       });
-
+                                      context.read<AppCubit>().setEditing(true);
                                       groupDescFocusNode.requestFocus();
                                     },
                                     child: Text(
                                       group.desc ?? '',
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                      ),
+                                      
                                     ),
                                   ))
                             : Container(),
@@ -431,12 +412,11 @@ class _MyFavoriteState extends State<MyFavorite>
   }
 
   Widget _emptyTable() {
-    return Center(
+    return const Center(
       child: Text(
         '空空如也',
         style: TextStyle(
           fontSize: 15.0,
-          color: Colors.white.withOpacity(0.8),
         ),
       ),
     );
@@ -575,7 +555,6 @@ class _MyFavoriteState extends State<MyFavorite>
                       Text(
                         station.name,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: Colors.white.withOpacity(0.8)),
                       )
                     ],
                   ),
@@ -584,14 +563,12 @@ class _MyFavoriteState extends State<MyFavorite>
                   Text(
                     station.tags != null ? station.tags! : '',
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.white.withOpacity(0.8)),
                   ),
                 ),
                 DataCell(
                   Text(
                     ResManager.instance.getLanguageText(station.language),
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.white.withOpacity(0.8)),
                   ),
                 ),
                 DataCell(
@@ -599,7 +576,6 @@ class _MyFavoriteState extends State<MyFavorite>
                     ResManager.instance
                         .getLocationText(station.countrycode, station.state),
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.white.withOpacity(0.8)),
                   ),
                 ),
                 DataCell(
@@ -608,7 +584,6 @@ class _MyFavoriteState extends State<MyFavorite>
                         ? station.codec!
                         : '',
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.white.withOpacity(0.8)),
                   ),
                 ),
                 DataCell(
@@ -617,7 +592,6 @@ class _MyFavoriteState extends State<MyFavorite>
                         ? (station.bitrate! != 0 ? '${station.bitrate}' : '')
                         : '',
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.white.withOpacity(0.8)),
                   ),
                 ),
               ],
@@ -828,8 +802,8 @@ class _MyFavoriteState extends State<MyFavorite>
               padding: const EdgeInsets.only(right: 2.0),
               child: Text(
                 text,
-                style: TextStyle(
-                    color: Colors.white.withOpacity(0.8), fontSize: 14.0),
+                style: const TextStyle(
+                    fontSize: 14.0),
               ),
             )
           ],
@@ -910,11 +884,11 @@ class _PopupContentState extends State<PopupContent> {
           children: <Widget>[
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
+              child:const Text(
                 '选择分组: ',
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                    fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
+                    fontSize: 14.0, ),
               ),
             ),
             Expanded(
@@ -951,9 +925,9 @@ class _PopupContentState extends State<PopupContent> {
                               child: Text(
                                 '确定删除: ${favGroup.name} ',
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 14.0,
-                                    color: Colors.white.withOpacity(0.8)),
+                                    ),
                               ),
                             ),
                           ),
@@ -975,12 +949,12 @@ class _PopupContentState extends State<PopupContent> {
                               ),
                             ),
                             padding: const EdgeInsets.all(4.0),
-                            child: Text(
+                            child: const Text(
                               '取消',
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                   fontSize: 14.0,
-                                  color: Colors.white.withOpacity(0.8)),
+                                 ),
                             ),
                           ),
                         ),
@@ -1020,9 +994,9 @@ class _PopupContentState extends State<PopupContent> {
                                   child: Text(
                                     favGroup.name,
                                     overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 14.0,
-                                        color: Colors.white.withOpacity(0.8)),
+                                        ),
                                   ),
                                 ),
                               ],
@@ -1046,11 +1020,10 @@ class _PopupContentState extends State<PopupContent> {
                                     color: Colors.red.withOpacity(0.8),
                                     borderRadius: const BorderRadius.all(
                                         Radius.circular(4.0))),
-                                child: Center(
+                                child: const Center(
                                   child: Icon(
                                     IconFont.delete,
                                     size: 15.0,
-                                    color: Colors.white.withOpacity(0.8),
                                   ),
                                 ),
                               ),
@@ -1075,14 +1048,14 @@ class _PopupContentState extends State<PopupContent> {
                     padding: const EdgeInsets.all(4.0),
                     decoration: BoxDecoration(
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Theme.of(context).textTheme.bodyMedium!.color!,
                         ),
                         borderRadius:
                             const BorderRadius.all(Radius.circular(50.0))),
                     child: Icon(
                       IconFont.add,
                       size: 12.0,
-                      color: Colors.white.withOpacity(0.8),
+                      color: Theme.of(context).textTheme.bodyMedium!.color!,
                     ),
                   ),
                 ),

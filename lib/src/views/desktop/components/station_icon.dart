@@ -41,7 +41,7 @@ class StationIcon extends StatelessWidget {
               height: 25.0,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50.0),
-                color: Colors.red.withOpacity(0.9),
+                color: const Color(0XFFEA3E3C),
               ),
               child: InkClick(
                 onTap: () => onPlayClicked?.call(),
@@ -58,7 +58,7 @@ class StationIcon extends StatelessWidget {
                           Icon(
                             !isPlaying ? IconFont.play : IconFont.stop,
                             size: 10,
-                            color: Colors.white.withOpacity(0.9),
+                            color: Theme.of(context).textTheme.bodyMedium!.color!,
                           ),
                         ],
                       ),

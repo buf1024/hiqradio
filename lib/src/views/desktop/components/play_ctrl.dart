@@ -1,17 +1,14 @@
-import 'dart:io';
+import 'dart:async';
 
-import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_hls_parser/flutter_hls_parser.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/favorite_cubit.dart';
-import 'package:hiqradio/src/blocs/favorite_state.dart';
 import 'package:hiqradio/src/blocs/recently_cubit.dart';
+import 'package:hiqradio/src/blocs/record_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
-import 'dart:isolate';
 
 class PlayCtrl extends StatefulWidget {
   const PlayCtrl({super.key});
@@ -21,53 +18,41 @@ class PlayCtrl extends StatefulWidget {
 }
 
 class _PlayCtrlState extends State<PlayCtrl> {
-  final String url = '';
-
-  late Isolate recordIsolate;
-  late SendPort recordSendPort;
-
-  // void _initIsolate() async {
-  //   ReceivePort recordReceivePort = ReceivePort();
-  //   recordIsolate =
-  //       await Isolate.spawn(doRecordWork, recordReceivePort.sendPort);
-
-  //   recordReceivePort.listen((message) {
-  //     String cmd = message[0];
-  //     if (cmd == 'new') {
-  //       recordSendPort = message[1];
-  //     } else {
-  //       print('root receive: $message');
-  //     }
-  //   });
-  // }
-
-  // static void doRecordWork(SendPort sendPort) {
-  //   ReceivePort wReceivePort = ReceivePort();
-  //   SendPort wSendPort = wReceivePort.sendPort;
-  //   wReceivePort.listen((message) {
-  //     String cmd = message[0];
-  //     if (cmd == 'start') {
-  //       String url = message[1];
-  //       Record.start(url);
-  //       sendPort.send(['recording', '']);
-  //     } else if (cmd == 'stop') {
-  //       Record.stop();
-  //       sendPort.send(['recorded', '']);
-  //     }
-  //   });
-  //   sendPort.send(['new', wSendPort]);
-  // }
+  Timer? recordingTimer;
+  int tick = 0;
 
   @override
   void initState() {
     super.initState();
-
-    // _initIsolate();
   }
 
   @override
   void dispose() {
     super.dispose();
+    if (recordingTimer != null) {
+      recordingTimer!.cancel();
+      recordingTimer = null;
+    }
+  }
+
+  void _startRecordingTimer() {
+    if (recordingTimer == null) {
+      tick = 0;
+      recordingTimer =
+          Timer.periodic(const Duration(milliseconds: 800), (timer) {
+        setState(() {
+          tick += 1;
+        });
+      });
+    }
+  }
+
+  void _stopRecordingTimer() {
+    if (recordingTimer != null) {
+      tick = 0;
+      recordingTimer!.cancel();
+      recordingTimer = null;
+    }
   }
 
   @override
@@ -84,19 +69,27 @@ class _PlayCtrlState extends State<PlayCtrl> {
     bool isFavStation =
         context.select<AppCubit, bool>((value) => value.state.isFavStation);
 
+    bool isRecording =
+        context.select<AppCubit, bool>((value) => value.state.isRecording);
+
+    // int? recordingId =
+    //     context.select<AppCubit, int?>((value) => value.state.recordingId);
+
     return Container(
       width: 280.0,
       height: 54.0,
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: InkClick(
-              child: const Icon(IconFont.timer, size: 20.0),
-              onTap: () {},
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          //   child: InkClick(
+          //     child: Icon(IconFont.timer,
+          //         size: 20.0, color: Colors.white.withOpacity(0.8)),
+          //     onTap: () {},
+          //   ),
+          // ),
+          const Spacer(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: InkClick(
@@ -104,8 +97,8 @@ class _PlayCtrlState extends State<PlayCtrl> {
                 isFavStation ? IconFont.favoriteFill : IconFont.favorite,
                 size: 20.0,
                 color: isFavStation
-                    ? Colors.red.withOpacity(0.8)
-                    : Colors.white.withOpacity(0.8),
+                    ? const Color(0XFFEA3E3C)
+                    : Theme.of(context).textTheme.bodyMedium!.color!,
               ),
               onTap: () {
                 if (playingStation != null) {
@@ -121,13 +114,30 @@ class _PlayCtrlState extends State<PlayCtrl> {
               },
             ),
           ),
-          const Spacer(),
+          // const Spacer(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: InkClick(
-              child: Icon(IconFont.previous,
-                  size: 20.0, color: Colors.red.withOpacity(0.8)),
-              onTap: () async {},
+              child: const Icon(
+                IconFont.previous,
+                size: 20.0,
+                color: Color(0XFFEA3E3C),
+              ),
+              onTap: () {
+                if (isPlaying) {
+                  context.read<AppCubit>().stop();
+                  if (playingStation != null) {
+                    context
+                        .read<RecentlyCubit>()
+                        .updateRecently(playingStation);
+                  }
+                }
+                Station? station = context.read<AppCubit>().getPrevStation();
+                if (station != null) {
+                  context.read<AppCubit>().play(station);
+                  context.read<RecentlyCubit>().addRecently(station);
+                }
+              },
             ),
           ),
           InkClick(
@@ -136,7 +146,7 @@ class _PlayCtrlState extends State<PlayCtrl> {
               height: 50.0,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50.0),
-                color: Colors.red.withOpacity(0.8),
+                color: const Color(0XFFEA3E3C),
               ),
               child: Stack(
                 children: [
@@ -150,6 +160,7 @@ class _PlayCtrlState extends State<PlayCtrl> {
                         Icon(
                           !isPlaying ? IconFont.play : IconFont.stop,
                           size: 20,
+                          color: Colors.white,
                         )
                       ],
                     ),
@@ -174,7 +185,6 @@ class _PlayCtrlState extends State<PlayCtrl> {
                 if (playingStation != null) {
                   context.read<RecentlyCubit>().updateRecently(playingStation);
                 }
-                // recordSendPort.send(['stop', '']);
               } else {
                 if (playingStation != null) {
                   context.read<AppCubit>().play(playingStation);
@@ -186,29 +196,75 @@ class _PlayCtrlState extends State<PlayCtrl> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: InkClick(
-              child: Icon(IconFont.next,
-                  size: 20.0, color: Colors.red.withOpacity(0.8)),
-              onTap: () {},
+              child: const Icon(
+                IconFont.next,
+                size: 20.0,
+                color: Color(0XFFEA3E3C),
+              ),
+              onTap: () {
+                if (isPlaying) {
+                  context.read<AppCubit>().stop();
+                  if (playingStation != null) {
+                    context
+                        .read<RecentlyCubit>()
+                        .updateRecently(playingStation);
+                  }
+                }
+                Station? station = context.read<AppCubit>().getNextStation();
+                if (station != null) {
+                  context.read<AppCubit>().play(station);
+                  context.read<RecentlyCubit>().addRecently(station);
+                }
+              },
+            ),
+          ),
+          // const Spacer(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: InkClick(
+              child: Icon(
+                IconFont.record,
+                size: 20.0,
+                color: isRecording && tick.isEven
+                    ? const Color(0XFFEA3E3C)
+                    : Theme.of(context).textTheme.bodyMedium!.color!,
+              ),
+              onTap: () async {
+                if (playingStation != null) {
+                  String? path =
+                      await context.read<AppCubit>().getStationRecordingPath();
+                  if (path != null && !isRecording) {
+                    _doStartRecording(playingStation, path);
+                  } else {
+                    _doStopRecording();
+                  }
+                }
+              },
             ),
           ),
           const Spacer(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: InkClick(
-              child: const Icon(IconFont.record, size: 20.0),
-              onTap: () {},
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: InkClick(
-              child: const Icon(IconFont.share, size: 20.0),
-              onTap: () {},
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          //   child: InkClick(
+          //     child: Icon(IconFont.share,
+          //         size: 20.0, color: Colors.white.withOpacity(0.8)),
+          //     onTap: () {},
+          //   ),
+          // ),
         ],
       ),
     );
-    ;
+  }
+
+  void _doStopRecording() {
+    context.read<AppCubit>().stopRecording();
+    _stopRecordingTimer();
+    context.read<RecordCubit>().updateRecord();
+  }
+
+  void _doStartRecording(Station station, String dest) {
+    context.read<AppCubit>().startRecording(dest);
+    _startRecordingTimer();
+    context.read<RecordCubit>().addRecord(station, dest);
   }
 }

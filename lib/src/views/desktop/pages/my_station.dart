@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/my_station_cubit.dart';
 import 'package:hiqradio/src/blocs/recently_cubit.dart';
-import 'package:hiqradio/src/models/country_state.dart';
 import 'package:hiqradio/src/models/station.dart';
-import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/components/search_option.dart';
 import 'package:hiqradio/src/views/desktop/components/station_icon.dart';
@@ -20,6 +18,7 @@ class MyStation extends StatefulWidget {
 class _MyStationState extends State<MyStation>
     with AutomaticKeepAliveClientMixin {
   TextEditingController searchEditController = TextEditingController();
+  FocusNode searchEditFocusNode = FocusNode();
   bool isOptionShow = false;
 
   TextEditingController pageSizeEditController = TextEditingController();
@@ -36,6 +35,12 @@ class _MyStationState extends State<MyStation>
 
     context.read<MyStationCubit>().initSearch();
 
+    searchEditFocusNode.addListener(() {
+      if (!pageSizeFocusNode.hasFocus) {
+        context.read<AppCubit>().setEditing(false);
+      }
+    });
+
     pageSizeFocusNode.addListener(() {
       if (!pageSizeFocusNode.hasFocus) {
         if (isPageSizeEditing) {
@@ -47,6 +52,7 @@ class _MyStationState extends State<MyStation>
         setState(() {
           isPageSizeEditing = !isPageSizeEditing;
         });
+        context.read<AppCubit>().setEditing(false);
       }
     });
     pageFocusNode.addListener(() {
@@ -61,6 +67,7 @@ class _MyStationState extends State<MyStation>
         setState(() {
           isPageEditing = !isPageEditing;
         });
+        context.read<AppCubit>().setEditing(false);
       }
     });
   }
@@ -69,6 +76,7 @@ class _MyStationState extends State<MyStation>
   void dispose() {
     super.dispose();
     searchEditController.dispose();
+    searchEditFocusNode.dispose();
 
     pageSizeEditController.dispose();
     pageSizeFocusNode.dispose();
@@ -111,7 +119,8 @@ class _MyStationState extends State<MyStation>
                 ? _buildContent()
                 : Center(
                     child: CircularProgressIndicator(
-                        color: Colors.white.withOpacity(0.8), strokeWidth: 2.0),
+                        color: Theme.of(context).textTheme.bodyMedium!.color!,
+                        strokeWidth: 2.0),
                   ),
           )
         ],
@@ -144,7 +153,8 @@ class _MyStationState extends State<MyStation>
           children: [
             SizedBox(
               width: 250,
-              child: _searchField(searchEditController, (value) {
+              child: _searchField(searchEditController, searchEditFocusNode,
+                  (value) {
                 _onSearch(searchEditController.text, selectedCountry,
                     selectedState, selectedLanguage, selectedTags);
               }),
@@ -154,15 +164,14 @@ class _MyStationState extends State<MyStation>
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Theme.of(context).textTheme.bodyMedium!.color!,
                   ),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
-                child: Text(
+                child: const Text(
                   '搜索',
                   style: TextStyle(
                     fontSize: 13.0,
-                    color: Colors.white.withOpacity(0.8),
                   ),
                 ),
               ),
@@ -179,15 +188,14 @@ class _MyStationState extends State<MyStation>
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Theme.of(context).textTheme.bodyMedium!.color!,
                   ),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
                 child: Text(
                   isOptionShow ? '隐藏选项' : '显示选项',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13.0,
-                    color: Colors.white.withOpacity(0.8),
                   ),
                 ),
               ),
@@ -236,38 +244,34 @@ class _MyStationState extends State<MyStation>
           const SizedBox(
             width: 6.0,
           ),
-          Text(
+          const Text(
             '电台： 共 ',
-            style:
-                TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 13.0),
+            style: TextStyle(fontSize: 13.0),
           ),
           Container(
             width: 50,
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.white.withOpacity(0.5),
+                color: Theme.of(context).textTheme.bodyMedium!.color!,
               ),
               borderRadius: BorderRadius.circular(4.0),
             ),
             child: Text(
               '$totalSize',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: Colors.white.withOpacity(0.9), fontSize: 13.0),
+              style: const TextStyle(fontSize: 13.0),
             ),
           ),
-          Text(
+          const Text(
             ' 个',
-            style:
-                TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 13.0),
+            style: TextStyle(fontSize: 13.0),
           ),
           const Spacer(),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: Text(
+            child: const Text(
               '每页 ',
-              style: TextStyle(
-                  color: Colors.white.withOpacity(0.9), fontSize: 13.0),
+              style: TextStyle(fontSize: 13.0),
             ),
           ),
           _buildEditing(isPageSizeEditing, pageSizeEditController,
@@ -277,17 +281,16 @@ class _MyStationState extends State<MyStation>
           }),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: Text(
+            child: const Text(
               '个 共 ',
-              style: TextStyle(
-                  color: Colors.white.withOpacity(0.9), fontSize: 13.0),
+              style: TextStyle(fontSize: 13.0),
             ),
           ),
           Container(
             width: 50,
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.white.withOpacity(0.5),
+                color: Theme.of(context).textTheme.bodyMedium!.color!,
               ),
               borderRadius: BorderRadius.circular(4.0),
             ),
@@ -295,15 +298,15 @@ class _MyStationState extends State<MyStation>
               '$totalPage',
               textAlign: TextAlign.center,
               style: TextStyle(
-                  color: Colors.white.withOpacity(0.9), fontSize: 13.0),
+                  color: Theme.of(context).textTheme.bodyMedium!.color!,
+                  fontSize: 13.0),
             ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: Text(
+            child: const Text(
               ' 页 当前第 ',
-              style: TextStyle(
-                  color: Colors.white.withOpacity(0.9), fontSize: 13.0),
+              style: TextStyle(fontSize: 13.0),
             ),
           ),
           _buildEditing(
@@ -313,10 +316,9 @@ class _MyStationState extends State<MyStation>
           }),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: Text(
+            child: const Text(
               ' 页',
-              style: TextStyle(
-                  color: Colors.white.withOpacity(0.9), fontSize: 13.0),
+              style: TextStyle(fontSize: 13.0),
             ),
           ),
           Container(
@@ -326,15 +328,14 @@ class _MyStationState extends State<MyStation>
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Theme.of(context).textTheme.bodyMedium!.color!,
                   ),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
-                child: Text(
+                child: const Text(
                   '前一页',
                   style: TextStyle(
                     fontSize: 13.0,
-                    color: Colors.white.withOpacity(0.8),
                   ),
                 ),
               ),
@@ -350,15 +351,14 @@ class _MyStationState extends State<MyStation>
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Theme.of(context).textTheme.bodyMedium!.color!,
                   ),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
-                child: Text(
+                child: const Text(
                   '后一页',
                   style: TextStyle(
                     fontSize: 13.0,
-                    color: Colors.white.withOpacity(0.8),
                   ),
                 ),
               ),
@@ -386,12 +386,11 @@ class _MyStationState extends State<MyStation>
               controller: controller,
               focusNode: focusNode,
               keyboardType: TextInputType.number,
-              autofocus: true,
               autocorrect: false,
               obscuringCharacter: '*',
               cursorWidth: 1.0,
               showCursor: true,
-              cursorColor: Colors.grey.withOpacity(0.8),
+              cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
               style: const TextStyle(fontSize: 13.0),
               decoration: InputDecoration(
                 // hintText: '10~100',
@@ -410,18 +409,22 @@ class _MyStationState extends State<MyStation>
               // onSubmitted: (value) {
               //   print('onSubmitted: $value');
               // },
+              onTap: () {
+                context.read<AppCubit>().setEditing(true);
+              },
             ),
           )
         : InkClick(
             onTap: () {
               onEditSwitch.call();
+              context.read<AppCubit>().setEditing(true);
               pageSizeFocusNode.requestFocus();
             },
             child: Container(
               width: 40,
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Theme.of(context).textTheme.bodyMedium!.color!,
                 ),
                 borderRadius: BorderRadius.circular(4.0),
               ),
@@ -429,9 +432,6 @@ class _MyStationState extends State<MyStation>
                 text,
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
-                ),
               ),
             ),
           );
@@ -488,22 +488,25 @@ class _MyStationState extends State<MyStation>
     );
   }
 
-  Widget _searchField(
-      TextEditingController controller, ValueChanged valueChanged) {
+  Widget _searchField(TextEditingController controller, FocusNode focusNode,
+      ValueChanged valueChanged) {
     return Container(
       padding: const EdgeInsets.only(top: 1.0, bottom: 1.0, right: 8.0),
       height: 26.0,
       child: TextField(
         controller: controller,
-        autofocus: true,
+        focusNode: focusNode,
         autocorrect: false,
         obscuringCharacter: '*',
         cursorWidth: 1.0,
-        cursorColor: Colors.grey.withOpacity(0.8),
-        style: TextStyle(fontSize: 12.0, color: Colors.grey.withOpacity(0.8)),
+        cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
+        style: const TextStyle(
+          fontSize: 12.0,
+        ),
         decoration: InputDecoration(
           prefixIcon: Icon(Icons.search_outlined,
-              size: 18.0, color: Colors.grey.withOpacity(0.8)),
+              size: 18.0,
+              color: Theme.of(context).textTheme.bodyMedium!.color!),
           suffixIcon: controller.text.isNotEmpty
               ? GestureDetector(
                   onTap: () {
@@ -511,7 +514,8 @@ class _MyStationState extends State<MyStation>
                     setState(() {});
                   },
                   child: Icon(Icons.close_outlined,
-                      size: 16.0, color: Colors.grey.withOpacity(0.8)),
+                      size: 16.0,
+                      color: Theme.of(context).textTheme.bodyMedium!.color!),
                 )
               : null,
           contentPadding:
@@ -532,6 +536,9 @@ class _MyStationState extends State<MyStation>
         },
         onSubmitted: (value) {
           valueChanged.call(value);
+        },
+        onTap: () {
+          context.read<AppCubit>().setEditing(true);
         },
       ),
     );

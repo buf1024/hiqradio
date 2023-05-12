@@ -137,9 +137,8 @@ class _CheckSelectedListState extends State<CheckSelectedList> {
               child: Text(
                 widget.text,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14.0,
-                  color: Colors.white.withOpacity(0.8),
                 ),
               ),
             ),
@@ -181,9 +180,9 @@ class _CheckSelectedListState extends State<CheckSelectedList> {
                             child: Text(
                               text,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.white.withOpacity(0.8)),
+                              style: const TextStyle(
+                                fontSize: 14.0,
+                              ),
                             ),
                           ),
                         ],
@@ -200,11 +199,12 @@ class _CheckSelectedListState extends State<CheckSelectedList> {
                   onTap: () => widget.onTap.call(isModified, selected),
                   child: Container(
                     padding: const EdgeInsets.all(4.0),
-                    child: Text(
+                    child: const Text(
                       '确定',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                          fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
+                        fontSize: 14.0,
+                      ),
                     ),
                   ),
                 ),

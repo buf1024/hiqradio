@@ -5,6 +5,7 @@ import 'package:hiqradio/src/models/country_state.dart';
 import 'package:hiqradio/src/models/fav_group.dart';
 import 'package:hiqradio/src/models/language.dart';
 import 'package:hiqradio/src/models/recently.dart';
+import 'package:hiqradio/src/models/record.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/repository/database/radiodao.dart';
@@ -60,8 +61,6 @@ class RadioRepository {
 
   Future<List<CountryState>> loadStates(String selectedCountry) async {
     CountryInfo countryInfo = ResManager.instance.countryMap[selectedCountry];
-
-    print('selectedCountry: $selectedCountry, countryInfo: $countryInfo');
 
     Map<String, String> r2lMap = ResManager.instance.cnR2LMap;
 
@@ -181,10 +180,10 @@ class RadioRepository {
       }
       Station sStation = Station.fromJson(station);
 
-      if (sStation.countrycode != null &&
-          sStation.countrycode!.toUpperCase() == 'TW') {
-        continue;
-      }
+      // if (sStation.countrycode != null &&
+      //     sStation.countrycode!.toUpperCase() == 'TW') {
+      //   continue;
+      // }
       if (!cache.contains(sStation.urlResolved)) {
         if (((sStation.countrycode != null &&
                     sStation.countrycode!.toUpperCase() == 'CN') ||
@@ -281,7 +280,7 @@ class RadioRepository {
     return await dao.delFavorites(groupId);
   }
 
-// recently
+  // recently
   Future<List<Pair<Station, Recently>>> loadRecently() async {
     RadioDao dao = (await RadioDB.create()).dao;
     List<Recently> recently = await dao.queryRecently();
@@ -308,5 +307,39 @@ class RadioRepository {
   Future<int> clearRecently() async {
     RadioDao dao = (await RadioDB.create()).dao;
     return await dao.delRecently();
+  }
+
+  // record
+  Future<List<Pair<Station, Record>>> loadRecords() async {
+    RadioDao dao = (await RadioDB.create()).dao;
+    List<Record> recently = await dao.queryRecord();
+    List<Pair<Station, Record>> data = [];
+    for (var r in recently) {
+      Station? station = await dao.queryStation(r.stationuuid);
+      if (station != null) {
+        data.add(Pair(station, r));
+      }
+    }
+    return data;
+  }
+
+  Future<Record> addRecord(Station station, String file) async {
+    RadioDao dao = (await RadioDB.create()).dao;
+    return await dao.insertRecord(station, file);
+  }
+
+  Future<int> updateRecord(int recordId) async {
+    RadioDao dao = (await RadioDB.create()).dao;
+    return await dao.updateRecord(recordId);
+  }
+
+  Future<int> delRecord(int recordId) async {
+    RadioDao dao = (await RadioDB.create()).dao;
+    return await dao.delRecord(recordId);
+  }
+
+  Future<Station?> loadRandomStation() async {
+    RadioDao dao = (await RadioDB.create()).dao;
+    return await dao.queryRandomStation();
   }
 }

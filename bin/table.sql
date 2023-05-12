@@ -1,9 +1,9 @@
 -- 缓存电台
-create table `cache`(
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-    `table` VARCHAR(32) NOT NULL,
-    `check_time` INTEGER NOT NULL
-);
+-- create table `cache`(
+--     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+--     `tab` VARCHAR(32) NOT NULL,
+--     `check_time` INTEGER NOT NULL
+-- );
 
 CREATE TABLE `station` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,22 +32,22 @@ create index `station_idx` on `station`(
     language
 );
 
-CREATE TABLE `playlist_detail` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-    `stationuuid` VARCHAR(40) NOT NULL,
-    `playlist_id` INTEGER
-);
+-- CREATE TABLE `playlist_detail` (
+--     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+--     `stationuuid` VARCHAR(40) NOT NULL,
+--     `playlist_id` INTEGER
+-- );
 
-create index `playlist_detail_idx` on `playlist_detail`(stationuuid, playlist_id);
+-- create index `playlist_detail_idx` on `playlist_detail`(stationuuid, playlist_id);
 
-CREATE TABLE `playlist` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-    `create_time` INTEGER NOT NULL,
-    `name` VARCHAR(255) NOT NULL,
-    `desc` VARCHAR(1024) NULL
-);
+-- CREATE TABLE `playlist` (
+--     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+--     `create_time` INTEGER NOT NULL,
+--     `name` VARCHAR(255) NOT NULL,
+--     `desc` VARCHAR(1024) NULL
+-- );
 
-create index `playlist_name_idx` on `playlist`(name);
+-- create index `playlist_name_idx` on `playlist`(name);
 
 
 
@@ -68,7 +68,7 @@ CREATE TABLE `record` (
     `file` VARCHAR(256) NULL
 );
 
-create index `record_idx` on `record`(start_time, end_time);
+create index `record_idx` on `record`(start_time, end_time, file);
 
 CREATE TABLE `favorite` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,

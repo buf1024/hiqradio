@@ -5,9 +5,12 @@ import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/favorite_cubit.dart';
 import 'package:hiqradio/src/blocs/my_station_cubit.dart';
 import 'package:hiqradio/src/blocs/recently_cubit.dart';
+import 'package:hiqradio/src/blocs/record_cubit.dart';
+import 'package:hiqradio/src/blocs/search_cubit.dart';
 import 'package:hiqradio/src/views/desktop/components/win_ready.dart';
 import 'package:hiqradio/src/views/desktop/splash_page.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
@@ -38,9 +41,13 @@ void main() async {
     await windowManager.focus();
   });
 
-  runApp(const BlocWrap(child: MyApp()));
-
-  // runApp(const MyApp());
+  runApp(
+    const OKToast(
+      child: BlocWrap(
+        child: MyApp(),
+      ),
+    ),
+  );
 }
 
 class BlocWrap extends StatelessWidget {
@@ -62,6 +69,12 @@ class BlocWrap extends StatelessWidget {
       BlocProvider<RecentlyCubit>(
         create: (_) => RecentlyCubit(),
       ),
+      BlocProvider<SearchCubit>(
+        create: (_) => SearchCubit(),
+      ),
+      BlocProvider<RecordCubit>(
+        create: (_) => RecordCubit(),
+      ),
     ], child: child);
   }
 }
@@ -73,9 +86,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final virtualWindowFrameBuilder = VirtualWindowFrameInit();
+    ThemeMode themeMode =
+        context.select<AppCubit, ThemeMode>((value) => value.state.hiqThemMode);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.dark,
+      themeMode: themeMode,
       theme: AppThemeData.light,
       darkTheme: AppThemeData.dark,
       builder: ((context, child) {

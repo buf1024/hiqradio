@@ -8,7 +8,6 @@ import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/models/recently.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/pair.dart';
-import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/components/station_placeholder.dart';
 import 'package:intl/intl.dart';
 
@@ -64,12 +63,11 @@ class _MyRecentlyState extends State<MyRecently>
         ),
       );
     }
-    return Center(
+    return const Center(
       child: Text(
         '暂无播放记录',
         style: TextStyle(
           fontSize: 15.0,
-          color: Colors.white.withOpacity(0.8),
         ),
       ),
     );
@@ -142,7 +140,6 @@ class _MyRecentlyState extends State<MyRecently>
                   context.read<RecentlyCubit>().updateRecently(playingStation);
                 }
                 context.read<AppCubit>().play(station);
-
                 context.read<RecentlyCubit>().addRecently(station);
               },
               cells: [
@@ -156,31 +153,33 @@ class _MyRecentlyState extends State<MyRecently>
                         child: ClipRRect(
                           borderRadius:
                               const BorderRadius.all(Radius.circular(2.0)),
-                          child: CachedNetworkImage(
-                            fit: BoxFit.fill,
-                            imageUrl:
-                                station.favicon != null ? station.favicon! : '',
-                            placeholder: (context, url) {
-                              return const StationPlaceholder(
-                                height: 30.0,
-                                width: 30.0,
-                              );
-                            },
-                            errorWidget: (context, url, error) {
-                              return const StationPlaceholder(
-                                height: 30.0,
-                                width: 30.0,
-                              );
-                            },
-                          ),
+                          child: station.favicon != null &&
+                                  station.favicon!.isNotEmpty
+                              ? CachedNetworkImage(
+                                  fit: BoxFit.fill,
+                                  imageUrl: station.favicon!,
+                                  placeholder: (context, url) {
+                                    return const StationPlaceholder(
+                                      height: 30.0,
+                                      width: 30.0,
+                                    );
+                                  },
+                                  errorWidget: (context, url, error) {
+                                    return const StationPlaceholder(
+                                      height: 30.0,
+                                      width: 30.0,
+                                    );
+                                  },
+                                )
+                              : const StationPlaceholder(
+                                  height: 30.0,
+                                  width: 30.0,
+                                ),
                         ),
                       ),
                       Text(
                         station.name,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                        ),
                       )
                     ],
                   ),
@@ -191,7 +190,6 @@ class _MyRecentlyState extends State<MyRecently>
                         DateTime.fromMillisecondsSinceEpoch(
                             recently.startTime)),
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.white.withOpacity(0.8)),
                   ),
                 ),
                 DataCell(
@@ -202,16 +200,14 @@ class _MyRecentlyState extends State<MyRecently>
                                 recently.endTime!))
                         : '',
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.white.withOpacity(0.8)),
                   ),
                 ),
-                DataCell(Text(
-                  sDuration,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                DataCell(
+                  Text(
+                    sDuration,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                )),
+                ),
               ],
             );
           },
@@ -259,8 +255,7 @@ class _MyRecentlyState extends State<MyRecently>
               padding: const EdgeInsets.only(right: 2.0),
               child: Text(
                 text,
-                style: TextStyle(
-                    color: Colors.white.withOpacity(0.8), fontSize: 14.0),
+                style: const TextStyle(fontSize: 14.0),
               ),
             )
           ],

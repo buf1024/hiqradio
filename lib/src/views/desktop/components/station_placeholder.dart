@@ -23,6 +23,6 @@ class StationPlaceholder extends StatelessWidget {
             size: height * 0.4),
       ),
     );
-    ;
+    
   }
 }

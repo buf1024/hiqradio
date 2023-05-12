@@ -65,7 +65,7 @@ class RadioDB {
       String databasesPath = await getDbDirPath();
       String dbPath = join(databasesPath, 'hiqradio.db');
 
-      print('database dir: $dbPath');
+      print('数据库目录: $dbPath');
 
       OpenDatabaseOptions options = OpenDatabaseOptions(
           version: 1,

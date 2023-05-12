@@ -67,6 +67,7 @@ class MyStationCubit extends Cubit<MyStationState> {
       String countryState = '',
       String language = '',
       List<String> tags = const []}) async {
+    name = name.trim();
     if (!state.isFirstTrigger) {
       if (!state.isConditionChanged && name == state.searchText) {
         return state.stations;

@@ -4,15 +4,11 @@ import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/components/play_ctrl.dart';
-import 'package:hiqradio/src/views/desktop/components/search.dart';
-import 'package:hiqradio/src/views/desktop/pages/my_customized.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:hiqradio/src/views/desktop/utils/nav.dart';
 import 'package:hiqradio/src/views/desktop/components/nav_bar.dart';
 import 'package:hiqradio/src/views/desktop/components/play_bar.dart';
 import 'package:hiqradio/src/views/desktop/components/title_bar.dart';
-import 'package:hiqradio/src/views/desktop/components/config.dart';
-import 'package:hiqradio/src/views/desktop/pages/my_discovery.dart';
 import 'package:hiqradio/src/views/desktop/pages/my_favorite.dart';
 import 'package:hiqradio/src/views/desktop/pages/my_station.dart';
 import 'package:hiqradio/src/views/desktop/pages/my_recently.dart';
@@ -39,16 +35,16 @@ class _HomePageState extends State<HomePage> {
         pos: NavPos.top,
         label: '电台',
         iconData: IconFont.station),
-    NavItem(
-        type: NavType.customized,
-        pos: NavPos.top,
-        label: '自定',
-        iconData: IconFont.customized),
-    NavItem(
-        type: NavType.discovery,
-        pos: NavPos.top,
-        label: '发现',
-        iconData: IconFont.discovery),
+    // NavItem(
+    //     type: NavType.customized,
+    //     pos: NavPos.top,
+    //     label: '自定',
+    //     iconData: IconFont.customized),
+    // NavItem(
+    //     type: NavType.discovery,
+    //     pos: NavPos.top,
+    //     label: '发现',
+    //     iconData: IconFont.discovery),
   ];
 
   List<NavItem> bottomNavTabs = [
@@ -76,6 +72,10 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _registerHotKey();
+
+    // Future.delayed(const Duration(seconds: 5), () {
+    //   CacheDownload.download();
+    // });
 
     actNavItem = topNavTabs[0];
   }
@@ -115,8 +115,8 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     children: [
                       TitleBar(
-                        onSearchChanged: (value) {},
-                        onSearchClicked: () async {},
+                        // onSearchChanged: (value) {},
+                        // onSearchClicked: () async {},
                         onCompactClicked: () async {
                           Size size = await windowManager.getSize();
                           preWinSize = size;
@@ -130,13 +130,6 @@ class _HomePageState extends State<HomePage> {
                           await windowManager
                               .setSize(const Size(314.0, kPlayBarHeight));
                           await windowManager.setResizable(false);
-                        },
-                        onConfigClicked: () async {
-                          Size size = await windowManager.getSize();
-                          _onShowDlg(
-                              300.0,
-                              size.height - kTitleBarHeight - kPlayBarHeight,
-                              const Config());
                         },
                       ),
                       Expanded(
@@ -214,8 +207,8 @@ class _HomePageState extends State<HomePage> {
         physics: const NeverScrollableScrollPhysics(),
         children: const [
           MyStation(),
-          MyCustomized(),
-          MyDiscovery(),
+          // MyCustomized(),
+          // MyDiscovery(),
           MyRecently(),
           MyRecord(),
           MyFavorite(),
@@ -238,36 +231,5 @@ class _HomePageState extends State<HomePage> {
         actNavItem = item;
       });
     }
-  }
-
-  void _onShowDlg(double width, double height, Widget child) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.0),
-      builder: (BuildContext context) {
-        return Dialog(
-          alignment: Alignment.centerRight,
-          insetPadding: const EdgeInsets.only(
-              top: kTitleBarHeight, bottom: kPlayBarHeight, right: 0, left: 0),
-          elevation: 2.0,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(8.0),
-              bottomLeft: Radius.circular(8.0),
-            ),
-          ),
-          child: SizedBox(
-            width: width,
-            height: height,
-            child: Column(
-              children: <Widget>[
-                Expanded(child: child),
-              ],
-            ),
-          ),
-        );
-      },
-    );
   }
 }

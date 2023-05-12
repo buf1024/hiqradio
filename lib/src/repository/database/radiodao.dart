@@ -1,10 +1,13 @@
+import 'package:hiqradio/src/models/cache.dart';
 import 'package:hiqradio/src/models/fav_group.dart';
 import 'package:hiqradio/src/models/recently.dart';
+import 'package:hiqradio/src/models/record.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:sqflite_common/sqlite_api.dart' show Database;
 
 class RadioDao {
   final Database db;
+  final int kBatchSize = 500;
   RadioDao({required this.db});
 
   Future<FavGroup?> queryGroup({required String name}) async {
@@ -215,5 +218,101 @@ class RadioDao {
 
   Future<int> delRecently() async {
     return db.delete('recently', where: '1 = ?', whereArgs: [1]);
+  }
+
+  // record
+  Future<List<Record>> queryRecord() async {
+    List<Map<String, Object?>> data =
+        await db.query('record', orderBy: 'start_time desc');
+    return data.map(Record.fromJson).toList();
+  }
+
+  Future<Record> insertRecord(Station station, String file) async {
+    db.transaction((txn) async {
+      List<Map<String, Object?>> list = await txn.query('station',
+          where: 'stationuuid = ?', whereArgs: [station.stationuuid], limit: 1);
+      if (list.isEmpty) {
+        var jsValues = station.toJson();
+        await txn.insert('station', jsValues);
+      }
+      Map<String, Object?> values = {
+        'stationuuid': station.stationuuid,
+        'start_time': DateTime.now().millisecondsSinceEpoch,
+        'file': file
+      };
+      await txn.insert('record', values);
+    });
+    List<Map<String, Object?>> data = await db.query('record',
+        where: 'stationuuid = ? and file = ?',
+        whereArgs: [station.stationuuid, file]);
+    assert(data.length == 1);
+
+    return Record.fromJson(data[0]);
+  }
+
+  Future<int> updateRecord(int recordId) async {
+    return db.update(
+        'record', {'end_time': DateTime.now().millisecondsSinceEpoch},
+        where: 'id =?', whereArgs: [recordId]);
+  }
+
+  Future<int> delRecord(int recordId) async {
+    return db.delete('record', where: 'id = ?', whereArgs: [recordId]);
+  }
+
+  Future<Station?> queryRandomStation() async {
+    List<Map<String, Object?>> data =
+        await db.rawQuery('select * from station order by random() limit 1');
+    if (data.isNotEmpty) {
+      return Station.fromJson(data[0]);
+    }
+    return null;
+  }
+
+  Future<Cache?> queryCache() async {
+    List<Map<String, Object?>> data = await db.query('cache',
+        where: 'tab = ?', whereArgs: ['station'], limit: 1);
+    if (data.isNotEmpty) {
+      return Cache.fromJson(data[0]);
+    }
+    return null;
+  }
+
+  Future<int> updateCache(int id, int checkTime) async {
+    return await db.update('cache', {'check_time': checkTime},
+        where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<Cache> insertCache() async {
+    return await db.transaction((txn) async {
+      Cache cache = Cache(
+          tab: 'favorite', checkTime: DateTime.now().millisecondsSinceEpoch);
+      await txn.insert('cache', cache.toJson());
+      List<Map<String, Object?>> data = await txn.query('cache',
+          where: 'tab = ?', whereArgs: ['station'], limit: 1);
+      assert(data.isNotEmpty);
+      return Cache.fromJson(data[0]);
+    });
+  }
+
+  Future<void> insertStations(List<Station> stations) async {
+    var batch = db.batch();
+    int count = 0;
+    for (var station in stations) {
+      List<Map<String, Object?>> list = await db.query('station',
+          where: 'stationuuid = ?', whereArgs: [station.stationuuid], limit: 1);
+      var jsValues = station.toJson();
+      if (list.isEmpty) {
+        batch.insert('station', jsValues);
+      } else {
+        batch.update('station', jsValues,
+            where: 'stationuuid = ?', whereArgs: [station.stationuuid]);
+      }
+      count += 1;
+      if (count >= kBatchSize) {
+        batch.commit(noResult: true);
+      }
+    }
+    batch.commit(noResult: true);
   }
 }

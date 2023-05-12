@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hiqradio/src/views/desktop/components/station_icon.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 
 class MyDiscovery extends StatefulWidget {
@@ -41,10 +40,11 @@ class _MyDiscoveryState extends State<MyDiscovery>
       children: [
         Container(
           padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Text(
+          child: const Text(
             '推荐',
-            style:
-                TextStyle(fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
+            style: TextStyle(
+              fontSize: 14.0,
+            ),
           ),
         ),
         Row(
@@ -91,16 +91,17 @@ class _MyDiscoveryState extends State<MyDiscovery>
       children: [
         Container(
           padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Text(
+          child: const Text(
             '音乐',
-            style:
-                TextStyle(fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
+            style: TextStyle(
+              fontSize: 14.0,
+            ),
           ),
         ),
         Wrap(
           children: List.generate(10, (index) {
             return Container(
-              padding: EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(10.0),
               child:
                   // todo
                   //  StationIcon(),
@@ -118,20 +119,21 @@ class _MyDiscoveryState extends State<MyDiscovery>
       children: [
         Container(
           padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Text(
+          child: const Text(
             '年代',
-            style:
-                TextStyle(fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
+            style: TextStyle(
+              fontSize: 14.0,
+            ),
           ),
         ),
         Wrap(
           children: List.generate(10, (index) {
             return Container(
-              padding: EdgeInsets.all(10.0),
-              child: 
-              // todo
-                      //  StationIcon(),
-                       Text('todo'),
+              padding: const EdgeInsets.all(10.0),
+              child:
+                  // todo
+                  //  StationIcon(),
+                  const Text('todo'),
             );
           }).toList(),
         )
@@ -145,20 +147,21 @@ class _MyDiscoveryState extends State<MyDiscovery>
       children: [
         Container(
           padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Text(
+          child: const Text(
             '类目',
-            style:
-                TextStyle(fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
+            style: TextStyle(
+              fontSize: 14.0,
+            ),
           ),
         ),
         Wrap(
           children: List.generate(10, (index) {
             return Container(
-              padding: EdgeInsets.all(10.0),
-              child: 
-              // todo
-                      //  StationIcon(),
-                       Text('todo'),
+              padding: const EdgeInsets.all(10.0),
+              child:
+                  // todo
+                  //  StationIcon(),
+                  const Text('todo'),
             );
           }).toList(),
         )

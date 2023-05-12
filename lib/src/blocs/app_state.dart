@@ -1,12 +1,16 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:hiqradio/src/models/country.dart';
 import 'package:hiqradio/src/models/country_state.dart';
 import 'package:hiqradio/src/models/language.dart';
+import 'package:hiqradio/src/models/record.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/models/tag.dart';
+import 'package:hiqradio/src/utils/constant.dart';
 
 class AppState extends Equatable {
   final bool isInit;
+  final bool isActive;
 
   // playing
   final bool isPlaying;
@@ -26,24 +30,43 @@ class AppState extends Equatable {
   final bool isCountriesLoading;
   final bool isTagLoading;
 
-  const AppState({
-    this.isInit = false,
-    this.isPlaying = false,
-    this.isBuffering = false,
-    this.playingStation,
-    this.isFavStation = false,
-    this.isEditing = false,
-    this.languages = const [],
-    this.states = const {},
-    this.countries = const [],
-    this.tags = const [],
-    this.isLangLoading = false,
-    this.isStateLoading = false,
-    this.isCountriesLoading = false,
-    this.isTagLoading = false,
-  });
+  final bool isRecording;
+  final Record? playingRecord;
+
+  final HiqThemeMode themeMode;
+
+  final List<Station> playHis;
+  final int playHisIndex;
+
+  final bool autoStart;
+  final bool autoStop;
+
+  const AppState(
+      {this.isActive = false,
+      this.isInit = false,
+      this.isPlaying = false,
+      this.isBuffering = false,
+      this.playingStation,
+      this.isFavStation = false,
+      this.isEditing = false,
+      this.languages = const [],
+      this.states = const {},
+      this.countries = const [],
+      this.tags = const [],
+      this.isLangLoading = false,
+      this.isStateLoading = false,
+      this.isCountriesLoading = false,
+      this.isTagLoading = false,
+      this.themeMode = HiqThemeMode.dark,
+      this.isRecording = false,
+      this.playingRecord,
+      this.playHis = const [],
+      this.playHisIndex = 0,
+      this.autoStart = false,
+      this.autoStop = true});
 
   AppState copyWith({
+    bool? isActive,
     bool? isInit,
     bool? isPlaying,
     bool? isBuffering,
@@ -58,8 +81,16 @@ class AppState extends Equatable {
     bool? isStateLoading,
     bool? isCountriesLoading,
     bool? isTagLoading,
+    HiqThemeMode? themeMode,
+    bool? isRecording,
+    Record? playingRecord,
+    List<Station>? playHis,
+    int? playHisIndex,
+    bool? autoStart,
+    bool? autoStop,
   }) {
     return AppState(
+      isActive: isActive ?? this.isActive,
       isInit: isInit ?? this.isInit,
       isPlaying: isPlaying ?? this.isPlaying,
       isBuffering: isBuffering ?? this.isBuffering,
@@ -74,11 +105,21 @@ class AppState extends Equatable {
       isStateLoading: isStateLoading ?? this.isStateLoading,
       isCountriesLoading: isCountriesLoading ?? this.isCountriesLoading,
       isTagLoading: isTagLoading ?? this.isTagLoading,
+      themeMode: themeMode ?? this.themeMode,
+      isRecording: isRecording ?? this.isRecording,
+      playingRecord: playingRecord,
+      playHis: playHis ?? this.playHis,
+      playHisIndex: playHisIndex ?? this.playHisIndex,
+      autoStart: autoStart ?? this.autoStart,
+      autoStop: autoStop ?? this.autoStop,
     );
   }
 
+  ThemeMode get hiqThemMode => kThemeMode[themeMode]!;
+
   @override
   List<Object?> get props => [
+        isActive,
         isInit,
         isPlaying,
         isBuffering,
@@ -93,5 +134,12 @@ class AppState extends Equatable {
         isStateLoading,
         isCountriesLoading,
         isTagLoading,
+        themeMode,
+        isRecording,
+        playingRecord,
+        playHis,
+        playHisIndex,
+        autoStart,
+        autoStop
       ];
 }

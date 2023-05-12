@@ -11,11 +11,17 @@ class WinReady extends StatefulWidget {
 
 class _WinReadyState extends State<WinReady> {
   bool isReady = false;
-
+  bool isDispose = false;
   @override
   void initState() {
     super.initState();
     _winReady();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    isDispose = true;
   }
 
   void _winReady() async {

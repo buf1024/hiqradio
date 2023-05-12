@@ -31,7 +31,9 @@ main(List<String> args) async {
         }
         sql = '$sql$line\n';
       }
-      sqlCreated = '$sqlCreated  await db.execute("""$sql""");\n';
+      if (sql.isNotEmpty) {
+        sqlCreated = '$sqlCreated  await db.execute("""$sql""");\n';
+      }
     }
   }
 
@@ -41,6 +43,14 @@ main(List<String> args) async {
     `fav_group`(create_time, name, desc, is_def)
 values
     ($createTime, '默认', '默认的Favorite分组', 1);""";
+
+  inserted = '  await db.execute("""$inserted""");\n';
+  sqlCreated = '$sqlCreated$inserted';
+
+  inserted = """insert into
+    `cache`(check_time,tab)
+values
+    (0, 'station');""";
 
   inserted = '  await db.execute("""$inserted""");\n';
   sqlCreated = '$sqlCreated$inserted';

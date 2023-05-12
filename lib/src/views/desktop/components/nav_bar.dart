@@ -95,7 +95,7 @@ class _NavBarState extends State<NavBar> {
                 children: [
                   Icon(
                     elem.iconData,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Theme.of(context).textTheme.bodyMedium!.color!,
                     weight: 100,
                     size: 18.0,
                   ),
@@ -104,8 +104,6 @@ class _NavBarState extends State<NavBar> {
                   ),
                   Text(
                     elem.label,
-                    style: TextStyle(
-                        fontSize: 12.0, color: Colors.white.withOpacity(0.8)),
                   )
                 ],
               ),

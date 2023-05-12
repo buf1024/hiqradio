@@ -161,10 +161,11 @@ class _MyWidgetState extends State<SearchOption> {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Text(
+          child: const Text(
             '区域: ',
-            style:
-                TextStyle(fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
+            style: TextStyle(
+              fontSize: 14.0,
+            ),
           ),
         ),
         InkClick(
@@ -173,7 +174,7 @@ class _MyWidgetState extends State<SearchOption> {
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.white.withOpacity(0.5),
+                color: Theme.of(context).textTheme.bodyMedium!.color!,
               ),
               borderRadius: BorderRadius.circular(4.0),
             ),
@@ -183,9 +184,8 @@ class _MyWidgetState extends State<SearchOption> {
                   displaySelectedCountry.isEmpty
                       ? '国家/地区'
                       : displaySelectedCountry,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13.0,
-                    color: Colors.white.withOpacity(0.8),
                   ),
                 ),
                 if (isCountryLoading)
@@ -195,7 +195,7 @@ class _MyWidgetState extends State<SearchOption> {
                     padding: const EdgeInsets.all(4.0),
                     child: CircularProgressIndicator(
                       strokeWidth: 1.0,
-                      color: Colors.white.withOpacity(0.8),
+                      color: Theme.of(context).textTheme.bodyMedium!.color!,
                     ),
                   )
               ],
@@ -253,7 +253,7 @@ class _MyWidgetState extends State<SearchOption> {
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.white.withOpacity(0.5),
+                color: Theme.of(context).textTheme.bodyMedium!.color!,
               ),
               borderRadius: BorderRadius.circular(4.0),
             ),
@@ -261,9 +261,8 @@ class _MyWidgetState extends State<SearchOption> {
               children: [
                 Text(
                   displaySelectedState.isEmpty ? '省/州' : displaySelectedState,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14.0,
-                    color: Colors.white.withOpacity(0.8),
                   ),
                 ),
                 if (isStateLoading)
@@ -273,7 +272,7 @@ class _MyWidgetState extends State<SearchOption> {
                     padding: const EdgeInsets.all(4.0),
                     child: CircularProgressIndicator(
                       strokeWidth: 1.0,
-                      color: Colors.white.withOpacity(0.8),
+                      color: Theme.of(context).textTheme.bodyMedium!.color!,
                     ),
                   )
               ],
@@ -343,10 +342,11 @@ class _MyWidgetState extends State<SearchOption> {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Text(
+          child: const Text(
             '语言: ',
-            style:
-                TextStyle(fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
+            style: TextStyle(
+              fontSize: 14.0,
+            ),
           ),
         ),
         InkClick(
@@ -355,7 +355,7 @@ class _MyWidgetState extends State<SearchOption> {
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.white.withOpacity(0.5),
+                color: Theme.of(context).textTheme.bodyMedium!.color!,
               ),
               borderRadius: BorderRadius.circular(4.0),
             ),
@@ -365,9 +365,8 @@ class _MyWidgetState extends State<SearchOption> {
                   displaySelectedLanguage.isEmpty
                       ? '所有'
                       : displaySelectedLanguage,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13.0,
-                    color: Colors.white.withOpacity(0.8),
                   ),
                 ),
                 if (isLangLoading)
@@ -377,7 +376,7 @@ class _MyWidgetState extends State<SearchOption> {
                     padding: const EdgeInsets.all(4.0),
                     child: CircularProgressIndicator(
                       strokeWidth: 1.0,
-                      color: Colors.white.withOpacity(0.8),
+                      color: Theme.of(context).textTheme.bodyMedium!.color!,
                     ),
                   )
               ],
@@ -440,10 +439,11 @@ class _MyWidgetState extends State<SearchOption> {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Text(
+          child: const Text(
             '标签: ',
-            style:
-                TextStyle(fontSize: 14.0, color: Colors.white.withOpacity(0.8)),
+            style: TextStyle(
+              fontSize: 14.0,
+            ),
           ),
         ),
         InkClick(
@@ -453,7 +453,7 @@ class _MyWidgetState extends State<SearchOption> {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Theme.of(context).textTheme.bodyMedium!.color!,
                 ),
                 borderRadius: BorderRadius.circular(4.0),
               ),
@@ -470,7 +470,7 @@ class _MyWidgetState extends State<SearchOption> {
                       padding: const EdgeInsets.all(4.0),
                       child: CircularProgressIndicator(
                         strokeWidth: 1.0,
-                        color: Colors.white.withOpacity(0.8),
+                        color: Theme.of(context).textTheme.bodyMedium!.color!,
                       ),
                     ),
                 ],
@@ -526,15 +526,17 @@ class _MyWidgetState extends State<SearchOption> {
                                   horizontal: 8.0, vertical: 4.0),
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.5),
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .color!,
                                 ),
                                 borderRadius: BorderRadius.circular(4.0),
                               ),
                               child: Text(
                                 tag,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 13.0,
-                                  color: Colors.white.withOpacity(0.8),
                                 ),
                               ),
                             ),
@@ -630,7 +632,6 @@ class _MyWidgetState extends State<SearchOption> {
           );
         });
     Overlay.of(context).insert(optOverlay!);
-   
   }
 }
 
@@ -772,14 +773,17 @@ class _DialogContentState extends _OptionDialogState<DialogContent> {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                                 fontSize: 14.0,
-                                color: Colors.grey.withOpacity(0.8)),
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .color!),
                           ),
                         ),
                         Text(
                           '${info.count}',
-                          style: TextStyle(
-                              fontSize: 14.0,
-                              color: Colors.grey.withOpacity(0.8)),
+                          style: const TextStyle(
+                            fontSize: 14.0,
+                          ),
                         ),
                         const SizedBox(
                           width: 20.0,
@@ -804,10 +808,9 @@ class _DialogContentState extends _OptionDialogState<DialogContent> {
                     selectedInfo = [];
                   });
                 },
-                child: Text(
+                child: const Text(
                   '清空',
-                  style: TextStyle(
-                      color: Colors.white.withOpacity(0.8), fontSize: 13.0),
+                  style: TextStyle(fontSize: 13.0),
                 ),
               ),
               MaterialButton(
@@ -815,9 +818,8 @@ class _DialogContentState extends _OptionDialogState<DialogContent> {
                 onPressed: () {
                   widget.onConfirmed.call(isModified, selected, selectedInfo);
                 },
-                child: Text('确定',
+                child: const Text('确定',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
                       fontSize: 13.0,
                     )),
               ),
@@ -839,12 +841,13 @@ abstract class _OptionDialogState<T extends StatefulWidget> extends State<T> {
     _editFocusNode.requestFocus();
 
     _editFocusNode.addListener(() {
-      if(!_editFocusNode.hasFocus) {
+      if (!_editFocusNode.hasFocus) {
         editFocusLost();
       }
     });
   }
-    @override
+
+  @override
   void dispose() {
     super.dispose();
     _editFocusNode.dispose();
@@ -857,53 +860,52 @@ abstract class _OptionDialogState<T extends StatefulWidget> extends State<T> {
     return Container();
   }
 
-  Widget searchField(TextEditingController controller,
-      ValueChanged valueChanged) {
+  Widget searchField(
+      TextEditingController controller, ValueChanged valueChanged) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
       height: 30.0,
       // width: 220.0,
       child: TextField(
-        controller: controller,
-        focusNode: _editFocusNode,
-        autofocus: true,
-        autocorrect: false,
-        obscuringCharacter: '*',
-        cursorWidth: 1.0,
-        // showCursor: focusNode.hasFocus,
-        cursorColor: Colors.grey.withOpacity(0.8),
-        style: TextStyle(fontSize: 13.0, color: Colors.grey.withOpacity(0.8)),
-        decoration: InputDecoration(
-          // hintText: '过滤',
-          prefixIcon: Icon(Icons.search_outlined,
-              size: 18.0, color: Colors.grey.withOpacity(0.8)),
-          suffixIcon: controller.text.isNotEmpty
-              ? GestureDetector(
-                  onTap: () {
-                    controller.text = '';
-                    valueChanged.call('');
-                  },
-                  child: Icon(Icons.close_outlined,
-                      size: 16.0, color: Colors.grey.withOpacity(0.8)),
-                )
-              : null,
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
-          fillColor: Colors.grey.withOpacity(0.2),
-          filled: true,
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
-            // borderRadius: BorderRadius.circular(50.0),
+          controller: controller,
+          focusNode: _editFocusNode,
+          autocorrect: false,
+          obscuringCharacter: '*',
+          cursorWidth: 1.0,
+          cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
+          style: const TextStyle(fontSize: 13.0),
+          decoration: InputDecoration(
+            // hintText: '过滤',
+            prefixIcon: Icon(Icons.search_outlined,
+                size: 18.0,
+                color: Theme.of(context).textTheme.bodyMedium!.color!),
+            suffixIcon: controller.text.isNotEmpty
+                ? GestureDetector(
+                    onTap: () {
+                      controller.text = '';
+                      valueChanged.call('');
+                    },
+                    child: Icon(Icons.close_outlined,
+                        size: 16.0,
+                        color: Theme.of(context).textTheme.bodyMedium!.color!),
+                  )
+                : null,
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
+            fillColor: Colors.grey.withOpacity(0.2),
+            filled: true,
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
+              // borderRadius: BorderRadius.circular(50.0),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
+              // borderRadius: BorderRadius.circular(50.0),
+            ),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
-            // borderRadius: BorderRadius.circular(50.0),
-          ),
-        ),
-        onChanged: (value) {
-          valueChanged.call(value);
-        }
-      ),
+          onChanged: (value) {
+            valueChanged.call(value);
+          }),
     );
   }
 }

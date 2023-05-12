@@ -5,7 +5,8 @@ class AppThemeData {
   static ThemeData get dark => ThemeData(
         brightness: Brightness.dark,
         // 外框背景色
-        backgroundColor: const Color(0xff3C3F41),
+        colorScheme: const ColorScheme.dark(background: Color(0xff3C3F41)),
+        // backgroundColor: const Color(0xff3C3F41),
         // 记录激活高亮色
         highlightColor: const Color(0xff0D293E),
         // scaffold 背景颜色
@@ -27,8 +28,12 @@ class AppThemeData {
         // 主颜色
         primaryColor: Colors.cyan,
         // 主内容文字样式
-        textTheme: const TextTheme(
-          displayMedium: TextStyle(color: Color(0xffA9B7C6), fontSize: 14),
+        textTheme: TextTheme(
+          // displayMedium: TextStyle(color: Color(0xffA9B7C6), fontSize: 14),
+          displayMedium:
+              TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
+          bodyMedium:
+              TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
         ),
         // 输入框填充色
         inputDecorationTheme:
@@ -57,9 +62,11 @@ class AppThemeData {
 
   static ThemeData get light => ThemeData(
         brightness: Brightness.light,
-        backgroundColor: const Color(0xffF2F2F2),
+        // backgroundColor: const Color(0xffF2F2F2),
+        colorScheme: const ColorScheme.light(background: Color(0xff3C3F41)),
         highlightColor: Colors.blue.withOpacity(0.1),
-        scaffoldBackgroundColor: const Color(0xffFAFAFA),
+        scaffoldBackgroundColor: const Color(0xFFFFFFFF),
+        // scaffoldBackgroundColor: const Color(0xffFAFAFA),
         appBarTheme: const AppBarTheme(
             iconTheme: IconThemeData(color: Colors.black),
             systemOverlayStyle: SystemUiOverlayStyle(
@@ -73,8 +80,11 @@ class AppThemeData {
           ),
         ),
         primarySwatch: Colors.blue,
-        textTheme: const TextTheme(
-          displayMedium: TextStyle(color: Colors.black, fontSize: 14),
+        textTheme: TextTheme(
+          displayMedium:
+              TextStyle(color: Colors.black.withOpacity(0.8), fontSize: 12),
+          bodyMedium:
+              TextStyle(color: Colors.black.withOpacity(0.8), fontSize: 12),
         ),
         inputDecorationTheme:
             const InputDecorationTheme(fillColor: Colors.white),

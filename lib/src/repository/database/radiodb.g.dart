@@ -4,7 +4,7 @@ part of 'radiodb.dart';
 Future<void> createTables(Database db) async {
     await db.execute("""create table `cache`(
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-    `table` VARCHAR(32) NOT NULL,
+    `tab` VARCHAR(32) NOT NULL,
     `check_time` INTEGER NOT NULL
 )
 """);
@@ -35,23 +35,6 @@ Future<void> createTables(Database db) async {
     language
 )
 """);
-  await db.execute("""CREATE TABLE `playlist_detail` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-    `stationuuid` VARCHAR(40) NOT NULL,
-    `playlist_id` INTEGER
-)
-""");
-  await db.execute("""create index `playlist_detail_idx` on `playlist_detail`(stationuuid, playlist_id)
-""");
-  await db.execute("""CREATE TABLE `playlist` (
-    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-    `create_time` INTEGER NOT NULL,
-    `name` VARCHAR(255) NOT NULL,
-    `desc` VARCHAR(1024) NULL
-)
-""");
-  await db.execute("""create index `playlist_name_idx` on `playlist`(name)
-""");
   await db.execute("""CREATE TABLE `recently` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `stationuuid` VARCHAR(40) NOT NULL,
@@ -69,7 +52,7 @@ Future<void> createTables(Database db) async {
     `file` VARCHAR(256) NULL
 )
 """);
-  await db.execute("""create index `record_idx` on `record`(start_time, end_time)
+  await db.execute("""create index `record_idx` on `record`(start_time, end_time, file)
 """);
   await db.execute("""CREATE TABLE `favorite` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -90,6 +73,10 @@ Future<void> createTables(Database db) async {
   await db.execute("""insert into
     `fav_group`(create_time, name, desc, is_def)
 values
-    (1683473101747, '默认', '默认的Favorite分组', 1);""");
+    (1683812033374, '默认', '默认的Favorite分组', 1);""");
+  await db.execute("""insert into
+    `cache`(check_time,tab)
+values
+    (0, 'station');""");
 
 }

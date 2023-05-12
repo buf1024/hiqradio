@@ -1,7 +1,14 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:crypto/crypto.dart';
+import 'package:hiqradio/src/utils/check_license.dart';
+import 'package:hiqradio/src/utils/constant.dart';
+import 'package:hiqradio/src/utils/crypt.dart';
+import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
+import 'package:hiqradio/src/views/desktop/components/title_bar.dart';
+import 'package:hiqradio/src/views/desktop/components/win_ready.dart';
+import 'package:hiqradio/src/views/desktop/home_page.dart';
+import 'package:oktoast/oktoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:window_manager/window_manager.dart';
 
 class LockPage extends StatefulWidget {
   const LockPage({super.key});
@@ -13,9 +20,7 @@ class LockPage extends StatefulWidget {
 class _LockPageState extends State<LockPage> {
   final TextEditingController editingController = TextEditingController();
   final FocusNode focusNode = FocusNode();
-  bool isVisible = false;
-  String md5pass = 'e10adc3949ba59abbe56e057f20f883e';
-  String errText = '';
+
   @override
   void initState() {
     super.initState();
@@ -31,134 +36,159 @@ class _LockPageState extends State<LockPage> {
 
   @override
   Widget build(BuildContext context) {
+    Color toastColor = Theme.of(context).scaffoldBackgroundColor;
     return Scaffold(
-      // backgroundColor: backgroundColor,
-      body: Center(
-        child: Row(
-          children: [
-            const Spacer(),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
+        children: [
+          const TitleBar(
+            withFuncs: false,
+          ),
+          Expanded(
+              child: Center(
+            child: Row(
               children: [
-                // Text.rich(
-                //   TextSpan(children: [TextSpan(text: '勇于承认错误才是生存下去第一要素！')]),
-                // ),
-                // Text.rich(
-                //   TextSpan(children: [TextSpan(text: '出现亏损时必须无情！')]),
-                // ),
-                const SizedBox(
-                  height: 5.0,
-                ),
-                Row(
+                const Spacer(),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 250,
-                      padding: const EdgeInsets.all(2.0),
-                      child: TextField(
-                        controller: editingController,
-                        focusNode: focusNode,
-                        autofocus: true,
-                        obscureText: !isVisible,
-                        autocorrect: false,
-                        obscuringCharacter: '*',
-                        cursorWidth: 1.0,
-                        cursorColor: Colors.grey.withOpacity(0.8),
-                        decoration: InputDecoration(
-                          focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: errText.isEmpty
-                                      ? Colors.grey.withOpacity(0.8)
-                                      : Colors.red.withOpacity(0.8)),
-                              borderRadius: BorderRadius.circular(5)),
-                          enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: errText.isEmpty
-                                      ? Colors.grey.withOpacity(0.8)
-                                      : Colors.red.withOpacity(0.8)),
-                              borderRadius: BorderRadius.circular(5)),
-                          suffixIcon: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 2.0, horizontal: 6.0),
-                            child: InkWell(
-                              radius: 0,
-                              hoverColor: Colors.black.withOpacity(0),
-                              onTap: () {
-                                setState(() {
-                                  isVisible = !isVisible;
-                                });
-                              },
-                              child: Icon(
-                                isVisible
-                                    ? Icons.visibility_off_outlined
-                                    : Icons.visibility_outlined,
-                                size: 20,
-                                color: Colors.grey.withOpacity(0.8),
-                              ),
-                            ),
+                    const SizedBox(
+                      height: 5.0,
+                    ),
+                    Row(
+                      children: [
+                        Container(
+                          height: 48,
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            '注册码(32位):',
+                            style: TextStyle(fontSize: 15.0),
                           ),
                         ),
-                        onSubmitted: (text) {
-                          focusNode.requestFocus();
-                          onSubmitted();
-                        },
-                        onChanged: (_) => setState(() => errText = ''),
-                      ),
+                        Container(
+                          width: 320,
+                          height: 48,
+                          padding: const EdgeInsets.symmetric(vertical: 1.0),
+                          child: TextField(
+                            controller: editingController,
+                            focusNode: focusNode,
+                            autofocus: true,
+                            obscureText: false,
+                            autocorrect: false,
+                            obscuringCharacter: '*',
+                            cursorWidth: 1.0,
+                            cursorColor:
+                                Theme.of(context).textTheme.bodyMedium!.color!,
+                            // style: const TextStyle(fontSize: 15.0),
+                            decoration: InputDecoration(
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .color!),
+                                  borderRadius: BorderRadius.circular(5)),
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .color!),
+                                  borderRadius: BorderRadius.circular(5)),
+                            ),
+                            onSubmitted: (text) {
+                              focusNode.requestFocus();
+                              onSubmitted(toastColor);
+                            },
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 8.0,
+                        ),
+                        InkClick(
+                            onTap: () => onSubmitted(toastColor),
+                            child: Container(
+                              height: 48,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .color!,
+                                ),
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 18.0),
+                              alignment: Alignment.center,
+                              child: const Text(
+                                '注册',
+                                style: TextStyle(fontSize: 15.0),
+                              ),
+                            ))
+                      ],
                     ),
                     const SizedBox(
-                      width: 8.0,
+                      height: 8.0,
                     ),
-                    ElevatedButton(
-                        onPressed: () => onSubmitted(),
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue.withOpacity(0.8),
-                            elevation: 2.0,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5.0))),
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 14.0),
-                          child: Text(
-                            '解锁',
-                            style:
-                                TextStyle(color: Colors.white.withOpacity(0.8)),
-                          ),
-                        ))
                   ],
                 ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                errText.isEmpty
-                    ? const SizedBox(
-                        height: 50.0,
-                      )
-                    : SizedBox(
-                        height: 50.0,
-                        child: Text(
-                          errText,
-                          style: TextStyle(
-                              color: Colors.red.withOpacity(0.8),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15.0),
-                        ),
-                      ),
+                const Spacer(),
               ],
             ),
-            const Spacer(),
-          ],
-        ),
+          ))
+        ],
       ),
     );
   }
 
-  void onSubmitted() {
-    String md5sum = md5.convert(utf8.encode(editingController.text)).toString();
-    if (md5sum != md5pass) {
-      setState(() {
-        errText = '你输入的密码是不正确滴，你可以无限次数重试！';
-      });
-    } else {
-      Navigator.of(context).pop();
+  void onSubmitted(Color backgroundColor) async {
+    String license = editingController.text.trim();
+    if (license.isEmpty || license.length != 32) {
+      showToast(
+        '请输入正确的32位注册码',
+        backgroundColor: backgroundColor,
+        position: const ToastPosition(
+          align: Alignment.bottomCenter,
+        ),
+      );
+      return;
     }
+    bool isActive =
+        await CheckLicense.instance.isActiveLicense(kProductId, license);
+    if (!isActive) {
+      showToast(
+        '注册码无效',
+        backgroundColor: backgroundColor,
+        position: const ToastPosition(
+          align: Alignment.bottomCenter,
+        ),
+      );
+      return;
+    }
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    sp.setString(kSpAppLicense, license);
+
+    _jump();
+  }
+
+  void _jump() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => WinReady(
+          child: const HomePage(),
+          onReady: () async {
+            await windowManager.setTitleBarStyle(TitleBarStyle.hidden,
+                windowButtonVisibility: true);
+            await windowManager.setFullScreen(false);
+            await windowManager.setResizable(false);
+            await windowManager.setOpacity(1);
+            await windowManager.setSize(const Size(800, 540));
+            await windowManager.center();
+          },
+        ),
+      ),
+    );
   }
 }
