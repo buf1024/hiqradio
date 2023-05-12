@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/utils/check_license.dart';
 import 'package:hiqradio/src/utils/constant.dart';
-import 'package:hiqradio/src/utils/crypt.dart';
 import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/components/title_bar.dart';
 import 'package:hiqradio/src/views/desktop/components/win_ready.dart';
