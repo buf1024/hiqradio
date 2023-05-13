@@ -12,17 +12,17 @@ class StationPlaceholder extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
           gradient: LinearGradient(colors: [
-        Colors.grey.withOpacity(0.3),
-        Colors.grey.withOpacity(0.5),
+        Colors.blueGrey,
+        Colors.grey,
       ])),
       child: Center(
         child: Icon(IconFont.station,
             // size: 25.0,
-            size: height * 0.4),
+            size: height * 0.4,
+            color: Colors.white.withOpacity(0.8)),
       ),
     );
-    
   }
 }

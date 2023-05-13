@@ -15,47 +15,48 @@ class CheckLicense {
     return n;
   }
 
-  Future<bool> isActiveLicense(String productId, String license) async {
+  Future<String?> isActiveLicense(String productId, String license) async {
     String? date = Crypt.instance.decryptLicense(productId, license);
     if (date == null) {
-      return false;
+      return null;
     }
     try {
       DateTime licenseDate = DateTime.parse(date);
       DateTime now = await netNow();
       if (now.isAfter(licenseDate)) {
-        return false;
+        return null;
       }
+      date = DateFormat("yyyy-MM-dd").format(licenseDate);
       print('remain: ${now.difference(licenseDate).inDays}');
     } catch (e) {
-      return false;
+      return null;
     }
-    return true;
+    return date;
   }
 
-  Future<bool> isTryEnd() async {
+  Future<String?> isTryEnd() async {
     DateTime now = await netNow();
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? startTime = sp.getString(kSpAppFistStarted);
     if (startTime == null) {
       sp.setString(
           kSpAppFistStarted, DateFormat("yyyy-MM-dd HH:mm:ss").format(now));
-      return true;
+      startTime = DateFormat("yyyy-MM-dd").format(now);
     }
     DateTime date = DateTime.parse(startTime);
     date = date.add(const Duration(days: kTryDays));
     if (now.isAfter(date)) {
-      return true;
+      return null;
     }
     print('remain: ${now.difference(date).inDays}');
-    return false;
+    return DateFormat("yyyy-MM-dd").format(date);
   }
 
-  Future<bool> checkLicense() async {
+  Future<String?> checkLicense() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? license = sp.getString(kSpAppLicense);
     if (license == null) {
-      return !await isTryEnd();
+      return await isTryEnd();
     }
 
     return await isActiveLicense(kProductId, license);

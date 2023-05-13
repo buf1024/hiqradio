@@ -1,9 +1,9 @@
 -- 缓存电台
--- create table `cache`(
---     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
---     `tab` VARCHAR(32) NOT NULL,
---     `check_time` INTEGER NOT NULL
--- );
+create table `cache`(
+    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+    `tab` VARCHAR(32) NOT NULL,
+    `check_time` INTEGER NOT NULL
+);
 
 CREATE TABLE `station` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,

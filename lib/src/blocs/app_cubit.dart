@@ -112,9 +112,9 @@ class AppCubit extends Cubit<AppState> {
     if (tmp != null) {
       autoStop = tmp;
     }
-    bool isActive = await CheckLicense.instance.checkLicense();
+    String? expireDate = await CheckLicense.instance.checkLicense();
     emit(state.copyWith(
-        isActive: isActive,
+        expireDate: expireDate ?? '',
         isInit: true,
         playingStation: playingStation,
         themeMode: themeMode,
@@ -122,11 +122,18 @@ class AppCubit extends Cubit<AppState> {
         autoStop: autoStop));
 
     await Future.delayed(const Duration(milliseconds: 1));
-    if (isActive) {
+    if (expireDate != null) {
       if (autoStart && playingStation != null) {
         play(playingStation);
       }
     }
+  }
+
+  void activate(String license, String expireDate) async {
+                  SharedPreferences sp = await SharedPreferences.getInstance();
+    sp.setString(kSpAppLicense, license);
+
+    emit(state.copyWith(isTry: false, expireDate: expireDate));
   }
 
   void changeThemeMode(HiqThemeMode themeMode) async {

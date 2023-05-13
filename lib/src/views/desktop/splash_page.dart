@@ -97,7 +97,7 @@ class _SplashPageState extends State<SplashPage> {
         await Future.delayed(Duration(milliseconds: delay));
       }
 
-      _jump(state.isActive ? const HomePage() : const LockPage());
+      _jump(state.expireDate.isNotEmpty ? const HomePage() : const LockPage());
     }
   }
 

@@ -1,6 +1,8 @@
 import 'dart:io';
 
+// ignore: unused_import
 import 'package:path/path.dart' as path;
+// ignore: depend_on_referenced_packages
 import 'package:args/args.dart';
 
 main(List<String> args) async {

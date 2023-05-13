@@ -73,7 +73,7 @@ Future<void> createTables(Database db) async {
   await db.execute("""insert into
     `fav_group`(create_time, name, desc, is_def)
 values
-    (1683812033374, '默认', '默认的Favorite分组', 1);""");
+    (1683950470085, '默认', '默认的Favorite分组', 1);""");
   await db.execute("""insert into
     `cache`(check_time,tab)
 values

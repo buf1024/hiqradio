@@ -10,7 +10,8 @@ import 'package:hiqradio/src/utils/constant.dart';
 
 class AppState extends Equatable {
   final bool isInit;
-  final bool isActive;
+  final String expireDate;
+  final bool isTry;
 
   // playing
   final bool isPlaying;
@@ -42,7 +43,8 @@ class AppState extends Equatable {
   final bool autoStop;
 
   const AppState(
-      {this.isActive = false,
+      {this.isTry = true,
+      this.expireDate = '',
       this.isInit = false,
       this.isPlaying = false,
       this.isBuffering = false,
@@ -66,7 +68,8 @@ class AppState extends Equatable {
       this.autoStop = true});
 
   AppState copyWith({
-    bool? isActive,
+    bool? isTry,
+    String? expireDate,
     bool? isInit,
     bool? isPlaying,
     bool? isBuffering,
@@ -90,7 +93,8 @@ class AppState extends Equatable {
     bool? autoStop,
   }) {
     return AppState(
-      isActive: isActive ?? this.isActive,
+      isTry: isTry ?? this.isTry,
+      expireDate: expireDate ?? this.expireDate,
       isInit: isInit ?? this.isInit,
       isPlaying: isPlaying ?? this.isPlaying,
       isBuffering: isBuffering ?? this.isBuffering,
@@ -119,7 +123,8 @@ class AppState extends Equatable {
 
   @override
   List<Object?> get props => [
-        isActive,
+        isTry,
+        expireDate,
         isInit,
         isPlaying,
         isBuffering,

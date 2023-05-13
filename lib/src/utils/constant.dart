@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+const kAuthor = 'toyent@163.com';
+
 enum HiqThemeMode { dark, light, system }
 
 const kThemeMode = {
