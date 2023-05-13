@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dart_vlc/dart_vlc.dart' hide Record;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/app_state.dart';
 import 'package:hiqradio/src/models/country.dart';
@@ -17,58 +18,129 @@ import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/utils/recording.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
 import 'package:just_audio/just_audio.dart';
+// import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppCubit extends Cubit<AppState> {
-  final AudioPlayer player = AudioPlayer();
+  late dynamic player;
+  late dynamic recordPlayer;
+
   final RadioRepository repo = RadioRepository.instance;
 
-  final AudioPlayer recordPlayer = AudioPlayer();
-
   AppCubit() : super(const AppState()) {
-    player.playbackEventStream.listen((event) {},
-        onError: (Object e, StackTrace stackTrace) {
-      print('A playbackEventStream error occurred: $e');
-      emit(state.copyWith(isPlaying: false));
-    });
-    player.playerStateStream.listen((playerState) {
-      ProcessingState processingState = playerState.processingState;
-      bool isPlaying = true;
-      bool isBuffering = false;
-      if (ProcessingState.idle == processingState ||
-          ProcessingState.completed == processingState) {
-        isPlaying = false;
-      }
-      if (ProcessingState.buffering == processingState ||
-          ProcessingState.loading == processingState) {
-        isBuffering = true;
-      }
-      emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
-    }, onError: (Object e, StackTrace stackTrace) {
-      print('A playerStateStream error occurred: $e');
+    if (Platform.isMacOS) {
+      player = AudioPlayer();
+      recordPlayer = AudioPlayer();
 
-      emit(state.copyWith(isPlaying: false, isBuffering: false));
-    });
+      player.playbackEventStream.listen((event) {},
+          onError: (Object e, StackTrace stackTrace) {
+        print('A playbackEventStream error occurred: $e');
+        emit(state.copyWith(isPlaying: false));
+      });
 
-    recordPlayer.playbackEventStream.listen((event) {},
-        onError: (Object e, StackTrace stackTrace) {
-      print('A recordPlayer playbackEventStream error occurred: $e');
-      emit(state.copyWith(playingRecord: null));
-    });
-    recordPlayer.playerStateStream.listen((playerState) {
-      ProcessingState processingState = playerState.processingState;
+      player.playerStateStream.listen((playerState) {
+        ProcessingState processingState = playerState.processingState;
+        bool isPlaying = true;
+        bool isBuffering = false;
+        if (ProcessingState.idle == processingState ||
+            ProcessingState.completed == processingState) {
+          isPlaying = false;
+        }
+        if (ProcessingState.buffering == processingState ||
+            ProcessingState.loading == processingState) {
+          isBuffering = true;
+        }
+        emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
+      }, onError: (Object e, StackTrace stackTrace) {
+        print('A playerStateStream error occurred: $e');
 
-      if (ProcessingState.idle == processingState ||
-          ProcessingState.completed == processingState) {
+        emit(state.copyWith(isPlaying: false, isBuffering: false));
+      });
+
+      recordPlayer.playbackEventStream.listen((event) {},
+          onError: (Object e, StackTrace stackTrace) {
+        print('A recordPlayer playbackEventStream error occurred: $e');
         emit(state.copyWith(playingRecord: null));
-      }
-    }, onError: (Object e, StackTrace stackTrace) {
-      print('A recordPlayer playerStateStream error occurred: $e');
+      });
+      recordPlayer.playerStateStream.listen((playerState) {
+        ProcessingState processingState = playerState.processingState;
 
-      emit(state.copyWith(playingRecord: null));
-    });
+        if (ProcessingState.idle == processingState ||
+            ProcessingState.completed == processingState) {
+          emit(state.copyWith(playingRecord: null));
+        }
+      }, onError: (Object e, StackTrace stackTrace) {
+        print('A recordPlayer playerStateStream error occurred: $e');
+
+        emit(state.copyWith(playingRecord: null));
+      });
+    } else {
+      player = Player(id: 1);
+      recordPlayer = Player(id: 2);
+
+      player.playbackStream.listen((PlaybackState playbackState) {
+        bool isBuffering = false;
+        bool isPlaying = false;
+        if (playbackState.isPlaying) {
+          isPlaying = true;
+        }
+        emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
+      });
+
+      recordPlayer.playbackStream.listen((PlaybackState playbackState) {
+        if (playbackState.isCompleted) {
+          emit(state.copyWith(playingRecord: null));
+        }
+      });
+    }
+  }
+
+  Future<void> _platformPlay(
+      {required String uri, required bool isRecord}) async {
+    try {
+      if (Platform.isMacOS) {
+        if (!isRecord) {
+          await player.setAudioSource(AudioSource.uri(Uri.parse(uri)));
+          await player.play();
+        } else {
+          await recordPlayer.setAudioSource(AudioSource.file(uri));
+          await recordPlayer.play();
+        }
+      } else {
+        if (!isRecord) {
+          player.open(Media.network(uri));
+          emit(state.copyWith(isPlaying: true, isBuffering: true));
+        } else {
+          recordPlayer.open(Media.file(File(uri)));
+        }
+      }
+    } catch (e) {
+      print("Error playing : $e");
+    }
+  }
+
+  Future<void> _platformStop({required bool isRecord}) async {
+    try {
+      if (Platform.isMacOS) {
+        if (!isRecord) {
+          await player.stop();
+        } else {
+          await recordPlayer.stop();
+        }
+      } else {
+        if (!isRecord) {
+          player.stop();
+          emit(state.copyWith(isPlaying: false, isBuffering: false));
+        } else {
+          recordPlayer.stop();
+          emit(state.copyWith(playingRecord: null));
+        }
+      }
+    } catch (e) {
+      print("Error stopping : $e");
+    }
   }
 
   Future<String> getRecordingPath() async {
@@ -130,7 +202,7 @@ class AppCubit extends Cubit<AppState> {
   }
 
   void activate(String license, String expireDate) async {
-                  SharedPreferences sp = await SharedPreferences.getInstance();
+    SharedPreferences sp = await SharedPreferences.getInstance();
     sp.setString(kSpAppLicense, license);
 
     emit(state.copyWith(isTry: false, expireDate: expireDate));
@@ -209,10 +281,12 @@ class AppCubit extends Cubit<AppState> {
       sp.setString(kSpAppLastPlayStation, jsonEncode(station.toJson()));
 
       if (state.playingRecord != null) {
-        await recordPlayer.stop();
+        // await recordPlayer.stop();
+        await _platformStop(isRecord: true);
       }
       if (state.playingStation != null && state.isPlaying) {
-        await player.stop();
+        // await player.stop();
+        _platformStop(isRecord: false);
       }
       _addPlayHis(station);
       FavGroup? group = await repo.loadGroup();
@@ -224,12 +298,13 @@ class AppCubit extends Cubit<AppState> {
           playingStation: station,
           isFavStation: isFavStation,
           playingRecord: null));
-      try {
-        await player.setAudioSource(AudioSource.uri(Uri.parse(url)));
-        await player.play();
-      } catch (e) {
-        print("Error loading audio source and play: $e");
-      }
+      // try {
+      // await player.setAudioSource(AudioSource.uri(Uri.parse(url)));
+      // await player.play();
+      // } catch (e) {
+      //   print("Error loading audio source and play: $e");
+      // }
+      await _platformPlay(uri: url, isRecord: false);
     }
   }
 
@@ -245,7 +320,8 @@ class AppCubit extends Cubit<AppState> {
 
   void stop() async {
     if (state.playingStation != null) {
-      await player.stop();
+      // await player.stop();
+      _platformStop(isRecord: false);
     }
   }
 
@@ -376,25 +452,29 @@ class AppCubit extends Cubit<AppState> {
   void playRecord(Record record) async {
     if (record.file != null && record.file!.isNotEmpty) {
       if (state.playingRecord != null) {
-        await recordPlayer.stop();
+        // await recordPlayer.stop();
+        await _platformStop(isRecord: true);
       }
       if (state.playingStation != null && state.isPlaying) {
-        await player.stop();
+        // await player.stop();
+        await _platformStop(isRecord: false);
       }
       emit(state.copyWith(playingRecord: record));
-      try {
-        await recordPlayer.setAudioSource(AudioSource.file(record.file!));
-        await recordPlayer.play();
-      } catch (e) {
-        print("Error loading file audio source and play: $e");
-      }
+      // try {
+      // await recordPlayer.setAudioSource(AudioSource.file(record.file!));
+      // await recordPlayer.play();
+      // } catch (e) {
+      //   print("Error loading file audio source and play: $e");
+      // }
+      await _platformPlay(uri: record.file!, isRecord: true);
     }
   }
 
   void stopPlayRecord() async {
     if (state.playingRecord != null) {
       emit(state.copyWith(playingRecord: null));
-      await recordPlayer.stop();
+      // await recordPlayer.stop();
+      await _platformStop(isRecord: true);
     }
   }
 

@@ -128,7 +128,7 @@ class _HomePageState extends State<HomePage> {
                             isCompactMode = !isCompactMode;
                           });
                           await windowManager
-                              .setSize(const Size(314.0, kPlayBarHeight));
+                              .setSize(const Size(318.0, 74));
                           await windowManager.setResizable(false);
                         },
                       ),

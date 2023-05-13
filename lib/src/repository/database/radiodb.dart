@@ -83,6 +83,8 @@ class RadioDB {
           dbPath,
           options: options,
         );
+        radioDao = RadioDao(db: database);
+        isInit = true;
         return;
       }
       database = await openDatabase(
@@ -114,5 +116,6 @@ class RadioDB {
   FutureOr<void> _onOpen(Database db) {
     print('数据库打开....');
   }
+
   get dao => radioDao;
 }

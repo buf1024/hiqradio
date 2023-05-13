@@ -55,6 +55,7 @@ dependencies:
   encrypt: ^5.0.1
   ntp: ^2.0.0
   oktoast: ^3.3.1
+  dart_vlc: ^0.4.0
 
 dev_dependencies:
   flutter_test:

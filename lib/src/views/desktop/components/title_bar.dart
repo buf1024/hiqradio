@@ -284,7 +284,7 @@ class _TitleBarState extends State<TitleBar> {
         .select<AppCubit, HiqThemeMode>((value) => value.state.themeMode);
 
     return Row(children: [
-      Platform.isLinux || Platform.isLinux ? _windowsButtons() : Container(),
+      Platform.isLinux || Platform.isWindows ? _windowsButtons() : Container(),
       const Spacer(),
       _searchTextField(),
       const SizedBox(width: 10.0),

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dart_vlc/dart_vlc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/app_theme_data.dart';
@@ -17,6 +20,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
   await hotKeyManager.unregisterAll();
+  if(Platform.isLinux || Platform.isWindows) {
+    DartVLC.initialize();
+  }
 
   WindowOptions windowOptions = const WindowOptions(
     size: Size(400.0, 300.0),
@@ -29,7 +35,9 @@ void main() async {
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     // 为了使有TextEdit的Frameless window Title bar 的可以选择文本
     // 只能如此，猥琐发育
-    await windowManager.setMovable(false);
+    if (!Platform.isWindows) {
+      await windowManager.setMovable(false);
+    }
 
     // splash window
     // await windowManager.setTitleBarStyle(TitleBarStyle.hidden,
