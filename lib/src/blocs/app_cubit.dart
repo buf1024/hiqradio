@@ -185,8 +185,10 @@ class AppCubit extends Cubit<AppState> {
       autoStop = tmp;
     }
     String? expireDate = await CheckLicense.instance.checkLicense();
+    
     emit(state.copyWith(
         expireDate: expireDate ?? '',
+        isTry: expireDate == null,
         isInit: true,
         playingStation: playingStation,
         themeMode: themeMode,
