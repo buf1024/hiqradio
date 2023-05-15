@@ -5,14 +5,6 @@
     // 只能如此，猥琐发育
     await windowManager.setMovable(false);
 
-
-rb.countries()
-[{'name': 'China', 'iso_3166_1': 'CN', 'stationcount': 2133}]
-
-rb.countrycodes()
-[{'name': 'ZW', 'stationcount': 3}]
-
-rb.states(country='China')
-[{'name': 'Amur River', 'country': 'China', 'stationcount': 40}]
-
-
+ }
+## 问题
+Flutter 不支持条件import，所以，有些涉及平台相关的代码，有些做不到，就必须删代码编译

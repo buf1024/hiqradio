@@ -50,37 +50,39 @@ class _SplashPageState extends State<SplashPage> {
     return BlocListener<AppCubit, AppState>(
       listener: _listenInitApp,
       child: Scaffold(
-        body: Column(
-          children: [
-            const Spacer(),
-            Center(
-              child: Stack(
-                children: [
-                  const SizedBox(
-                    width: 150.0,
-                    height: 30.0,
-                  ),
-                  Positioned.fill(
-                    child: AnimatedAlign(
-                      alignment: alignment,
-                      duration: animateTime,
-                      child: const Icon(
-                        IconFont.station,
-                        size: 28.0,
+        body: SafeArea(
+          child: Column(
+            children: [
+              const Spacer(),
+              Center(
+                child: Stack(
+                  children: [
+                    const SizedBox(
+                      width: 150.0,
+                      height: 30.0,
+                    ),
+                    Positioned.fill(
+                      child: AnimatedAlign(
+                        alignment: alignment,
+                        duration: animateTime,
+                        child: const Icon(
+                          IconFont.station,
+                          size: 28.0,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10.0),
-              child: Text(
-                '正在初始化，请稍等片刻……',
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+                child: Text(
+                  '正在初始化，请稍等片刻……',
+                ),
               ),
-            ),
-            const Spacer(),
-          ],
+              const Spacer(),
+            ],
+          ),
         ),
       ),
     );
@@ -97,7 +99,7 @@ class _SplashPageState extends State<SplashPage> {
         await Future.delayed(Duration(milliseconds: delay));
       }
 
-      _jump(state.expireDate.isNotEmpty ? const HomePage() : const LockPage());
+      // _jump(state.expireDate.isNotEmpty ? const HomePage() : const LockPage());
     }
   }
 

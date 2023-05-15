@@ -10,6 +10,8 @@ const kThemeMode = {
   HiqThemeMode.system: ThemeMode.system
 };
 
+const kMaxInitMills = 500;
+
 const kProductId = 'rd';
 const kTryDays = 30;
 

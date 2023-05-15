@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dart_vlc/dart_vlc.dart' hide Record;
+
+// import 'package:dart_vlc/dart_vlc.dart' show Player, PlaybackState, Media;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/app_state.dart';
 import 'package:hiqradio/src/models/country.dart';
@@ -18,7 +19,6 @@ import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/utils/recording.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
 import 'package:just_audio/just_audio.dart';
-// import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,7 +30,7 @@ class AppCubit extends Cubit<AppState> {
   final RadioRepository repo = RadioRepository.instance;
 
   AppCubit() : super(const AppState()) {
-    if (Platform.isMacOS) {
+    if (Platform.isMacOS || Platform.isAndroid || Platform.isIOS) {
       player = AudioPlayer();
       recordPlayer = AudioPlayer();
 
@@ -77,30 +77,30 @@ class AppCubit extends Cubit<AppState> {
         emit(state.copyWith(playingRecord: null));
       });
     } else {
-      player = Player(id: 1);
-      recordPlayer = Player(id: 2);
+      // player = Player(id: 1);
+      // recordPlayer = Player(id: 2);
 
-      player.playbackStream.listen((PlaybackState playbackState) {
-        bool isBuffering = false;
-        bool isPlaying = false;
-        if (playbackState.isPlaying) {
-          isPlaying = true;
-        }
-        emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
-      });
+      // player.playbackStream.listen((PlaybackState playbackState) {
+      //   bool isBuffering = false;
+      //   bool isPlaying = false;
+      //   if (playbackState.isPlaying) {
+      //     isPlaying = true;
+      //   }
+      //   emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
+      // });
 
-      recordPlayer.playbackStream.listen((PlaybackState playbackState) {
-        if (playbackState.isCompleted) {
-          emit(state.copyWith(playingRecord: null));
-        }
-      });
+      // recordPlayer.playbackStream.listen((PlaybackState playbackState) {
+      //   if (playbackState.isCompleted) {
+      //     emit(state.copyWith(playingRecord: null));
+      //   }
+      // });
     }
   }
 
   Future<void> _platformPlay(
       {required String uri, required bool isRecord}) async {
     try {
-      if (Platform.isMacOS) {
+      if (Platform.isMacOS || Platform.isAndroid || Platform.isIOS) {
         if (!isRecord) {
           await player.setAudioSource(AudioSource.uri(Uri.parse(uri)));
           await player.play();
@@ -109,12 +109,12 @@ class AppCubit extends Cubit<AppState> {
           await recordPlayer.play();
         }
       } else {
-        if (!isRecord) {
-          player.open(Media.network(uri));
-          emit(state.copyWith(isPlaying: true, isBuffering: true));
-        } else {
-          recordPlayer.open(Media.file(File(uri)));
-        }
+        // if (!isRecord) {
+        //   player.open(Media.network(uri));
+        //   emit(state.copyWith(isPlaying: true, isBuffering: true));
+        // } else {
+        //   recordPlayer.open(Media.file(File(uri)));
+        // }
       }
     } catch (e) {
       print("Error playing : $e");
