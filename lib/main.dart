@@ -4,6 +4,8 @@ import 'package:dart_vlc/dart_vlc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
+import 'package:hiqradio/src/blocs/app_ja_cuibit.dart';
+import 'package:hiqradio/src/blocs/app_vcl_cubit.dart';
 import 'package:hiqradio/src/blocs/favorite_cubit.dart';
 import 'package:hiqradio/src/blocs/my_station_cubit.dart';
 import 'package:hiqradio/src/blocs/recently_cubit.dart';
@@ -67,7 +69,9 @@ class BlocWrap extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(providers: [
       BlocProvider<AppCubit>(
-        create: (_) => AppCubit(),
+        create: (_) => Platform.isAndroid || Platform.isIOS || Platform.isMacOS
+            ? AppJACubit()
+            : AppVCLCubit(),
       ),
       BlocProvider<MyStationCubit>(
         create: (_) => MyStationCubit(),
