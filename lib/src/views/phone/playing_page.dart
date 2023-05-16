@@ -5,60 +5,62 @@ import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
-import 'package:hiqradio/src/views/components/station_info.dart';
 import 'package:hiqradio/src/views/components/play_ctrl.dart';
-import 'package:hiqradio/src/views/desktop/utils/constant.dart';
+import 'package:hiqradio/src/views/components/station_info.dart';
 
-class PlayBar extends StatefulWidget {
-  const PlayBar({super.key});
+class PlayingPage extends StatefulWidget {
+  const PlayingPage({super.key});
 
   @override
-  State<PlayBar> createState() => _StatusBarState();
+  State<PlayingPage> createState() => _PlayingPageState();
 }
 
-class _StatusBarState extends State<PlayBar> {
+class _PlayingPageState extends State<PlayingPage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: SafeArea(
+        child: Center(
+          child: _playingBar(),
+        ),
+      ),
+    );
+  }
+
+  Widget _playingBar() {
     Station? playingStation = context
         .select<AppCubit, Station?>((value) => value.state.playingStation);
-
-    Color dividerColor = Theme.of(context).dividerColor;
-
-    return SizedBox(
-      height: kPlayBarHeight,
-      child: Column(
-        children: [
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: dividerColor,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
-            child: Stack(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    playingStation == null
-                        ? Container()
-                        : StationInfo(
-                            onClicked: () => {},
-                            width: 200,
-                            height: 54,
-                            station: playingStation,
-                          ),
-                    _buildFuncs(),
-                  ],
-                ),
-                const Center(
-                  child: PlayCtrl(),
-                )
-              ],
-            ),
-          )
-        ],
-      ),
+    Size size = MediaQuery.of(context).size;
+    return Column(
+      children: [
+        playingStation == null
+            ? Container(
+              height: size.height * 0.75,
+            )
+            :Container(
+              height: size.height* 0.75,
+              child: StationInfo(
+                onClicked: () => {},
+                width: 200,
+                height: 54,
+                station: playingStation,
+              ),
+            )
+             ,
+        // _buildFuncs(),
+        const PlayCtrl()
+      ],
     );
   }
 

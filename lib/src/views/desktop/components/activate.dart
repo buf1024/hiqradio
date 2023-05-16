@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/utils/check_license.dart';
 import 'package:hiqradio/src/utils/constant.dart';
-import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
+import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:oktoast/oktoast.dart';
 
 class Activate extends StatefulWidget {

@@ -8,7 +8,7 @@ import 'package:hiqradio/src/blocs/favorite_cubit.dart';
 import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/blocs/record_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
-import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
+import 'package:hiqradio/src/views/components/ink_click.dart';
 
 class PlayCtrl extends StatefulWidget {
   const PlayCtrl({super.key});

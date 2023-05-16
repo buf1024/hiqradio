@@ -52,6 +52,18 @@ class SearchCubit extends Cubit<SearchState> {
       emit(state.copyWith(recentSearch: recentSearch));
     }
   }
+  Future<String?> recentSearch() async {
+    List<String>? recentSearch = await _loadLastSearch();
+    if (recentSearch != null) {
+      String text = recentSearch[0];
+      var sMap = jsonDecode(text);
+      text = sMap['search'];
+      search(text);
+      return text;
+    }
+    return null;
+  }
+  
 
   Future<List<Station>> search(String name) async {
     name = name.trim();

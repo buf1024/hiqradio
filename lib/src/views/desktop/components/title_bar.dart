@@ -4,9 +4,9 @@ import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/search_cubit.dart';
 import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/views/desktop/components/config.dart';
-import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
+import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/components/search.dart';
-import 'package:hiqradio/src/views/desktop/components/search_option.dart';
+import 'package:hiqradio/src/views/components/search_option.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:window_manager/window_manager.dart';
@@ -554,15 +554,17 @@ class _TitleBarState extends State<TitleBar> {
                             ],
                           ),
                           SearchOption(
-                              onOptionChanged:
-                                  (country, countryState, language, tags) {
-                                onOptionChanged(
-                                    country, countryState, language, tags);
-                              },
-                              selectedCountry: selectedCountry,
-                              selectedLanguage: selectedLanguage,
-                              selectedState: selectedState,
-                              selectedTags: selectedTags),
+                            onOptionChanged:
+                                (country, countryState, language, tags) {
+                              onOptionChanged(
+                                  country, countryState, language, tags);
+                            },
+                            selectedCountry: selectedCountry,
+                            selectedLanguage: selectedLanguage,
+                            selectedState: selectedState,
+                            selectedTags: selectedTags,
+                            titleBarHeight: kTitleBarHeight,
+                          ),
                         ],
                       ),
                     ),

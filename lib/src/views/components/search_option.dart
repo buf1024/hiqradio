@@ -8,9 +8,9 @@ import 'package:hiqradio/src/models/country_state.dart';
 import 'package:hiqradio/src/models/language.dart';
 import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
-import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
-import 'package:hiqradio/src/views/desktop/utils/constant.dart';
-import 'package:window_manager/window_manager.dart';
+import 'package:hiqradio/src/utils/utils.dart';
+import 'package:hiqradio/src/views/components/ink_click.dart';
+// import 'package:window_manager/window_manager.dart';
 
 class CountInfo<T> {
   String value;
@@ -25,6 +25,7 @@ class SearchOption extends StatefulWidget {
   final String selectedLanguage;
   final String selectedCountry;
   final String selectedState;
+  final double titleBarHeight;
   const SearchOption({
     super.key,
     required this.onOptionChanged,
@@ -32,6 +33,7 @@ class SearchOption extends StatefulWidget {
     required this.selectedLanguage,
     required this.selectedCountry,
     required this.selectedState,
+    required this.titleBarHeight,
   });
 
   @override
@@ -157,6 +159,8 @@ class _MyWidgetState extends State<SearchOption> {
       }
     });
 
+    Size size = MediaQuery.of(context).size;
+
     return Row(
       children: [
         Container(
@@ -215,7 +219,6 @@ class _MyWidgetState extends State<SearchOption> {
                 },
               ).toList();
 
-              Size size = await windowManager.getSize();
               _onShowDialog(
                   editingController: countryController,
                   infos: allCountries,
@@ -292,7 +295,7 @@ class _MyWidgetState extends State<SearchOption> {
                   return countInfo;
                 },
               ).toList();
-              Size size = await windowManager.getSize();
+              // Size size = await windowManager.getSize();
               _onShowDialog(
                   editingController: stateController,
                   infos: allStates,
@@ -337,6 +340,8 @@ class _MyWidgetState extends State<SearchOption> {
 
     List<Language> languages = context
         .select<AppCubit, List<Language>>((value) => value.state.languages);
+
+    Size size = MediaQuery.of(context).size;
 
     return Row(
       children: [
@@ -396,7 +401,7 @@ class _MyWidgetState extends State<SearchOption> {
                 },
               ).toList();
 
-              Size size = await windowManager.getSize();
+              // Size size = await windowManager.getSize();
               _onShowDialog(
                   editingController: languageController,
                   infos: allLanguages,
@@ -434,6 +439,8 @@ class _MyWidgetState extends State<SearchOption> {
 
     List<Tag> tags =
         context.select<AppCubit, List<Tag>>((value) => value.state.tags);
+
+    Size size = MediaQuery.of(context).size;
 
     return Row(
       children: [
@@ -488,7 +495,7 @@ class _MyWidgetState extends State<SearchOption> {
                 },
               ).toList();
 
-              Size size = await windowManager.getSize();
+              // Size size = await windowManager.getSize();
               _onShowDialog(
                   editingController: tagAddController,
                   infos: allTags,
@@ -583,7 +590,7 @@ class _MyWidgetState extends State<SearchOption> {
             alignment: Alignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.only(top: kTitleBarHeight),
+                padding: EdgeInsets.only(top: widget.titleBarHeight),
                 child: ModalBarrier(
                   onDismiss: () {
                     _popOverlay();
@@ -593,9 +600,9 @@ class _MyWidgetState extends State<SearchOption> {
               Positioned(
                 top: (MediaQuery.of(context).size.height -
                             height -
-                            kTitleBarHeight) /
+                            widget.titleBarHeight) /
                         2 +
-                    kTitleBarHeight,
+                    widget.titleBarHeight,
                 child: Material(
                   child: StatefulBuilder(
                     builder: (context, setState) {
@@ -862,9 +869,11 @@ abstract class _OptionDialogState<T extends StatefulWidget> extends State<T> {
 
   Widget searchField(
       TextEditingController controller, ValueChanged valueChanged) {
+    double wHeight = isDesktop() ? 30 : 45;
+    double fSize = isDesktop() ? 13 : 16;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
-      height: 30.0,
+      height: wHeight,
       // width: 220.0,
       child: TextField(
           controller: controller,
@@ -873,7 +882,7 @@ abstract class _OptionDialogState<T extends StatefulWidget> extends State<T> {
           obscuringCharacter: '*',
           cursorWidth: 1.0,
           cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
-          style: const TextStyle(fontSize: 13.0),
+          style: TextStyle(fontSize: fSize),
           decoration: InputDecoration(
             // hintText: '过滤',
             prefixIcon: Icon(Icons.search_outlined,

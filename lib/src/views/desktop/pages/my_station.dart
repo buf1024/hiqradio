@@ -4,9 +4,10 @@ import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/my_station_cubit.dart';
 import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
-import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
-import 'package:hiqradio/src/views/desktop/components/search_option.dart';
-import 'package:hiqradio/src/views/desktop/components/station_icon.dart';
+import 'package:hiqradio/src/views/components/ink_click.dart';
+import 'package:hiqradio/src/views/components/station_icon.dart';
+import 'package:hiqradio/src/views/components/search_option.dart';
+import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 
 class MyStation extends StatefulWidget {
   const MyStation({super.key});
@@ -36,7 +37,7 @@ class _MyStationState extends State<MyStation>
     context.read<MyStationCubit>().initSearch();
 
     searchEditFocusNode.addListener(() {
-      if (!pageSizeFocusNode.hasFocus) {
+      if (!searchEditFocusNode.hasFocus) {
         context.read<AppCubit>().setEditing(false);
       }
     });
@@ -216,7 +217,8 @@ class _MyStationState extends State<MyStation>
                 selectedCountry: selectedCountry,
                 selectedLanguage: selectedLanguage,
                 selectedState: selectedState,
-                selectedTags: selectedTags)
+                selectedTags: selectedTags,
+                titleBarHeight: kTitleBarHeight)
             : Container()
       ],
     );

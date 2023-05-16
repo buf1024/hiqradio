@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
-import 'package:hiqradio/src/views/desktop/utils/nav.dart';
+import 'package:hiqradio/src/utils/nav.dart';
 
 
 class NavBar extends StatefulWidget {

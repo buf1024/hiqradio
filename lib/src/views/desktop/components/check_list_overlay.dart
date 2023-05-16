@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
-import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
+import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 
 OverlayEntry createCheckSelectedListOverlay(

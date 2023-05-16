@@ -6,8 +6,8 @@ import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/blocs/search_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
-import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
-import 'package:hiqradio/src/views/desktop/components/station_info.dart';
+import 'package:hiqradio/src/views/components/ink_click.dart';
+import 'package:hiqradio/src/views/components/station_info.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key});

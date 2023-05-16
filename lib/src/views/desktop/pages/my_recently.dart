@@ -8,7 +8,7 @@ import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/models/recently.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/pair.dart';
-import 'package:hiqradio/src/views/desktop/components/station_placeholder.dart';
+import 'package:hiqradio/src/views/components/station_placeholder.dart';
 import 'package:intl/intl.dart';
 
 class MyRecently extends StatefulWidget {

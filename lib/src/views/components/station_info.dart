@@ -2,8 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
-import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
-import 'package:hiqradio/src/views/desktop/components/station_placeholder.dart';
+import 'package:hiqradio/src/utils/utils.dart';
+import 'package:hiqradio/src/views/components/ink_click.dart';
+import 'package:hiqradio/src/views/components/station_placeholder.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class StationInfo extends StatelessWidget {
@@ -20,6 +21,9 @@ class StationInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double h1 = isDesktop() ? 12 : 15;
+    double h2 = isDesktop() ? 11 : 13;
+
     return SizedBox(
       height: height,
       width: width,
@@ -64,18 +68,20 @@ class StationInfo extends StatelessWidget {
             children: [
               const Spacer(),
               InkClick(
-                onTap: () async {
-                  if (station.homepage != null) {
-                    Uri url = Uri.parse(station.homepage!);
-                    await launchUrl(url);
-                  }
-                },
+                onTap: isDesktop()
+                    ? () async {
+                        if (station.homepage != null) {
+                          Uri url = Uri.parse(station.homepage!);
+                          await launchUrl(url);
+                        }
+                      }
+                    : null,
                 child: SizedBox(
                   width: width - height - 8.0,
                   child: Text(
                     station.name,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12.0),
+                    style: TextStyle(fontSize: h1),
                   ),
                 ),
               ),
@@ -87,7 +93,7 @@ class StationInfo extends StatelessWidget {
                       : '',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                      fontSize: 11.0, color: Colors.grey.withOpacity(0.8)),
+                      fontSize: h2, color: Colors.grey.withOpacity(0.8)),
                 ),
               ),
               SizedBox(
@@ -96,7 +102,7 @@ class StationInfo extends StatelessWidget {
                   _getLocationText(),
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                      fontSize: 11.0, color: Colors.grey.withOpacity(0.8)),
+                      fontSize: h2, color: Colors.grey.withOpacity(0.8)),
                 ),
               ),
               const Spacer(),

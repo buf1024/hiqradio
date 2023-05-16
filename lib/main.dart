@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/app_ja_cuibit.dart';
@@ -50,6 +51,10 @@ void main() async {
       await windowManager.show();
       await windowManager.focus();
     });
+  }
+  if (Platform.isAndroid) {
+    SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
   }
 
   runApp(

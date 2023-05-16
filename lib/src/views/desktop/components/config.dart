@@ -4,7 +4,7 @@ import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/views/desktop/components/activate.dart';
-import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
+import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 
 class Config extends StatefulWidget {

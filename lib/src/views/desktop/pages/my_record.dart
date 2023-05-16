@@ -8,8 +8,8 @@ import 'package:hiqradio/src/blocs/record_cubit.dart';
 import 'package:hiqradio/src/models/record.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/pair.dart';
-import 'package:hiqradio/src/views/desktop/components/ink_click.dart';
-import 'package:hiqradio/src/views/desktop/components/station_placeholder.dart';
+import 'package:hiqradio/src/views/components/ink_click.dart';
+import 'package:hiqradio/src/views/components/station_placeholder.dart';
 import 'package:intl/intl.dart';
 
 class MyRecord extends StatefulWidget {
