@@ -24,6 +24,8 @@ const kDefListSize = 50;
 const kMaxRecentSearch = 10;
 const kMaxPlayHis = 50;
 
+const kDefCheckCacheInterval = 30*24*60*60*1000;
+
 const kDefSearchText = '新闻';
 
 const kSpAppLicense = 'SpAppLicense';
@@ -34,5 +36,6 @@ const kSpAppAutoStart = 'AppAutoStart';
 const kSpAppAutoStop = 'AppAutoStop';
 
 const kSpMSLastSearch = 'MSLastSearchText';
-
 const kSpTBLastSearch = 'TBLastSearchText';
+
+const kSpAppCheckCacheInterval = 'AppCheckCacheInterval';

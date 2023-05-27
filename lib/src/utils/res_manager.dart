@@ -63,6 +63,7 @@ class ResManager {
   final Map<String, String> _stateR2LMap = HashMap();
   final Map<String, CountryInfo> _countryMap = HashMap();
   final Map<String, LanguageInfo> _langMap = HashMap();
+  final Map<String, LanguageInfo> _langNameMap = HashMap();
   final Map<String, String> _nativeLangMap = HashMap();
 
   Future<void> initRes() async {
@@ -92,7 +93,13 @@ class ResManager {
         await rootBundle.loadString('assets/files/languages.json');
     map = jsonDecode(languages);
     map.forEach((key, value) {
-      _langMap[key] = LanguageInfo.fromJson(key, value);
+      LanguageInfo info = LanguageInfo.fromJson(key, value);
+      _langMap[key] = info;
+
+      _langNameMap[info.name.toLowerCase()] = LanguageInfo(
+          name: info.name,
+          nameNative: info.nameNative,
+          languageCode: info.languageCode);
     });
 
     languages = await rootBundle.loadString('assets/files/languages-nmap.json');
@@ -162,5 +169,6 @@ class ResManager {
   get cnR2LMap => _stateR2LMap;
   get countryMap => _countryMap;
   get langMap => _langMap;
+  get langNameMap => _langNameMap;
   get nativeLangMap => _nativeLangMap;
 }

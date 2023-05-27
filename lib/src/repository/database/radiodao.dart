@@ -269,6 +269,74 @@ class RadioDao {
     return null;
   }
 
+  Future<List<Map<String, Object?>>> queryStationCountByLanguage() async {
+    return await db.rawQuery(
+        "SELECT  DISTINCT language as language, COUNT(*) as count from station where language is not null and language != '' GROUP BY language");
+  }
+
+  Future<List<Map<String, Object?>>> queryStationCountByCountrycode() async {
+    return await db.rawQuery(
+        "SELECT  DISTINCT countrycode as countrycode, COUNT(*) as count from station where countrycode is not null and countrycode != ''  GROUP BY countrycode");
+  }
+
+  Future<List<Map<String, Object?>>> queryStationCountByState(
+      String country) async {
+    return await db.rawQuery(
+        "SELECT  DISTINCT state as name, country, COUNT(*) as stationcount from station where state is not null and state != ''  and country like ?  GROUP BY state",
+        ['%$country%']);
+  }
+
+  Future<List<Map<String, Object?>>> queryStationCountByTags() async {
+    return await db.rawQuery(
+        "SELECT  DISTINCT tags as tags , COUNT(*) as count from station where tags is not null and tags != ''  GROUP BY tags");
+  }
+
+  Future<dynamic> querySearchStation(
+      {String? name,
+      String? country,
+      String? state,
+      String? language,
+      String? tagList}) async {
+    String condition = '';
+    bool hasCond = false;
+    if (name != null && name.isNotEmpty) {
+      condition +=
+          "(name like '%$name%' or tags like '%$name%' or country like '%$country%' or state like '%$state%' or language like '%$language%')";
+      hasCond = true;
+    }
+
+    if (country != null && country.isNotEmpty) {
+      if (hasCond) {
+        condition += " and";
+      }
+      condition += " country like '%$country%'";
+      hasCond = true;
+    }
+    if (state != null && state.isNotEmpty) {
+      if (hasCond) {
+        condition += " and";
+      }
+      condition += " state like '%$state%'";
+      hasCond = true;
+    }
+    if (language != null && language.isNotEmpty) {
+      if (hasCond) {
+        condition += " and";
+      }
+      condition += " language like '%$language%'";
+      hasCond = true;
+    }
+    if (tagList != null && tagList.isNotEmpty) {
+      if (hasCond) {
+        condition += " and";
+      }
+      condition += " tags like '%$tagList%'";
+      hasCond = true;
+    }
+    print(condition);
+    return await db.rawQuery('select * from station where $condition');
+  }
+
   Future<Cache?> queryCache() async {
     List<Map<String, Object?>> data = await db.query('cache',
         where: 'tab = ?', whereArgs: ['station'], limit: 1);
@@ -305,14 +373,19 @@ class RadioDao {
       if (list.isEmpty) {
         batch.insert('station', jsValues);
       } else {
+        var jsValues = station.toJson();
         batch.update('station', jsValues,
-            where: 'stationuuid = ?', whereArgs: [station.stationuuid]);
+            where: 'id = ?', whereArgs: [list[0]['id']]);
       }
       count += 1;
       if (count >= kBatchSize) {
-        batch.commit(noResult: true);
+        print('commit batch: $count');
+        await batch.apply(noResult: true, continueOnError: true);
+        batch = db.batch();
+        count = 0;
       }
     }
-    batch.commit(noResult: true);
+
+    await batch.apply(noResult: true, continueOnError: true);
   }
 }

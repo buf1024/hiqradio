@@ -587,7 +587,7 @@ class _TitleBarState extends State<TitleBar> {
   void _onShowConfigDlg() {
     double width = 300.0;
     Size size = MediaQuery.of(context).size;
-    double height = size.height - kTextTabBarHeight - kPlayBarHeight;
+    double height = size.height - kTitleBarHeight - kPlayBarHeight;
     configOverlay ??= OverlayEntry(
       opaque: false,
       builder: (context) {

@@ -11,11 +11,10 @@ import 'package:hiqradio/src/models/language.dart';
 import 'package:hiqradio/src/models/record.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/models/tag.dart';
-import 'package:hiqradio/src/repository/database/radiodb.dart';
 import 'package:hiqradio/src/repository/repository.dart';
 import 'package:hiqradio/src/utils/check_license.dart';
 import 'package:hiqradio/src/utils/constant.dart';
-import 'package:hiqradio/src/utils/recording.dart';
+import 'package:hiqradio/src/utils/my_isolate.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
 // import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart';
@@ -35,69 +34,69 @@ abstract class AppCubit extends Cubit<AppState> {
   AppCubit() : super(const AppState()) {
     initAudio();
     // if (Platform.isMacOS || Platform.isAndroid || Platform.isIOS) {
-      // player = AudioPlayer();
-      // recordPlayer = AudioPlayer();
+    // player = AudioPlayer();
+    // recordPlayer = AudioPlayer();
 
-      // player.playbackEventStream.listen((event) {},
-      //     onError: (Object e, StackTrace stackTrace) {
-      //   print('A playbackEventStream error occurred: $e');
-      //   emit(state.copyWith(isPlaying: false));
-      // });
+    // player.playbackEventStream.listen((event) {},
+    //     onError: (Object e, StackTrace stackTrace) {
+    //   print('A playbackEventStream error occurred: $e');
+    //   emit(state.copyWith(isPlaying: false));
+    // });
 
-      // player.playerStateStream.listen((playerState) {
-      //   ProcessingState processingState = playerState.processingState;
-      //   bool isPlaying = true;
-      //   bool isBuffering = false;
-      //   if (ProcessingState.idle == processingState ||
-      //       ProcessingState.completed == processingState) {
-      //     isPlaying = false;
-      //   }
-      //   if (ProcessingState.buffering == processingState ||
-      //       ProcessingState.loading == processingState) {
-      //     isBuffering = true;
-      //   }
-      //   emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
-      // }, onError: (Object e, StackTrace stackTrace) {
-      //   print('A playerStateStream error occurred: $e');
+    // player.playerStateStream.listen((playerState) {
+    //   ProcessingState processingState = playerState.processingState;
+    //   bool isPlaying = true;
+    //   bool isBuffering = false;
+    //   if (ProcessingState.idle == processingState ||
+    //       ProcessingState.completed == processingState) {
+    //     isPlaying = false;
+    //   }
+    //   if (ProcessingState.buffering == processingState ||
+    //       ProcessingState.loading == processingState) {
+    //     isBuffering = true;
+    //   }
+    //   emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
+    // }, onError: (Object e, StackTrace stackTrace) {
+    //   print('A playerStateStream error occurred: $e');
 
-      //   emit(state.copyWith(isPlaying: false, isBuffering: false));
-      // });
+    //   emit(state.copyWith(isPlaying: false, isBuffering: false));
+    // });
 
-      // recordPlayer.playbackEventStream.listen((event) {},
-      //     onError: (Object e, StackTrace stackTrace) {
-      //   print('A recordPlayer playbackEventStream error occurred: $e');
-      //   emit(state.copyWith(playingRecord: null));
-      // });
-      // recordPlayer.playerStateStream.listen((playerState) {
-      //   ProcessingState processingState = playerState.processingState;
+    // recordPlayer.playbackEventStream.listen((event) {},
+    //     onError: (Object e, StackTrace stackTrace) {
+    //   print('A recordPlayer playbackEventStream error occurred: $e');
+    //   emit(state.copyWith(playingRecord: null));
+    // });
+    // recordPlayer.playerStateStream.listen((playerState) {
+    //   ProcessingState processingState = playerState.processingState;
 
-      //   if (ProcessingState.idle == processingState ||
-      //       ProcessingState.completed == processingState) {
-      //     emit(state.copyWith(playingRecord: null));
-      //   }
-      // }, onError: (Object e, StackTrace stackTrace) {
-      //   print('A recordPlayer playerStateStream error occurred: $e');
+    //   if (ProcessingState.idle == processingState ||
+    //       ProcessingState.completed == processingState) {
+    //     emit(state.copyWith(playingRecord: null));
+    //   }
+    // }, onError: (Object e, StackTrace stackTrace) {
+    //   print('A recordPlayer playerStateStream error occurred: $e');
 
-      //   emit(state.copyWith(playingRecord: null));
-      // });
+    //   emit(state.copyWith(playingRecord: null));
+    // });
     // } else {
-      // player = Player(id: 1);
-      // recordPlayer = Player(id: 2);
+    // player = Player(id: 1);
+    // recordPlayer = Player(id: 2);
 
-      // player.playbackStream.listen((PlaybackState playbackState) {
-      //   bool isBuffering = false;
-      //   bool isPlaying = false;
-      //   if (playbackState.isPlaying) {
-      //     isPlaying = true;
-      //   }
-      //   emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
-      // });
+    // player.playbackStream.listen((PlaybackState playbackState) {
+    //   bool isBuffering = false;
+    //   bool isPlaying = false;
+    //   if (playbackState.isPlaying) {
+    //     isPlaying = true;
+    //   }
+    //   emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
+    // });
 
-      // recordPlayer.playbackStream.listen((PlaybackState playbackState) {
-      //   if (playbackState.isCompleted) {
-      //     emit(state.copyWith(playingRecord: null));
-      //   }
-      // });
+    // recordPlayer.playbackStream.listen((PlaybackState playbackState) {
+    //   if (playbackState.isCompleted) {
+    //     emit(state.copyWith(playingRecord: null));
+    //   }
+    // });
     //}
   }
 
@@ -113,12 +112,12 @@ abstract class AppCubit extends Cubit<AppState> {
       //     await recordPlayer.play();
       //   }
       // } else {
-        // if (!isRecord) {
-        //   player.open(Media.network(uri));
-        //   emit(state.copyWith(isPlaying: true, isBuffering: true));
-        // } else {
-        //   recordPlayer.open(Media.file(File(uri)));
-        // }
+      // if (!isRecord) {
+      //   player.open(Media.network(uri));
+      //   emit(state.copyWith(isPlaying: true, isBuffering: true));
+      // } else {
+      //   recordPlayer.open(Media.file(File(uri)));
+      // }
       //}
       await audioPlay(uri: uri, isRecord: isRecord);
     } catch (e) {
@@ -162,8 +161,8 @@ abstract class AppCubit extends Cubit<AppState> {
 
   void initApp() async {
     await ResManager.instance.initRes();
-    await RadioDB.create();
-    await Recording.create();
+    await repo.initRepo();
+    await MyIsolate.create();
 
     SharedPreferences sp = await SharedPreferences.getInstance();
 
@@ -206,6 +205,11 @@ abstract class AppCubit extends Cubit<AppState> {
       if (autoStart && playingStation != null) {
         play(playingStation);
       }
+
+      Future.delayed(const Duration(seconds: 1), () async {
+        print('delay 1 seconds execute');
+        await repo.doCacheStations();
+      });
     }
   }
 
@@ -379,8 +383,8 @@ abstract class AppCubit extends Cubit<AppState> {
 
       print('recording: url=$url, desc=$dest');
 
-      Recording r = await Recording.create();
-      r.start(url, dest);
+      MyIsolate r = await MyIsolate.create();
+      r.startRecording(url, dest);
 
       emit(state.copyWith(isRecording: true));
     }
@@ -388,8 +392,8 @@ abstract class AppCubit extends Cubit<AppState> {
 
   Future<void> stopRecording() async {
     if (state.isRecording) {
-      Recording r = await Recording.create();
-      r.stop();
+      MyIsolate r = await MyIsolate.create();
+      r.stopRecording();
       emit(state.copyWith(isRecording: false));
     }
   }

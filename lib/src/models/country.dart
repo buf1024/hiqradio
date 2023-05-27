@@ -1,19 +1,14 @@
 import 'package:equatable/equatable.dart';
 
 class Country extends Equatable {
-  final int? id;
   final String? country;
   final String? countrycode;
   final int stationcount;
 
   const Country(
-      {this.id,
-      this.country,
-      this.countrycode,
-      required this.stationcount});
+      {this.country, this.countrycode, required this.stationcount});
 
-  factory Country.fromJson(
-      dynamic map) {
+  factory Country.fromJson(dynamic map) {
     return Country(
         country: map['name'],
         countrycode: (map['iso_3166_1'] as String).toUpperCase(),
@@ -21,5 +16,5 @@ class Country extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, country, countrycode, stationcount];
+  List<Object?> get props => [country, countrycode, stationcount];
 }

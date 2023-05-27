@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:hiqradio/src/models/cache.dart';
 import 'package:hiqradio/src/models/country.dart';
 import 'package:hiqradio/src/models/country_state.dart';
 import 'package:hiqradio/src/models/fav_group.dart';
@@ -11,49 +12,116 @@ import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/repository/database/radiodao.dart';
 import 'package:hiqradio/src/repository/database/radiodb.dart';
 import 'package:hiqradio/src/repository/radioapi/radioapi.dart';
+import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/utils/pair.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RadioRepository {
   static final RadioRepository instance = RadioRepository._();
 
+  late RadioApi api;
+  late RadioDao dao;
+
+  bool isUseCache = true;
+
   RadioRepository._();
 
+  void setUseCache(bool useCache) {
+    isUseCache = useCache;
+  }
+
+  Future<void> initRepo() async {
+    api = await RadioApi.create();
+    dao = (await RadioDB.create()).dao;
+  }
+
   Future<List<Language>> loadLanguage() async {
-    RadioApi api = await RadioApi.create();
     List<Language> languages = [];
-    var languageList = await api.languages();
-    for (var language in languageList) {
-      if (language['name'] == null ||
-          (language['name'] as String).isEmpty ||
-          language['iso_639'] == null ||
-          (language['iso_639'] as String).length > 2) {
-        continue;
+    if (!isUseCache) {
+      var languageList = await api.languages();
+      for (var language in languageList) {
+        if (language['name'] == null ||
+            (language['name'] as String).isEmpty ||
+            language['iso_639'] == null ||
+            (language['iso_639'] as String).length > 2) {
+          continue;
+        }
+        String langCode = (language['iso_639'] as String).toLowerCase();
+        Map<String, LanguageInfo> map = ResManager.instance.langMap;
+        if (map.containsKey(langCode)) {
+          languages.add(Language.fromJson(language));
+        }
       }
-      String langCode = (language['iso_639'] as String).toLowerCase();
-      Map<String, LanguageInfo> map = ResManager.instance.langMap;
-      if (map.containsKey(langCode)) {
-        languages.add(Language.fromJson(language));
+    } else {
+      List<Map<String, Object?>> datas =
+          await dao.queryStationCountByLanguage();
+      if (datas.isNotEmpty) {
+        Map<String, int> tmpLangMap = {};
+        for (var data in datas) {
+          String name = data['language']! as String;
+          int count = data['count']! as int;
+          List<String> names = [];
+          if (name.contains(',')) {
+            names = name.split(',');
+          } else {
+            names = [name];
+          }
+          for (var n in names) {
+            if (tmpLangMap.containsKey(n)) {
+              tmpLangMap[n] = tmpLangMap[n]! + count;
+            } else {
+              tmpLangMap[n] = count;
+            }
+          }
+        }
+        Map<String, LanguageInfo> map = ResManager.instance.langNameMap;
+        for (var element in tmpLangMap.entries) {
+          String lang = element.key;
+          int count = element.value;
+          if (map.containsKey(lang)) {
+            LanguageInfo info = map[lang]!;
+            languages.add(Language(
+                language: info.name,
+                languagecode: info.languageCode,
+                stationcount: count));
+          }
+        }
       }
     }
     return languages;
   }
 
   Future<List<Country>> loadCountries() async {
-    RadioApi api = await RadioApi.create();
     List<Country> countries = [];
-    var countriesList = await api.countries();
-    for (var country in countriesList) {
-      if (country['name'] == null ||
-          (country['name'] as String).isEmpty ||
-          country['iso_3166_1'] == null ||
-          (country['iso_3166_1'] as String).length > 2) {
-        continue;
+    if (!isUseCache) {
+      var countriesList = await api.countries();
+      for (var country in countriesList) {
+        if (country['name'] == null ||
+            (country['name'] as String).isEmpty ||
+            country['iso_3166_1'] == null ||
+            (country['iso_3166_1'] as String).length > 2) {
+          continue;
+        }
+        String countryCode = (country['iso_3166_1'] as String).toUpperCase();
+        Map<String, CountryInfo> map = ResManager.instance.countryMap;
+        if (map.containsKey(countryCode)) {
+          countries.add(Country.fromJson(country));
+        }
       }
-      String countryCode = (country['iso_3166_1'] as String).toUpperCase();
+    } else {
+      List<Map<String, Object?>> datas =
+          await dao.queryStationCountByCountrycode();
       Map<String, CountryInfo> map = ResManager.instance.countryMap;
-      if (map.containsKey(countryCode)) {
-        countries.add(Country.fromJson(country));
+
+      for (var data in datas) {
+        String countryCode = data['countrycode']! as String;
+        if (map.containsKey(countryCode)) {
+          CountryInfo info = map[countryCode]!;
+          int count = data['count']! as int;
+          countries.add(Country(
+              country: info.name, countrycode: info.cca2, stationcount: count));
+        }
       }
     }
     return countries;
@@ -63,21 +131,35 @@ class RadioRepository {
     CountryInfo countryInfo = ResManager.instance.countryMap[selectedCountry];
 
     Map<String, String> r2lMap = ResManager.instance.cnR2LMap;
+    Map<String, List<String>> l2rMap = ResManager.instance.cnL2RMap;
 
-    RadioApi api = await RadioApi.create();
     Map<String, CountryState> countryStatesMap = {};
-    var countryStatesList = await api.states(country: countryInfo.nameRemote);
+
+    dynamic countryStatesList;
+    print(countryInfo.nameRemote);
+    if (!isUseCache) {
+      countryStatesList = await api.states(country: countryInfo.nameRemote);
+    } else {
+      countryStatesList =
+          await dao.queryStationCountByState(countryInfo.nameRemote);
+    }
+
     for (var countryState in countryStatesList) {
       if (countryState['name'] == null ||
-          (countryState['name'] as String).isEmpty ||
+          (countryState['name'] as String).trim().isEmpty ||
           countryState['country'] == null ||
-          (countryState['country'] as String).isEmpty) {
+          (countryState['country'] as String).trim().isEmpty) {
         continue;
       }
 
       String? mlState = countryState['name'];
       if (selectedCountry == 'CN') {
         mlState = r2lMap[countryState['name']];
+        if (mlState == null) {
+          if (l2rMap.containsKey(countryState['name'])) {
+            mlState = countryState['name'];
+          }
+        }
       }
       if (mlState != null) {
         CountryState? mState = countryStatesMap[mlState];
@@ -103,14 +185,40 @@ class RadioRepository {
   }
 
   Future<List<Tag>> loadTags() async {
-    RadioApi api = await RadioApi.create();
     List<Tag> tags = [];
-    var tagsList = await api.tags();
-    for (var tag in tagsList) {
-      if (tag['name'] == null || (tag['name'] as String).isEmpty) {
-        continue;
+    if (!isUseCache) {
+      var tagsList = await api.tags();
+      for (var tag in tagsList) {
+        if (tag['name'] == null || (tag['name'] as String).isEmpty) {
+          continue;
+        }
+        tags.add(Tag.fromJson(tag));
       }
-      tags.add(Tag.fromJson(tag));
+    } else {
+      List<Map<String, Object?>> tagsDB = await dao.queryStationCountByTags();
+      Map<String, int> tmpTags = {};
+      for (var tag in tagsDB) {
+        String name = tag['tags']! as String;
+        int count = tag['count']! as int;
+        List<String> names = [];
+        if (name.contains(',')) {
+          names = name.split(',');
+        } else {
+          names = [name];
+        }
+        for (var n in names) {
+          if (tmpTags.containsKey(n)) {
+            tmpTags[n] = tmpTags[n]! + count;
+          } else {
+            tmpTags[n] = count;
+          }
+        }
+      }
+      for (var element in tmpTags.entries) {
+        String name = element.key;
+        int count = element.value;
+        tags.add(Tag(tag: name, stationcount: count));
+      }
     }
     return tags;
   }
@@ -119,7 +227,8 @@ class RadioRepository {
       {String country = '',
       String countryState = '',
       String language = '',
-      List<String> tags = const []}) async {
+      List<String> tags = const [],
+      bool skipCache = false}) async {
     if (country.isNotEmpty) {
       Map<String, CountryInfo> map = ResManager.instance.countryMap;
       CountryInfo? countryInfo = map[country];
@@ -144,29 +253,38 @@ class RadioRepository {
     }
     print(
         'search: $name, country: $country, countryState: $countryState, language: $language, tags: ${tags.join(',')}');
-    RadioApi api = await RadioApi.create();
     List<Station> stations = [];
 
     List<dynamic> stationsList = [];
-    if (cnStates.isEmpty) {
-      stationsList = await api.search(
-          name: name,
-          country: country.isEmpty ? null : country,
-          state: countryState.isEmpty ? null : countryState,
-          language: language.isEmpty ? null : language,
-          tagList: tags.isEmpty ? null : tags.join(','),
-          hidebroken: true);
-    } else {
-      for (var cnState in cnStates) {
-        List<dynamic> list = await api.search(
+    if (!isUseCache || skipCache) {
+      if (cnStates.isEmpty) {
+        stationsList = await api.search(
             name: name,
             country: country.isEmpty ? null : country,
-            state: cnState,
+            state: countryState.isEmpty ? null : countryState,
             language: language.isEmpty ? null : language,
             tagList: tags.isEmpty ? null : tags.join(','),
             hidebroken: true);
-        stationsList.addAll(list);
+      } else {
+        for (var cnState in cnStates) {
+          List<dynamic> list = await api.search(
+              name: name,
+              country: country.isEmpty ? null : country,
+              state: cnState,
+              language: language.isEmpty ? null : language,
+              tagList: tags.isEmpty ? null : tags.join(','),
+              hidebroken: true);
+          stationsList.addAll(list);
+        }
       }
+    } else {
+      stationsList = await dao.querySearchStation(
+        name: name,
+        country: country.isEmpty ? null : country,
+        state: countryState.isEmpty ? null : countryState,
+        language: language.isEmpty ? null : language,
+        tagList: tags.isEmpty ? null : tags.join(','),
+      );
     }
 
     Set<String> cache = {};
@@ -204,7 +322,6 @@ class RadioRepository {
   }
 
   Future<FavGroup?> loadGroup({String? groupName}) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     if (groupName == null) {
       FavGroup? group = await dao.queryDefGroup();
       if (group == null) {
@@ -218,7 +335,6 @@ class RadioRepository {
   }
 
   Future<List<FavGroup>> loadGroups() async {
-    RadioDao dao = (await RadioDB.create()).dao;
     List<FavGroup>? groups = await dao.queryGroups();
 
     if (groups == null) {
@@ -229,60 +345,49 @@ class RadioRepository {
   }
 
   Future<List<Station>?> loadFavStations(String groupName) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.queryFavStations(groupName);
   }
 
   Future<void> addFavorite(Station station, int groupId) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     await dao.insertFavorite(station, groupId);
   }
 
   Future<int> delFavorite(String stationuuid) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.delFavorite(stationuuid);
   }
 
   Future<bool> isFavStation(String stationuuid, int groupId) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.queryIsFavStation(stationuuid, groupId);
   }
 
   Future<void> updateGroup(int id, {String? name, String? desc}) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.updateGroup(id, name: name, desc: desc);
   }
 
   Future<FavGroup> addNewGroup() async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.insertNewGroup();
   }
 
   Future<void> delGroup(String name) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.delGroup(name);
   }
 
   Future<List<String>> loadStationGroup(String stationuuid) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     List<FavGroup> data = await dao.queryStationGroup(stationuuid);
     return data.map((e) => e.name).toList();
   }
 
   Future<void> changeGroup(
       String stationuuid, String oldGroup, List<String> newGroups) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.changeGroup(stationuuid, oldGroup, newGroups);
   }
 
   Future<int> clearFavorites(int groupId) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.delFavorites(groupId);
   }
 
   // recently
   Future<List<Pair<Station, Recently>>> loadRecently() async {
-    RadioDao dao = (await RadioDB.create()).dao;
     List<Recently> recently = await dao.queryRecently();
     List<Pair<Station, Recently>> data = [];
     for (var r in recently) {
@@ -295,23 +400,19 @@ class RadioRepository {
   }
 
   Future<void> addRecently(Station station) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     await dao.insertRecently(station);
   }
 
   Future<int> updateRecently(int recentlyId) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.updateRecently(recentlyId);
   }
 
   Future<int> clearRecently() async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.delRecently();
   }
 
   // record
   Future<List<Pair<Station, Record>>> loadRecords() async {
-    RadioDao dao = (await RadioDB.create()).dao;
     List<Record> recently = await dao.queryRecord();
     List<Pair<Station, Record>> data = [];
     for (var r in recently) {
@@ -324,22 +425,44 @@ class RadioRepository {
   }
 
   Future<Record> addRecord(Station station, String file) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.insertRecord(station, file);
   }
 
   Future<int> updateRecord(int recordId) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.updateRecord(recordId);
   }
 
   Future<int> delRecord(int recordId) async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.delRecord(recordId);
   }
 
   Future<Station?> loadRandomStation() async {
-    RadioDao dao = (await RadioDB.create()).dao;
     return await dao.queryRandomStation();
+  }
+
+  Future<void> doCacheStations() async {
+    Cache? cache = await dao.queryCache();
+    bool needUpdate = false;
+    if (cache == null) {
+      needUpdate = true;
+    } else {
+      SharedPreferences sp = await SharedPreferences.getInstance();
+      int interval =
+          sp.getInt(kSpAppCheckCacheInterval) ?? kDefCheckCacheInterval;
+      int now = DateTime.now().millisecondsSinceEpoch;
+      if (now - cache.checkTime > interval) {
+        needUpdate = true;
+      }
+    }
+    if (needUpdate) {
+      List<Station> stations = await search('', skipCache: true);
+      print('update cache stations size=${stations.length}');
+      await dao.insertStations(stations);
+
+      await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
+    } else {
+      print('no need cache');
+    }
+    print('done update cache');
   }
 }

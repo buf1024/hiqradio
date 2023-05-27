@@ -23,6 +23,7 @@ class RadioDB {
 
   static final RadioDB _instance = RadioDB._();
 
+
   static Future<RadioDB> create() async {
     RadioDB db = RadioDB._instance;
     if (!db.isInit) {

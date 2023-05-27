@@ -5,21 +5,22 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_hls_parser/flutter_hls_parser.dart';
 
-class Recording {
+class MyIsolate {
   bool isInit = false;
   bool isRecording = false;
+  bool isCaching = false;
 
   late Isolate isolate;
   late SendPort sendPort;
   StreamSubscription<Uint8List>? subscription;
 
-  Recording._();
-  static final Recording _instance = Recording._();
+  MyIsolate._();
+  static final MyIsolate _instance = MyIsolate._();
 
-  static Future<Recording> create() async {
-    Recording api = Recording._instance;
+  static Future<MyIsolate> create() async {
+    MyIsolate api = MyIsolate._instance;
     if (!api.isInit) {
-      await api.initRecording();
+      await api.initMyIsolate();
     }
     return api;
   }
@@ -30,9 +31,9 @@ class Recording {
     isInit = false;
   }
 
-  Future<void> initRecording() async {
+  Future<void> initMyIsolate() async {
     ReceivePort receivePort = ReceivePort();
-    isolate = await Isolate.spawn(_doRecordWork, receivePort.sendPort);
+    isolate = await Isolate.spawn(_doIsolateWork, receivePort.sendPort);
 
     receivePort.listen((message) {
       String cmd = message[0];
@@ -112,7 +113,7 @@ class Recording {
   }
 
   // start recording
-  void _start(String url, String dest) async {
+  void _startRecording(String url, String dest) async {
     isRecording = true;
     if (url.toLowerCase().endsWith('.m3u8')) {
       await _downloadHlsString(url, dest);
@@ -121,22 +122,22 @@ class Recording {
     }
   }
 
-  void start(String url, String dest) {
+  void startRecording(String url, String dest) {
     sendPort.send(['record', url, dest]);
   }
 
-  void _stop() {
+  void _stopRecording() {
     isRecording = false;
     subscription?.cancel();
     subscription = null;
   }
 
-  void stop() {
-    sendPort.send(['stop']);
+  void stopRecording() {
+    sendPort.send(['stopRecord']);
   }
 
-  void _doRecordWork(SendPort sendPort) {
-    print('_doRecordWork ...');
+  void _doIsolateWork(SendPort sendPort) {
+    print('_doIsolateWork ...');
     ReceivePort wReceivePort = ReceivePort();
     SendPort wSendPort = wReceivePort.sendPort;
     wReceivePort.listen((message) {
@@ -144,9 +145,9 @@ class Recording {
       if (cmd == 'record') {
         String url = message[1];
         String dest = message[2];
-        _start(url, dest);
-      } else if (cmd == 'stop') {
-        _stop();
+        _startRecording(url, dest);
+      } else if (cmd == 'stopRecord') {
+        _stopRecording();
       }
     });
     sendPort.send(['ready', wSendPort]);

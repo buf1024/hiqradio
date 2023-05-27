@@ -53,8 +53,8 @@ class _ConfigState extends State<Config> {
   List<Widget> _buildConfigItem() {
     bool autoStart =
         context.select<AppCubit, bool>((value) => value.state.autoStart);
-    bool autoStop =
-        context.select<AppCubit, bool>((value) => value.state.autoStop);
+    // bool autoStop =
+    //     context.select<AppCubit, bool>((value) => value.state.autoStop);
     bool isTry = context.select<AppCubit, bool>((value) => value.state.isTry);
     String expireDate =
         context.select<AppCubit, String>((value) => value.state.expireDate);
@@ -103,40 +103,40 @@ class _ConfigState extends State<Config> {
           ),
           onTap: () {},
           mouseCursor: SystemMouseCursors.click),
-      ListTile(
-          splashColor: Colors.black.withOpacity(0),
-          title: const Text(
-            '耳机拔出停止',
-            style: TextStyle(fontSize: 14.0),
-          ),
-          subtitle: const Text(
-            '耳机拔出停止播放',
-            style: TextStyle(fontSize: 12.0),
-          ),
-          trailing: Checkbox(
-            splashRadius: 0,
-            checkColor: Theme.of(context).textTheme.bodyMedium!.color!,
-            focusColor: Colors.black.withOpacity(0),
-            hoverColor: Colors.black.withOpacity(0),
-            activeColor: Colors.black.withOpacity(0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(3.0),
-            ),
-            side: MaterialStateBorderSide.resolveWith(
-              (states) => BorderSide(
-                width: 1.0,
-                color: Theme.of(context).textTheme.bodyMedium!.color!,
-              ),
-            ),
-            value: autoStop,
-            onChanged: (value) {
-              if (value != null && value != autoStop) {
-                context.read<AppCubit>().setAutoStop(value);
-              }
-            },
-          ),
-          onTap: () {},
-          mouseCursor: SystemMouseCursors.click),
+      // ListTile(
+      //     splashColor: Colors.black.withOpacity(0),
+      //     title: const Text(
+      //       '耳机拔出停止',
+      //       style: TextStyle(fontSize: 14.0),
+      //     ),
+      //     subtitle: const Text(
+      //       '耳机拔出停止播放',
+      //       style: TextStyle(fontSize: 12.0),
+      //     ),
+      //     trailing: Checkbox(
+      //       splashRadius: 0,
+      //       checkColor: Theme.of(context).textTheme.bodyMedium!.color!,
+      //       focusColor: Colors.black.withOpacity(0),
+      //       hoverColor: Colors.black.withOpacity(0),
+      //       activeColor: Colors.black.withOpacity(0),
+      //       shape: RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.circular(3.0),
+      //       ),
+      //       side: MaterialStateBorderSide.resolveWith(
+      //         (states) => BorderSide(
+      //           width: 1.0,
+      //           color: Theme.of(context).textTheme.bodyMedium!.color!,
+      //         ),
+      //       ),
+      //       value: autoStop,
+      //       onChanged: (value) {
+      //         if (value != null && value != autoStop) {
+      //           context.read<AppCubit>().setAutoStop(value);
+      //         }
+      //       },
+      //     ),
+      //     onTap: () {},
+      //     mouseCursor: SystemMouseCursors.click),
       ListTile(
         splashColor: Colors.black.withOpacity(0),
         title: const Text(

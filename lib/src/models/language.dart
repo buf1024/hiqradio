@@ -1,13 +1,12 @@
 import 'package:equatable/equatable.dart';
 
 class Language extends Equatable {
-  final int? id;
   final String? language;
   final String? languagecode;
   final int stationcount;
 
   const Language(
-      {this.id, this.language, this.languagecode, required this.stationcount});
+      {this.language, this.languagecode, required this.stationcount});
 
   factory Language.fromJson(dynamic map) {
     return Language(
@@ -17,5 +16,5 @@ class Language extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, language, languagecode, stationcount];
+  List<Object?> get props => [language, languagecode, stationcount];
 }
