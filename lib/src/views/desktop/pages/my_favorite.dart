@@ -16,6 +16,7 @@ import 'package:hiqradio/src/views/components/station_placeholder.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MyFavorite extends StatefulWidget {
   const MyFavorite({super.key});
@@ -143,16 +144,15 @@ class _MyFavoriteState extends State<MyFavorite>
                     height: 28.0,
                     child: Row(
                       children: [
-                        Text(
-                          '？？',
-                          style: TextStyle(
-                            color: Colors.black.withOpacity(0),
-                          ),
-                        ),
                         InkClick(
                           onTap: () {},
-                          child: const Text(
-                            '分组：',
+                          child: Container(
+                            width: 100.0,
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              // '分组：',
+                              AppLocalizations.of(context).mine_group,
+                            ),
                           ),
                         ),
                         group != null
@@ -169,10 +169,16 @@ class _MyFavoriteState extends State<MyFavorite>
                                       obscuringCharacter: '*',
                                       cursorWidth: 1.0,
                                       showCursor: true,
-                                      cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
+                                      cursorColor: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .color!,
                                       style: const TextStyle(fontSize: 14.0),
                                       decoration: InputDecoration(
-                                        hintText: '分组名称',
+                                        hintText:
+                                            // '分组名称',
+                                            AppLocalizations.of(context)
+                                                .mine_group_hit,
                                         contentPadding:
                                             const EdgeInsets.symmetric(
                                                 vertical: 2.0, horizontal: 6.0),
@@ -220,7 +226,6 @@ class _MyFavoriteState extends State<MyFavorite>
                                     child: Text(
                                       group.name,
                                       overflow: TextOverflow.ellipsis,
-                                      
                                     ),
                                   ))
                             : Container(),
@@ -283,9 +288,13 @@ class _MyFavoriteState extends State<MyFavorite>
                     height: 28.0,
                     child: Row(
                       children: [
-                        const Text(
-                          '创建时间: ',
-                          
+                        Container(
+                          width: 100.0,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            // '创建时间: ',
+                            AppLocalizations.of(context).mine_create_time,
+                          ),
                         ),
                         Text(
                           group != null
@@ -293,7 +302,6 @@ class _MyFavoriteState extends State<MyFavorite>
                                   DateTime.fromMillisecondsSinceEpoch(
                                       group.createTime))
                               : '',
-                          
                         ),
                       ],
                     ),
@@ -302,13 +310,15 @@ class _MyFavoriteState extends State<MyFavorite>
                     height: 28.0,
                     child: Row(
                       children: [
-                        const Text(
-                          '电台数量: ',
-                          
+                        Container(
+                          width: 100.0,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                              // '电台数量: ',
+                              AppLocalizations.of(context).mine_station_count),
                         ),
                         Text(
                           '${stations.length}',
-                          
                         ),
                       ],
                     ),
@@ -317,15 +327,12 @@ class _MyFavoriteState extends State<MyFavorite>
                     height: 28.0,
                     child: Row(
                       children: [
-                        Text(
-                          '？？',
-                          style: TextStyle(
-                            color: Colors.black.withOpacity(0),
-                          ),
-                        ),
-                        const Text(
-                          '简介: ',
-                          
+                        Container(
+                          width: 100.0,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                              // '简介: ',
+                              AppLocalizations.of(context).mine_group_desc),
                         ),
                         group != null
                             ? (isGroupDescEditing
@@ -341,10 +348,16 @@ class _MyFavoriteState extends State<MyFavorite>
                                       obscuringCharacter: '*',
                                       cursorWidth: 1.0,
                                       showCursor: true,
-                                      cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
+                                      cursorColor: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .color!,
                                       style: const TextStyle(fontSize: 14.0),
                                       decoration: InputDecoration(
-                                        hintText: '分组描述',
+                                        hintText:
+                                            // '分组描述',
+                                            AppLocalizations.of(context)
+                                                .mine_group_desc_hit,
                                         contentPadding:
                                             const EdgeInsets.symmetric(
                                                 vertical: 2.0, horizontal: 6.0),
@@ -388,7 +401,6 @@ class _MyFavoriteState extends State<MyFavorite>
                                     child: Text(
                                       group.desc ?? '',
                                       overflow: TextOverflow.ellipsis,
-                                      
                                     ),
                                   ))
                             : Container(),
@@ -412,10 +424,11 @@ class _MyFavoriteState extends State<MyFavorite>
   }
 
   Widget _emptyTable() {
-    return const Center(
+    return Center(
       child: Text(
-        '空空如也',
-        style: TextStyle(
+        // '空空如也',
+        AppLocalizations.of(context).mine_empty,
+        style: const TextStyle(
           fontSize: 15.0,
         ),
       ),
@@ -455,19 +468,20 @@ class _MyFavoriteState extends State<MyFavorite>
         headingRowColor: MaterialStateProperty.resolveWith(
             (states) => Colors.grey.withOpacity(0.1)),
         empty: _emptyTable(),
-        columns: const [
-          DataColumn2(label: Text(''), fixedWidth: 24.0),
+        columns: [
+          const DataColumn2(label: Text(''), fixedWidth: 24.0),
           DataColumn2(
-            label: Text('电台'),
-            // onSort: (i, b) {
-            //   print('first: ${i}, ${b}');
-            // },
+            label: Text(AppLocalizations.of(context).cmm_station),
           ),
-          DataColumn2(label: Text('标签')),
-          DataColumn2(label: Text('语言')),
-          DataColumn2(label: Text('区域')),
-          DataColumn2(label: Text('格式'), fixedWidth: 45.0),
-          DataColumn2(label: Text('比特率'), fixedWidth: 48.0),
+          DataColumn2(label: Text(AppLocalizations.of(context).cmm_tag)),
+          DataColumn2(label: Text(AppLocalizations.of(context).cmm_language)),
+          DataColumn2(label: Text(AppLocalizations.of(context).cmm_district)),
+          DataColumn2(
+              label: Text(AppLocalizations.of(context).cmm_format),
+              fixedWidth: 55.0),
+          DataColumn2(
+              label: Text(AppLocalizations.of(context).cmm_bitrate),
+              fixedWidth: 55.0),
         ],
         rows: stations.asMap().entries.map(
           (entry) {
@@ -706,14 +720,22 @@ class _MyFavoriteState extends State<MyFavorite>
                 isPlaying ? IconFont.stop : IconFont.play,
                 size: 14.0,
               ),
-              text: isPlaying ? '停止' : '播放'),
+              text: isPlaying
+                  ?
+                  // '停止'
+                  AppLocalizations.of(context).cmm_stop
+                  :
+                  // '播放'
+                  AppLocalizations.of(context).cmm_play),
           _popMenuItem(
               enabled: true,
               onTap: () {
                 _popOverlay();
                 Size size = MediaQuery.of(context).size;
                 overlay = createCheckSelectedListOverlay(
-                    text: '选择新分组',
+                    text:
+                        // '选择新分组',
+                        AppLocalizations.of(context).mine_select_new_group,
                     data: data,
                     selected: selected,
                     width: size.width * 0.15,
@@ -738,7 +760,9 @@ class _MyFavoriteState extends State<MyFavorite>
                 IconFont.edit,
                 size: 14.0,
               ),
-              text: '修改分组'),
+              text:
+                  // '修改分组'
+                  AppLocalizations.of(context).mine_modify_group),
           _popMenuItem(
               enabled: station.homepage != null,
               onTap: () async {
@@ -751,7 +775,9 @@ class _MyFavoriteState extends State<MyFavorite>
                 IconFont.home,
                 size: 14.0,
               ),
-              text: '电台主页'),
+              text:
+                  // '电台主页'
+                  AppLocalizations.of(context).mine_station_page),
           _popMenuItem(
               enabled: true,
               onTap: () {
@@ -761,7 +787,9 @@ class _MyFavoriteState extends State<MyFavorite>
                 IconFont.delete,
                 size: 14.0,
               ),
-              text: '删除'),
+              text:
+                  //  '删除'
+                  AppLocalizations.of(context).mine_station_delete),
           _popMenuItem(
               enabled: true,
               onTap: () {
@@ -773,7 +801,9 @@ class _MyFavoriteState extends State<MyFavorite>
                 IconFont.close,
                 size: 14.0,
               ),
-              text: '清空分组'),
+              text:
+                  // '清空分组'
+                  AppLocalizations.of(context).mine_group_clear),
         ],
         elevation: 8.0);
   }
@@ -802,8 +832,7 @@ class _MyFavoriteState extends State<MyFavorite>
               padding: const EdgeInsets.only(right: 2.0),
               child: Text(
                 text,
-                style: const TextStyle(
-                    fontSize: 14.0),
+                style: const TextStyle(fontSize: 14.0),
               ),
             )
           ],
@@ -884,11 +913,13 @@ class _PopupContentState extends State<PopupContent> {
           children: <Widget>[
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child:const Text(
-                '选择分组: ',
+              child: Text(
+                // '选择分组: ',
+                AppLocalizations.of(context).mine_select_group,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    fontSize: 14.0, ),
+                style: const TextStyle(
+                  fontSize: 14.0,
+                ),
               ),
             ),
             Expanded(
@@ -923,11 +954,13 @@ class _PopupContentState extends State<PopupContent> {
                               ),
                               padding: const EdgeInsets.all(4.0),
                               child: Text(
-                                '确定删除: ${favGroup.name} ',
+                                // '确定删除: ${favGroup.name} ',
+                                AppLocalizations.of(context)
+                                    .mine_delete_group(favGroup.name),
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                    fontSize: 14.0,
-                                    ),
+                                  fontSize: 14.0,
+                                ),
                               ),
                             ),
                           ),
@@ -949,12 +982,13 @@ class _PopupContentState extends State<PopupContent> {
                               ),
                             ),
                             padding: const EdgeInsets.all(4.0),
-                            child: const Text(
-                              '取消',
+                            child: Text(
+                              // '取消',
+                              AppLocalizations.of(context).cmm_cancel,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                  fontSize: 14.0,
-                                 ),
+                              style: const TextStyle(
+                                fontSize: 14.0,
+                              ),
                             ),
                           ),
                         ),
@@ -995,8 +1029,8 @@ class _PopupContentState extends State<PopupContent> {
                                     favGroup.name,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                        fontSize: 14.0,
-                                        ),
+                                      fontSize: 14.0,
+                                    ),
                                   ),
                                 ),
                               ],

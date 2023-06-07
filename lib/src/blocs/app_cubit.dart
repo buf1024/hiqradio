@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:io';
 
 // import 'package:dart_vlc/dart_vlc.dart' show Player, PlaybackState, Media;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,92 +34,11 @@ abstract class AppCubit extends Cubit<AppState> {
 
   AppCubit() : super(const AppState()) {
     initAudio();
-    // if (Platform.isMacOS || Platform.isAndroid || Platform.isIOS) {
-    // player = AudioPlayer();
-    // recordPlayer = AudioPlayer();
-
-    // player.playbackEventStream.listen((event) {},
-    //     onError: (Object e, StackTrace stackTrace) {
-    //   print('A playbackEventStream error occurred: $e');
-    //   emit(state.copyWith(isPlaying: false));
-    // });
-
-    // player.playerStateStream.listen((playerState) {
-    //   ProcessingState processingState = playerState.processingState;
-    //   bool isPlaying = true;
-    //   bool isBuffering = false;
-    //   if (ProcessingState.idle == processingState ||
-    //       ProcessingState.completed == processingState) {
-    //     isPlaying = false;
-    //   }
-    //   if (ProcessingState.buffering == processingState ||
-    //       ProcessingState.loading == processingState) {
-    //     isBuffering = true;
-    //   }
-    //   emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
-    // }, onError: (Object e, StackTrace stackTrace) {
-    //   print('A playerStateStream error occurred: $e');
-
-    //   emit(state.copyWith(isPlaying: false, isBuffering: false));
-    // });
-
-    // recordPlayer.playbackEventStream.listen((event) {},
-    //     onError: (Object e, StackTrace stackTrace) {
-    //   print('A recordPlayer playbackEventStream error occurred: $e');
-    //   emit(state.copyWith(playingRecord: null));
-    // });
-    // recordPlayer.playerStateStream.listen((playerState) {
-    //   ProcessingState processingState = playerState.processingState;
-
-    //   if (ProcessingState.idle == processingState ||
-    //       ProcessingState.completed == processingState) {
-    //     emit(state.copyWith(playingRecord: null));
-    //   }
-    // }, onError: (Object e, StackTrace stackTrace) {
-    //   print('A recordPlayer playerStateStream error occurred: $e');
-
-    //   emit(state.copyWith(playingRecord: null));
-    // });
-    // } else {
-    // player = Player(id: 1);
-    // recordPlayer = Player(id: 2);
-
-    // player.playbackStream.listen((PlaybackState playbackState) {
-    //   bool isBuffering = false;
-    //   bool isPlaying = false;
-    //   if (playbackState.isPlaying) {
-    //     isPlaying = true;
-    //   }
-    //   emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
-    // });
-
-    // recordPlayer.playbackStream.listen((PlaybackState playbackState) {
-    //   if (playbackState.isCompleted) {
-    //     emit(state.copyWith(playingRecord: null));
-    //   }
-    // });
-    //}
   }
 
   Future<void> _platformPlay(
       {required String uri, required bool isRecord}) async {
     try {
-      // if (Platform.isMacOS || Platform.isAndroid || Platform.isIOS) {
-      //   if (!isRecord) {
-      //     await player.setAudioSource(AudioSource.uri(Uri.parse(uri)));
-      //     await player.play();
-      //   } else {
-      //     await recordPlayer.setAudioSource(AudioSource.file(uri));
-      //     await recordPlayer.play();
-      //   }
-      // } else {
-      // if (!isRecord) {
-      //   player.open(Media.network(uri));
-      //   emit(state.copyWith(isPlaying: true, isBuffering: true));
-      // } else {
-      //   recordPlayer.open(Media.file(File(uri)));
-      // }
-      //}
       await audioPlay(uri: uri, isRecord: isRecord);
     } catch (e) {
       print("Error playing : $e");
@@ -128,21 +48,6 @@ abstract class AppCubit extends Cubit<AppState> {
   Future<void> _platformStop({required bool isRecord}) async {
     try {
       await audioStop(isRecord: isRecord);
-      // if (Platform.isMacOS) {
-      //   if (!isRecord) {
-      //     await player.stop();
-      //   } else {
-      //     await recordPlayer.stop();
-      //   }
-      // } else {
-      //   if (!isRecord) {
-      //     player.stop();
-      //     emit(state.copyWith(isPlaying: false, isBuffering: false));
-      //   } else {
-      //     recordPlayer.stop();
-      //     emit(state.copyWith(playingRecord: null));
-      //   }
-      // }
     } catch (e) {
       print("Error stopping : $e");
     }
@@ -191,14 +96,26 @@ abstract class AppCubit extends Cubit<AppState> {
     }
     String? expireDate = await CheckLicense.instance.checkLicense();
 
+    bool? autoCache = sp.getBool(kSpAppAutoCache);
+
+    String locale = '';
+    String? localeTmp = sp.getString(kSpAppLocale);
+    if (localeTmp != null) {
+      locale = localeTmp;
+    } else {
+      locale = Platform.localeName.substring(0, 2);
+    }
+
     emit(state.copyWith(
         expireDate: expireDate ?? '',
+        autoCache: autoCache ?? state.autoCache,
         isTry: expireDate == null,
         isInit: true,
         playingStation: playingStation,
         themeMode: themeMode,
         autoStart: autoStart,
-        autoStop: autoStop));
+        autoStop: autoStop,
+        locale: locale));
 
     await Future.delayed(const Duration(milliseconds: 1));
     if (expireDate != null) {
@@ -207,7 +124,6 @@ abstract class AppCubit extends Cubit<AppState> {
       }
 
       Future.delayed(const Duration(seconds: 1), () async {
-        print('delay 1 seconds execute');
         await repo.doCacheStations();
       });
     }
@@ -507,6 +423,24 @@ abstract class AppCubit extends Cubit<AppState> {
       SharedPreferences sp = await SharedPreferences.getInstance();
       sp.setBool(kSpAppAutoStart, value);
       emit(state.copyWith(autoStart: value));
+    }
+  }
+
+  void setAutoCache(bool value) async {
+    if (value != state.autoCache) {
+      SharedPreferences sp = await SharedPreferences.getInstance();
+      sp.setBool(kSpAppAutoCache, value);
+      repo.setUseCache(value);
+      emit(state.copyWith(autoCache: value));
+    }
+  }
+
+  void changeLocale(String locale) async {
+    if (locale != state.locale) {
+      SharedPreferences sp = await SharedPreferences.getInstance();
+      sp.setString(kSpAppLocale, locale);
+
+      emit(state.copyWith(locale: locale));
     }
   }
 }

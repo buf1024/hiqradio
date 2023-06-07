@@ -34,8 +34,11 @@ const kSpAppThemeMode = 'SpAppThemeMode';
 const kSpAppLastPlayStation = 'AppLastPlayStation';
 const kSpAppAutoStart = 'AppAutoStart';
 const kSpAppAutoStop = 'AppAutoStop';
+const kSpAppAutoCache = 'AppAutoCache';
 
 const kSpMSLastSearch = 'MSLastSearchText';
 const kSpTBLastSearch = 'TBLastSearchText';
 
 const kSpAppCheckCacheInterval = 'AppCheckCacheInterval';
+
+const kSpAppLocale = 'AppLocale';

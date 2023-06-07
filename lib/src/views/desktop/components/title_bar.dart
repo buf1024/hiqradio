@@ -11,6 +11,7 @@ import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:io';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TitleBar extends StatefulWidget {
   final Widget? child;
@@ -34,11 +35,21 @@ class TitleBar extends StatefulWidget {
 }
 
 class _TitleBarState extends State<TitleBar> {
-  Map<HiqThemeMode, String> themeLabelMap = {
-    HiqThemeMode.dark: '深色模式',
-    HiqThemeMode.light: '浅色模式',
-    HiqThemeMode.system: '跟随系统',
-  };
+  List<HiqThemeMode> themeLabelList = [
+    HiqThemeMode.dark,
+    HiqThemeMode.light,
+    HiqThemeMode.system,
+  ];
+
+  String _getThemeText(HiqThemeMode themeMode) {
+    if (themeMode == HiqThemeMode.dark) {
+      return AppLocalizations.of(context).title_theme_dark;
+    }
+    if (themeMode == HiqThemeMode.light) {
+      return AppLocalizations.of(context).title_theme_light;
+    }
+    return AppLocalizations.of(context).title_theme_system;
+  }
 
   TextEditingController searchEditController = TextEditingController();
   FocusNode searchEditNode = FocusNode();
@@ -187,7 +198,9 @@ class _TitleBarState extends State<TitleBar> {
             cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
             style: const TextStyle(fontSize: 12.0),
             decoration: InputDecoration(
-              hintText: '电台搜索',
+              hintText:
+                  // '电台搜索',
+                  AppLocalizations.of(context).title_search_hit,
               prefixIcon: Icon(Icons.search_outlined,
                   size: 18.0, color: Colors.grey.withOpacity(0.8)),
               suffixIcon: searchEditController.text.isNotEmpty
@@ -290,7 +303,10 @@ class _TitleBarState extends State<TitleBar> {
       const SizedBox(width: 10.0),
       _funcButton((_) {
         widget.onCompactClicked?.call();
-      }, '精简模式', IconFont.compactMode),
+      },
+          // '精简模式',
+          AppLocalizations.of(context).title_compact_mode,
+          IconFont.compactMode),
       const SizedBox(width: 10.0),
       _funcButton((_) {
         if (configOverlay != null) {
@@ -298,7 +314,10 @@ class _TitleBarState extends State<TitleBar> {
         } else {
           _onShowConfigDlg();
         }
-      }, '系统配置', IconFont.config),
+      },
+          // '系统配置',
+          AppLocalizations.of(context).title_config,
+          IconFont.config),
       const SizedBox(width: 10.0),
       _funcButton((details) {
         if (themeOverlay != null) {
@@ -306,7 +325,10 @@ class _TitleBarState extends State<TitleBar> {
         } else {
           _showThemeSwitchDialog(details.globalPosition, themeMode);
         }
-      }, '主题: ${themeLabelMap[themeMode]}', IconFont.theme),
+      },
+          // '主题: ${themeLabelMap[themeMode]}',
+          '${AppLocalizations.of(context).title_theme}: ${_getThemeText(themeMode)}',
+          IconFont.theme),
       const SizedBox(
         width: 16.0,
       )
@@ -350,17 +372,17 @@ class _TitleBarState extends State<TitleBar> {
                     ),
                   ),
                   child: Column(
-                    children: themeLabelMap.entries.map((e) {
+                    children: themeLabelList.map((e) {
                       return InkClick(
                         onTap: () {
-                          context.read<AppCubit>().changeThemeMode(e.key);
+                          context.read<AppCubit>().changeThemeMode(e);
                           _closeThemeOverlay();
                         },
                         child: Container(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
                             children: [
-                              themeMode == e.key
+                              themeMode == e
                                   ? Container(
                                       width: 30.0,
                                       padding: const EdgeInsets.all(2.0),
@@ -372,7 +394,7 @@ class _TitleBarState extends State<TitleBar> {
                                   : const SizedBox(
                                       width: 30.0,
                                     ),
-                              Text(themeLabelMap[e.key]!)
+                              Text(_getThemeText(e))
                             ],
                           ),
                         ),
@@ -395,48 +417,6 @@ class _TitleBarState extends State<TitleBar> {
       themeOverlay = null;
     }
   }
-
-  // void _showThemeSwitchDialog(Offset offset, HiqThemeMode themeMode) {
-  //   showMenu(
-  //       context: context,
-  //       shape: RoundedRectangleBorder(
-  //         borderRadius: BorderRadius.circular(5.0),
-  //       ),
-  //       position: RelativeRect.fromLTRB(
-  //           offset.dx, offset.dy + 16.0, offset.dx + 40.0, offset.dy + 40.0),
-  //       items: themeLabelMap.entries.map(
-  //         (e) {
-  //           return PopupMenuItem<Never>(
-  //             mouseCursor: SystemMouseCursors.basic,
-  //             height: 20.0,
-  //             onTap: () {
-  //               context.read<AppCubit>().changeThemeMode(e.key);
-  //             },
-  //             padding: const EdgeInsets.all(0.0),
-  //             child: Container(
-  //               padding: const EdgeInsets.symmetric(vertical: 6.0),
-  //               decoration: themeMode == e.key
-  //                   ? BoxDecoration(color: Colors.grey.withOpacity(0.2))
-  //                   : null,
-  //               child: Row(
-  //                 mainAxisAlignment: MainAxisAlignment.center,
-  //                 children: [
-  //                   Text(
-  //                     e.value,
-  //                     style: TextStyle(
-  //                         color: themeMode == e.key
-  //                             ? Colors.blue.withOpacity(0.8)
-  //                             : Theme.of(context).textTheme.bodyMedium!.color!,
-  //                         fontSize: 14.0),
-  //                   )
-  //                 ],
-  //               ),
-  //             ),
-  //           );
-  //         },
-  //       ).toList(),
-  //       elevation: 8.0);
-  // }
 
   void _showSearchDlg(double height, double width) {
     searchOverlay ??= OverlayEntry(
@@ -493,7 +473,7 @@ class _TitleBarState extends State<TitleBar> {
     required String selectedState,
   }) {
     const double height = 180.0;
-    const double width = 320.0;
+    const double width = 400.0;
     Size size = MediaQuery.of(context).size;
 
     searchOptOverlay ??= OverlayEntry(
@@ -543,11 +523,15 @@ class _TitleBarState extends State<TitleBar> {
                                 ),
                               ),
                               const Spacer(),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 2.0),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2.0),
                                 child: Text(
-                                  '搜索选项',
-                                  style: TextStyle(fontSize: 14.0),
+                                  // '搜索选项',
+                                  AppLocalizations.of(context)
+                                      .title_search_option,
+
+                                  style: const TextStyle(fontSize: 14.0),
                                 ),
                               ),
                               const Spacer(),

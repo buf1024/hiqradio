@@ -301,7 +301,7 @@ class RadioDao {
     bool hasCond = false;
     if (name != null && name.isNotEmpty) {
       condition +=
-          "(name like '%$name%' or tags like '%$name%' or country like '%$country%' or state like '%$state%' or language like '%$language%')";
+          "(name like '%$name%' or tags like '%$name%' or country like '%$name%' or state like '%$name%' or language like '%$name%')";
       hasCond = true;
     }
 
@@ -333,7 +333,6 @@ class RadioDao {
       condition += " tags like '%$tagList%'";
       hasCond = true;
     }
-    print(condition);
     return await db.rawQuery('select * from station where $condition');
   }
 

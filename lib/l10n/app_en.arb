@@ -1,0 +1,88 @@
+{
+    "cmm_clear": "Clear",
+    "cmm_confirm": "Confirm",
+    "cmm_cancel": "Cancel",
+    "cmm_station": "Station",
+    "cmm_tag": "Tag",
+    "cmm_language": "Language",
+    "cmm_district": "District",
+    "cmm_bitrate": "Bitrate",
+    "cmm_stop": "Stop",
+    "cmm_play": "Play",
+    "cmm_start_time": "Start time",
+    "cmm_end_time": "End time",
+    "cmm_last_time": "Last time",
+    "cmm_format": "Format",
+    "cfg_activated": "Activated.",
+    "cfg_try_version": "Try version.",
+    "cfg_activate_expired": "Activate code expired.",
+    "cfg_activate_expired_at": " Will expired at: {expireDate}.",
+    "@cfg_activate_expired_at": {
+        "placeholders": {
+            "expireDate": {
+                "type": "String"
+            }
+        }
+    },
+    "cfg_auto_play": "Auto play",
+    "cfg_auto_play_desc": "Auto play last station when started",
+    "cfg_cache_station": "Cache station",
+    "cfg_cache_station_desc": "Cache station to local(Suggest on)",
+    "cfg_activate_code": "Activate code",
+    "cfg_about": "About",
+    "cfg_version": "Version",
+    "cfg_activate": "Activate",
+    "cfg_activate_msg": "Please input activate code(mail to {kAuthor} to obtain)：",
+    "@cfg_activate_msg": {
+        "placeholders": {
+            "kAuthor": {
+                "type": "String"
+            }
+        }
+    },
+    "cfg_input_correct_code": "Please input the correct 32 character activate code",
+    "cfg_invalid_code": "Invalid activate code",
+    "title_theme": "Theme",
+    "title_theme_dark": "Dark mode",
+    "title_theme_light": "Light mode",
+    "title_theme_system": "System",
+    "title_compact_mode": "Compact mode",
+    "title_config": "Configuration",
+    "title_search_hit": "Station search",
+    "title_search_option": "Search option",
+    "cmp_search_district": "District: ",
+    "cmp_search_country": "Country/District",
+    "cmp_search_state": "Province/State",
+    "cmp_search_language": "Language: ",
+    "cmp_search_all": "All",
+    "cmp_search_tag": "Tag: ",
+    "cmp_search_recently": "Recent search",
+    "cmp_search_result_total": "Result： Total ",
+    "cmp_search_result_unit": "  ",
+    "recently_empty": "No play history",
+    "recently_clear": "Clear play history",
+    "record_empty": "No record",
+    "record_last_time": "Last time(Est.)",
+    "record_delete": "Delete record",
+    "mine_group": "Group: ",
+    "mine_group_hit": "Group name",
+    "mine_create_time": "Create time: ",
+    "mine_station_count": "Station count: ",
+    "mine_group_desc": "Introduction: ",
+    "mine_group_desc_hit": "Group description",
+    "mine_empty": "Empty",
+    "mine_select_new_group": "Choose new group",
+    "mine_modify_group": "Modify group",
+    "mine_station_page": "Station homepage",
+    "mine_station_delete": "Delete",
+    "mine_group_clear": "Clear group",
+    "mine_select_group": "Select group: ",
+    "mine_delete_group": "Confirm delete: {favGroup}",
+    "@mine_delete_group": {
+        "placeholders": {
+            "favGroup": {
+                "type": "String"
+            }
+        }
+    }
+}

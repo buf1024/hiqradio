@@ -1,11 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/utils/constant.dart';
+import 'package:hiqradio/src/utils/res_manager.dart';
 import 'package:hiqradio/src/views/desktop/components/activate.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Config extends StatefulWidget {
   const Config({super.key});
@@ -16,6 +20,7 @@ class Config extends StatefulWidget {
 
 class _ConfigState extends State<Config> {
   OverlayEntry? activateOverlay;
+  OverlayEntry? languageOverlay;
 
   @override
   void initState() {
@@ -38,14 +43,14 @@ class _ConfigState extends State<Config> {
   }
 
   String _getExpireText(bool isTry, String expireDate) {
-    String text = '已激活。';
+    String text = AppLocalizations.of(context).cfg_activated;
     if (isTry) {
-      text = '试用版。';
+      text = AppLocalizations.of(context).cfg_try_version;
     }
     if (expireDate.isEmpty) {
-      text += '激活码已过期。';
+      text += AppLocalizations.of(context).cfg_activate_expired;
     } else {
-      text += '激活码将于 $expireDate 过期';
+      text += AppLocalizations.of(context).cfg_activate_expired_at(expireDate);
     }
     return text;
   }
@@ -53,32 +58,48 @@ class _ConfigState extends State<Config> {
   List<Widget> _buildConfigItem() {
     bool autoStart =
         context.select<AppCubit, bool>((value) => value.state.autoStart);
-    // bool autoStop =
-    //     context.select<AppCubit, bool>((value) => value.state.autoStop);
+    bool autoCache =
+        context.select<AppCubit, bool>((value) => value.state.autoCache);
     bool isTry = context.select<AppCubit, bool>((value) => value.state.isTry);
     String expireDate =
         context.select<AppCubit, String>((value) => value.state.expireDate);
+
+    String locale =
+        context.select<AppCubit, String>((value) => value.state.locale);
+    if (locale.isEmpty) {
+      locale = Platform.localeName.substring(0, 2);
+    }
+    Map<String, String> localeMap = ResManager.instance.localeMap;
+
     return [
-      ListTile(
-          splashColor: Colors.black.withOpacity(0),
-          title: const Text(
-            '语言',
-            style: TextStyle(
-              fontSize: 14.0,
+      GestureDetector(
+        onTapDown: (details) {
+          Offset offset = details.globalPosition;
+          _onShowLanguageMenu(offset, locale);
+        },
+        child: ListTile(
+            splashColor: Colors.black.withOpacity(0),
+            title: const Text(
+              'Language',
+              style: TextStyle(
+                fontSize: 14.0,
+              ),
             ),
-          ),
-          subtitle: const Text(
-            '当前语言: 跟随系统',
-          ),
-          onTap: () {},
-          mouseCursor: SystemMouseCursors.click),
+            subtitle: Text(
+              'Current: ${localeMap[locale]}',
+            ),
+            mouseCursor: SystemMouseCursors.click),
+      ),
       ListTile(
           splashColor: Colors.black.withOpacity(0),
-          title: const Text(
-            '自动播放',
-            style: TextStyle(fontSize: 14.0),
+          title: Text(
+            // '自动播放',
+            AppLocalizations.of(context).cfg_auto_play,
+            style: const TextStyle(fontSize: 14.0),
           ),
-          subtitle: const Text('启动应用时自动播放上次电台'),
+          subtitle: Text(
+              // '启动应用时自动播放上次电台'
+              AppLocalizations.of(context).cfg_auto_play_desc),
           trailing: Checkbox(
             splashRadius: 0,
             checkColor: Theme.of(context).textTheme.bodyMedium!.color!,
@@ -103,45 +124,48 @@ class _ConfigState extends State<Config> {
           ),
           onTap: () {},
           mouseCursor: SystemMouseCursors.click),
-      // ListTile(
-      //     splashColor: Colors.black.withOpacity(0),
-      //     title: const Text(
-      //       '耳机拔出停止',
-      //       style: TextStyle(fontSize: 14.0),
-      //     ),
-      //     subtitle: const Text(
-      //       '耳机拔出停止播放',
-      //       style: TextStyle(fontSize: 12.0),
-      //     ),
-      //     trailing: Checkbox(
-      //       splashRadius: 0,
-      //       checkColor: Theme.of(context).textTheme.bodyMedium!.color!,
-      //       focusColor: Colors.black.withOpacity(0),
-      //       hoverColor: Colors.black.withOpacity(0),
-      //       activeColor: Colors.black.withOpacity(0),
-      //       shape: RoundedRectangleBorder(
-      //         borderRadius: BorderRadius.circular(3.0),
-      //       ),
-      //       side: MaterialStateBorderSide.resolveWith(
-      //         (states) => BorderSide(
-      //           width: 1.0,
-      //           color: Theme.of(context).textTheme.bodyMedium!.color!,
-      //         ),
-      //       ),
-      //       value: autoStop,
-      //       onChanged: (value) {
-      //         if (value != null && value != autoStop) {
-      //           context.read<AppCubit>().setAutoStop(value);
-      //         }
-      //       },
-      //     ),
-      //     onTap: () {},
-      //     mouseCursor: SystemMouseCursors.click),
+      ListTile(
+          splashColor: Colors.black.withOpacity(0),
+          title: Text(
+            // '缓存电台',
+            AppLocalizations.of(context).cfg_cache_station,
+            style: const TextStyle(fontSize: 14.0),
+          ),
+          subtitle: Text(
+            // '使用本地缓存电台(建议打开)',
+            AppLocalizations.of(context).cfg_cache_station_desc,
+            style: const TextStyle(fontSize: 12.0),
+          ),
+          trailing: Checkbox(
+            splashRadius: 0,
+            checkColor: Theme.of(context).textTheme.bodyMedium!.color!,
+            focusColor: Colors.black.withOpacity(0),
+            hoverColor: Colors.black.withOpacity(0),
+            activeColor: Colors.black.withOpacity(0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(3.0),
+            ),
+            side: MaterialStateBorderSide.resolveWith(
+              (states) => BorderSide(
+                width: 1.0,
+                color: Theme.of(context).textTheme.bodyMedium!.color!,
+              ),
+            ),
+            value: autoCache,
+            onChanged: (value) {
+              if (value != null && value != autoCache) {
+                context.read<AppCubit>().setAutoCache(value);
+              }
+            },
+          ),
+          onTap: () {},
+          mouseCursor: SystemMouseCursors.click),
       ListTile(
         splashColor: Colors.black.withOpacity(0),
-        title: const Text(
-          '激活码',
-          style: TextStyle(
+        title: Text(
+          // '激活码',
+          AppLocalizations.of(context).cfg_activate_code,
+          style: const TextStyle(
             fontSize: 14.0,
           ),
         ),
@@ -158,13 +182,15 @@ class _ConfigState extends State<Config> {
       ),
       ListTile(
         splashColor: Colors.black.withOpacity(0),
-        title: const Text(
-          '关于本应用',
-          style: TextStyle(fontSize: 14.0),
+        title: Text(
+          // '关于本应用',
+          AppLocalizations.of(context).cfg_about,
+          style: const TextStyle(fontSize: 14.0),
         ),
-        subtitle: const Text(
-          '版本: 1.0.0 $kAuthor',
-          style: TextStyle(fontSize: 12.0),
+        subtitle: Text(
+          // '版本: 1.0.0 $kAuthor',
+          '${AppLocalizations.of(context).cfg_about}: 1.0.0 $kAuthor',
+          style: const TextStyle(fontSize: 12.0),
         ),
         onTap: () {},
       ),
@@ -172,7 +198,7 @@ class _ConfigState extends State<Config> {
   }
 
   void _onShowActivateDlg(Function(String, String) onActivate) {
-    double width = 420.0;
+    double width = 484.0;
     Size size = MediaQuery.of(context).size;
     double height = 200;
     activateOverlay ??= OverlayEntry(
@@ -227,11 +253,14 @@ class _ConfigState extends State<Config> {
                                 ),
                               ),
                               const Spacer(),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 2.0),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2.0),
                                 child: Text(
-                                  '激活码',
-                                  style: TextStyle(fontSize: 18.0),
+                                  // '激活码',
+                                  AppLocalizations.of(context)
+                                      .cfg_activate_code,
+                                  style: const TextStyle(fontSize: 18.0),
                                 ),
                               ),
                               const Spacer(),
@@ -266,6 +295,102 @@ class _ConfigState extends State<Config> {
     if (activateOverlay != null) {
       activateOverlay!.remove();
       activateOverlay = null;
+    }
+  }
+
+  void _onShowLanguageMenu(Offset offset, String locale) {
+    Map<String, String> localeMap = ResManager.instance.localeMap;
+
+    double width = 120.0;
+    double height = 35.0 * localeMap.length;
+    languageOverlay ??= OverlayEntry(
+      opaque: false,
+      builder: (context) {
+        // 猥琐发育
+        return Stack(
+          children: [
+            Container(
+              padding: const EdgeInsets.only(top: kTitleBarHeight),
+              child: ModalBarrier(
+                onDismiss: () => _closeLanguageOverlay(),
+              ),
+            ),
+            Positioned(
+              top: offset.dy + 10.0,
+              right: 10.0,
+              child: Material(
+                color: Colors.black.withOpacity(0),
+                child: SizedBox(
+                  width: width,
+                  height: height,
+                  child: Dialog(
+                    // alignment: Alignment.centerRight,
+                    insetPadding: const EdgeInsets.only(
+                        top: 0, bottom: 0, right: 0, left: 0),
+                    elevation: 12.0,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                    ),
+                    child: SizedBox(
+                      width: width,
+                      height: height,
+                      child: Column(
+                        children: localeMap.entries.map((entry) {
+                          String key = entry.key;
+                          String val = entry.value;
+
+                          return InkClick(
+                            onTap: () async {
+                              context.read<AppCubit>().changeLocale(key);
+
+                              _closeLanguageOverlay();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 30,
+                                    padding: const EdgeInsets.only(
+                                        left: 12.0, right: 16.0),
+                                    child: key == locale
+                                        ? const Icon(
+                                            Icons.check,
+                                            size: 14.0,
+                                          )
+                                        : Container(),
+                                  ),
+                                  Container(
+                                    width: 60.0,
+                                    padding: const EdgeInsets.only(right: 2.0),
+                                    child: Text(
+                                      val,
+                                      style: const TextStyle(fontSize: 14.0),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    Overlay.of(context).insert(languageOverlay!);
+  }
+
+  void _closeLanguageOverlay() {
+    if (languageOverlay != null) {
+      languageOverlay!.remove();
+      languageOverlay = null;
     }
   }
 }

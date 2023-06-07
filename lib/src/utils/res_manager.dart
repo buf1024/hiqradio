@@ -65,6 +65,7 @@ class ResManager {
   final Map<String, LanguageInfo> _langMap = HashMap();
   final Map<String, LanguageInfo> _langNameMap = HashMap();
   final Map<String, String> _nativeLangMap = HashMap();
+  final Map<String, String> _localeMap = HashMap();
 
   Future<void> initRes() async {
     if (isInit) {
@@ -106,6 +107,12 @@ class ResManager {
     map = jsonDecode(languages);
     map.forEach((key, value) {
       _nativeLangMap[key] = value.toString();
+    });
+
+    String locales = await rootBundle.loadString('assets/files/locale.json');
+    map = jsonDecode(locales);
+    map.forEach((key, value) {
+      _localeMap[key] = value as String;
     });
 
     isInit = true;
@@ -171,4 +178,5 @@ class ResManager {
   get langMap => _langMap;
   get langNameMap => _langNameMap;
   get nativeLangMap => _nativeLangMap;
+  get localeMap => _localeMap;
 }

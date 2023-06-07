@@ -8,6 +8,7 @@ import 'package:hiqradio/src/blocs/search_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/station_info.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -68,9 +69,11 @@ class _SearchState extends State<Search> {
       children: [
         Row(
           children: [
-            const Text(
-              '最近搜索',
-              style: TextStyle(
+            Text(
+              // '最近搜索',
+              AppLocalizations.of(context).cmp_search_recently,
+
+              style: const TextStyle(
                 fontSize: 14.0,
               ),
             ),
@@ -103,7 +106,9 @@ class _SearchState extends State<Search> {
             ),
             InkClick(
               child: Text(
-                '清空',
+                // '清空',
+                AppLocalizations.of(context).cmm_clear,
+
                 style: TextStyle(
                   fontSize: 14.0,
                   color: Colors.red.withOpacity(0.8),
@@ -178,9 +183,11 @@ class _SearchState extends State<Search> {
           padding: const EdgeInsets.only(top: 8.0),
           child: Row(
             children: [
-              const Text(
-                '搜索结果： 共 ',
-                style: TextStyle(fontSize: 13.0),
+              Text(
+                // '搜索结果： 共 ',
+                AppLocalizations.of(context).cmp_search_result_total,
+
+                style: const TextStyle(fontSize: 13.0),
               ),
               Container(
                 width: 50,
@@ -196,9 +203,10 @@ class _SearchState extends State<Search> {
                   style: const TextStyle(fontSize: 13.0),
                 ),
               ),
-              const Text(
-                ' 个',
-                style: TextStyle(fontSize: 13.0),
+              Text(
+                // ' 个',
+                AppLocalizations.of(context).cmp_search_result_unit,
+                style: const TextStyle(fontSize: 13.0),
               ),
             ],
           ),

@@ -10,6 +10,7 @@ import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/pair.dart';
 import 'package:hiqradio/src/views/components/station_placeholder.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MyRecently extends StatefulWidget {
   const MyRecently({super.key});
@@ -63,10 +64,11 @@ class _MyRecentlyState extends State<MyRecently>
         ),
       );
     }
-    return const Center(
+    return Center(
       child: Text(
-        '暂无播放记录',
-        style: TextStyle(
+        // '暂无播放记录',
+        AppLocalizations.of(context).recently_empty,
+        style: const TextStyle(
           fontSize: 15.0,
         ),
       ),
@@ -100,11 +102,17 @@ class _MyRecentlyState extends State<MyRecently>
         headingRowHeight: 35.0,
         headingRowColor: MaterialStateProperty.resolveWith(
             (states) => Colors.grey.withOpacity(0.1)),
-        columns: const [
-          DataColumn2(label: Text('电台')),
-          DataColumn2(label: Text('开始时间'), fixedWidth: 170.0),
-          DataColumn2(label: Text('结束时间'), fixedWidth: 170.0),
-          DataColumn2(label: Text('时长'), fixedWidth: 70.0),
+        columns: [
+          DataColumn2(label: Text(AppLocalizations.of(context).cmm_station)),
+          DataColumn2(
+              label: Text(AppLocalizations.of(context).cmm_start_time),
+              fixedWidth: 170.0),
+          DataColumn2(
+              label: Text(AppLocalizations.of(context).cmm_end_time),
+              fixedWidth: 170.0),
+          DataColumn2(
+              label: Text(AppLocalizations.of(context).cmm_last_time),
+              fixedWidth: 70.0),
         ],
         empty: _empty(),
 

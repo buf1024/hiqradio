@@ -23,12 +23,15 @@ class RadioRepository {
   late RadioApi api;
   late RadioDao dao;
 
-  bool isUseCache = true;
+  bool isApiUseCache = true;
+  bool isCaching = false;
 
   RadioRepository._();
 
+  get isUseCache => isApiUseCache && !isCaching;
+
   void setUseCache(bool useCache) {
-    isUseCache = useCache;
+    isApiUseCache = useCache;
   }
 
   Future<void> initRepo() async {
@@ -455,11 +458,14 @@ class RadioRepository {
       }
     }
     if (needUpdate) {
+      isCaching = true;
       List<Station> stations = await search('', skipCache: true);
       print('update cache stations size=${stations.length}');
       await dao.insertStations(stations);
 
       await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
+
+      isCaching = false;
     } else {
       print('no need cache');
     }

@@ -1,0 +1,89 @@
+{
+    "cmm_clear": "清空",
+    "cmm_confirm": "确定",
+    "cmm_cancel": "取消",
+    "cmm_station": "电台",
+    "cmm_tag": "标签",
+    "cmm_language": "语言",
+    "cmm_district": "区域",
+    "cmm_bitrate": "比特率",
+    "cmm_stop": "停止",
+    "cmm_play": "播放",
+    "cmm_start_time": "开始时间",
+    "cmm_end_time": "结束时间",
+    "cmm_last_time": "时长",
+    "cmm_format": "格式",
+    "cfg_activated": "已激活。",
+    "cfg_try_version": "试用版。",
+    "cfg_activate_expired": "激活码已过期。",
+    "cfg_activate_expired_at": "激活码将于 {expireDate} 过期",
+    "@cfg_activate_expired_at": {
+        "placeholders": {
+            "expireDate": {
+                "type": "String"
+            }
+        }
+    },
+    "cfg_auto_play": "自动播放",
+    "cfg_auto_play_desc": "启动应用时自动播放上次电台",
+    "cfg_cache_station": "缓存电台",
+    "cfg_cache_station_desc": "使用本地缓存电台(建议打开)",
+    "cfg_activate_code": "激活码",
+    "cfg_about": "关于本应用",
+    "cfg_version": "版本",
+    "cfg_activate": "激活",
+    "cfg_activate_msg": "请输入激活码(邮件至{kAuthor}索取)：",
+    "@cfg_activate_msg": {
+        "placeholders": {
+            "kAuthor": {
+                "type": "String"
+            }
+        }
+    },
+    "cfg_input_correct_code": "请输入正确的32位激活码",
+    "cfg_invalid_code": "激活码无效",
+    "title_theme": "主题",
+    "title_theme_dark": "深色模式",
+    "title_theme_light": "浅色模式",
+    "title_theme_system": "跟随系统",
+    "title_compact_mode": "精简模式",
+    "title_config": "系统配置",
+    "title_search_hit": "电台搜索",
+    "title_search_option": "搜索选项",
+    "cmp_search_district": "区域: ",
+    "cmp_search_country": "国家/地区",
+    "cmp_search_state": "省/州",
+    "cmp_search_language": "语言: ",
+    "cmp_search_all": "所有",
+    "cmp_search_tag": "标签: ",
+    "cmp_search_recently": "最近搜索",
+    "cmp_search_result_total": "搜索结果： 共 ",
+    "cmp_search_result_unit": " 个",
+    "recently_empty": "暂无播放记录",
+    "recently_clear": "清空播放记录",
+    "record_empty": "暂无录音记录",
+    "record_last_time": "时长(估)",
+    "record_delete": "删除录音",
+    "mine_group": "分组：",
+    "mine_group_hit": "分组名称",
+    "mine_create_time": "创建时间: ",
+    "mine_station_count": "电台数量: ",
+    "mine_group_desc": "简介: ",
+    "mine_group_desc_hit": "分组描述",
+    "mine_empty": "空空如也",
+    "mine_select_new_group": "选择新分组",
+    "mine_modify_group": "修改分组",
+    "mine_station_page": "电台主页",
+    "mine_station_delete": "删除",
+    "mine_group_clear": "清空分组",
+    "mine_select_group": "选择分组: ",
+    "mine_delete_group": "确定删除: {favGroup}",
+    "@mine_delete_group": {
+        "placeholders": {
+            "favGroup": {
+                "type": "String"
+            }
+        }
+    }
+    
+}

@@ -42,6 +42,10 @@ class AppState extends Equatable {
   final bool autoStart;
   final bool autoStop;
 
+  final bool autoCache;
+
+  final String locale;
+
   const AppState(
       {this.isTry = true,
       this.expireDate = '',
@@ -65,7 +69,9 @@ class AppState extends Equatable {
       this.playHis = const [],
       this.playHisIndex = 0,
       this.autoStart = false,
-      this.autoStop = true});
+      this.autoStop = true,
+      this.autoCache = true,
+      this.locale = '',});
 
   AppState copyWith({
     bool? isTry,
@@ -91,6 +97,8 @@ class AppState extends Equatable {
     int? playHisIndex,
     bool? autoStart,
     bool? autoStop,
+    bool? autoCache,
+    String? locale,
   }) {
     return AppState(
       isTry: isTry ?? this.isTry,
@@ -116,6 +124,8 @@ class AppState extends Equatable {
       playHisIndex: playHisIndex ?? this.playHisIndex,
       autoStart: autoStart ?? this.autoStart,
       autoStop: autoStop ?? this.autoStop,
+      autoCache: autoCache ?? this.autoCache,
+      locale: locale ?? this.locale,
     );
   }
 
@@ -145,6 +155,8 @@ class AppState extends Equatable {
         playHis,
         playHisIndex,
         autoStart,
-        autoStop
+        autoStop,
+        autoCache,
+        locale
       ];
 }

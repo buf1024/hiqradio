@@ -11,6 +11,7 @@ import 'package:hiqradio/src/utils/pair.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/station_placeholder.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MyRecord extends StatefulWidget {
   const MyRecord({super.key});
@@ -64,10 +65,12 @@ class _MyRecordState extends State<MyRecord>
         ),
       );
     }
-    return const Center(
+    return Center(
       child: Text(
-        '暂无录音记录',
-        style: TextStyle(
+        // '暂无录音记录',
+        AppLocalizations.of(context).record_empty,
+
+        style: const TextStyle(
           fontSize: 15.0,
         ),
       ),
@@ -99,13 +102,21 @@ class _MyRecordState extends State<MyRecord>
         headingRowHeight: 35.0,
         headingRowColor: MaterialStateProperty.resolveWith(
             (states) => Colors.grey.withOpacity(0.1)),
-        columns: const [
-          DataColumn2(label: Text(''), fixedWidth: 24.0),
-          DataColumn2(label: Text('电台')),
-          DataColumn2(label: Text('开始时间'), fixedWidth: 170.0),
-          DataColumn2(label: Text('结束时间'), fixedWidth: 170.0),
-          DataColumn2(label: Text('时长(估)'), fixedWidth: 80.0),
-          DataColumn2(label: Text('格式'), fixedWidth: 45.0),
+        columns: [
+          const DataColumn2(label: Text(''), fixedWidth: 24.0),
+          DataColumn2(label: Text(AppLocalizations.of(context).cmm_station)),
+          DataColumn2(
+              label: Text(AppLocalizations.of(context).cmm_start_time),
+              fixedWidth: 170.0),
+          DataColumn2(
+              label: Text(AppLocalizations.of(context).cmm_end_time),
+              fixedWidth: 170.0),
+          DataColumn2(
+              label: Text(AppLocalizations.of(context).record_last_time),
+              fixedWidth: 120.0),
+          DataColumn2(
+              label: Text(AppLocalizations.of(context).cmm_format),
+              fixedWidth: 65.0),
         ],
         empty: _empty(),
         rows: records.asMap().entries.map(
@@ -254,7 +265,10 @@ class _MyRecordState extends State<MyRecord>
         items: [
           _popMenuItem(() {
             context.read<RecordCubit>().delRecord(record.id!);
-          }, IconFont.delete, '删除录音'),
+          },
+              IconFont.delete,
+              // '删除录音'
+              AppLocalizations.of(context).record_delete),
         ],
         elevation: 8.0);
   }

@@ -10,7 +10,7 @@ import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
 import 'package:hiqradio/src/utils/utils.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
-// import 'package:window_manager/window_manager.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CountInfo<T> {
   String value;
@@ -164,10 +164,14 @@ class _MyWidgetState extends State<SearchOption> {
     return Row(
       children: [
         Container(
+          width: 75.0,
+          alignment: Alignment.centerRight,
           padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: const Text(
-            '区域: ',
-            style: TextStyle(
+          child: Text(
+            // '区域: ',
+            AppLocalizations.of(context).cmp_search_district,
+
+            style: const TextStyle(
               fontSize: 14.0,
             ),
           ),
@@ -186,7 +190,8 @@ class _MyWidgetState extends State<SearchOption> {
               children: [
                 Text(
                   displaySelectedCountry.isEmpty
-                      ? '国家/地区'
+                      // ? '国家/地区'
+                      ? AppLocalizations.of(context).cmp_search_country
                       : displaySelectedCountry,
                   style: const TextStyle(
                     fontSize: 13.0,
@@ -263,7 +268,10 @@ class _MyWidgetState extends State<SearchOption> {
             child: Row(
               children: [
                 Text(
-                  displaySelectedState.isEmpty ? '省/州' : displaySelectedState,
+                  displaySelectedState.isEmpty
+                      // ? '省/州'
+                      ? AppLocalizations.of(context).cmp_search_state
+                      : displaySelectedState,
                   style: const TextStyle(
                     fontSize: 14.0,
                   ),
@@ -346,10 +354,13 @@ class _MyWidgetState extends State<SearchOption> {
     return Row(
       children: [
         Container(
+          width: 75.0,
+          alignment: Alignment.centerRight,
           padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: const Text(
-            '语言: ',
-            style: TextStyle(
+          child: Text(
+            // '语言: ',
+            AppLocalizations.of(context).cmp_search_language,
+            style: const TextStyle(
               fontSize: 14.0,
             ),
           ),
@@ -368,7 +379,9 @@ class _MyWidgetState extends State<SearchOption> {
               children: [
                 Text(
                   displaySelectedLanguage.isEmpty
-                      ? '所有'
+                      // ?
+                      // '所有'
+                      ? AppLocalizations.of(context).cmp_search_all
                       : displaySelectedLanguage,
                   style: const TextStyle(
                     fontSize: 13.0,
@@ -445,10 +458,13 @@ class _MyWidgetState extends State<SearchOption> {
     return Row(
       children: [
         Container(
+          width: 75.0,
+          alignment: Alignment.centerRight,
           padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: const Text(
-            '标签: ',
-            style: TextStyle(
+          child: Text(
+            // '标签: ',
+            AppLocalizations.of(context).cmp_search_tag,
+            style: const TextStyle(
               fontSize: 14.0,
             ),
           ),
@@ -815,9 +831,10 @@ class _DialogContentState extends _OptionDialogState<DialogContent> {
                     selectedInfo = [];
                   });
                 },
-                child: const Text(
-                  '清空',
-                  style: TextStyle(fontSize: 13.0),
+                child: Text(
+                  // '清空',
+                  AppLocalizations.of(context).cmm_clear,
+                  style: const TextStyle(fontSize: 13.0),
                 ),
               ),
               MaterialButton(
@@ -825,8 +842,10 @@ class _DialogContentState extends _OptionDialogState<DialogContent> {
                 onPressed: () {
                   widget.onConfirmed.call(isModified, selected, selectedInfo);
                 },
-                child: const Text('确定',
-                    style: TextStyle(
+                child: Text(
+                    // '确定',
+                    AppLocalizations.of(context).cmm_confirm,
+                    style: const TextStyle(
                       fontSize: 13.0,
                     )),
               ),

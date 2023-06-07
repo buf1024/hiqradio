@@ -3,6 +3,7 @@ import 'package:hiqradio/src/utils/check_license.dart';
 import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Activate extends StatefulWidget {
   final Function(String, String) onActivate;
@@ -33,27 +34,24 @@ class _ActivateState extends State<Activate> {
   Widget build(BuildContext context) {
     Color toastColor = Theme.of(context).scaffoldBackgroundColor;
     return SizedBox(
-      width: 420,
+      width: 484,
       height: 120,
-      // padding: const EdgeInsets.all(8.0),
-      // decoration: BoxDecoration(
-      //   border: Border.all(color: Colors.white)
-      // ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const SizedBox(
+          SizedBox(
             height: 48,
             child: Text(
-              '请输入激活码(邮件至$kAuthor索取)：',
-              style: TextStyle(fontSize: 15.0),
+              // '请输入激活码(邮件至$kAuthor索取)：',
+              AppLocalizations.of(context).cfg_activate_msg(kAuthor),
+              style: const TextStyle(fontSize: 15.0),
             ),
           ),
           Row(
             children: [
               Container(
-                width: 320,
+                width: 360,
                 height: 48,
                 padding: const EdgeInsets.symmetric(vertical: 1.0),
                 child: TextField(
@@ -99,9 +97,11 @@ class _ActivateState extends State<Activate> {
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 18.0),
                     alignment: Alignment.center,
-                    child: const Text(
-                      '激活',
-                      style: TextStyle(fontSize: 15.0),
+                    child: Text(
+                      // '激活',
+                      AppLocalizations.of(context).cfg_activate,
+
+                      style: const TextStyle(fontSize: 15.0),
                     ),
                   ))
             ],
@@ -115,7 +115,8 @@ class _ActivateState extends State<Activate> {
     String license = editingController.text.trim();
     if (license.isEmpty || license.length != 32) {
       showToast(
-        '请输入正确的32位激活码',
+        // '请输入正确的32位激活码',
+        AppLocalizations.of(context).cfg_input_correct_code,
         backgroundColor: backgroundColor,
         position: const ToastPosition(
           align: Alignment.bottomCenter,
@@ -127,7 +128,9 @@ class _ActivateState extends State<Activate> {
         await CheckLicense.instance.isActiveLicense(kProductId, license);
     if (expireDate == null) {
       showToast(
-        '激活码无效',
+        // '激活码无效',
+        AppLocalizations.of(context).cfg_invalid_code,
+
         backgroundColor: backgroundColor,
         position: const ToastPosition(
           align: Alignment.bottomCenter,
