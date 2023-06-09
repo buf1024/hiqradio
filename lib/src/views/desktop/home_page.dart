@@ -33,35 +33,25 @@ class _HomePageState extends State<HomePage> {
     NavItem(
         type: NavType.station,
         pos: NavPos.top,
-        label: '电台',
+        // label: '电台',
         iconData: IconFont.station),
-    // NavItem(
-    //     type: NavType.customized,
-    //     pos: NavPos.top,
-    //     label: '自定',
-    //     iconData: IconFont.customized),
-    // NavItem(
-    //     type: NavType.discovery,
-    //     pos: NavPos.top,
-    //     label: '发现',
-    //     iconData: IconFont.discovery),
   ];
 
   List<NavItem> bottomNavTabs = [
     NavItem(
         type: NavType.recently,
         pos: NavPos.top,
-        label: '最近',
+        // label: '最近',
         iconData: IconFont.recently),
     NavItem(
         type: NavType.record,
         pos: NavPos.top,
-        label: '录音',
+        // label: '录音',
         iconData: IconFont.record),
     NavItem(
         type: NavType.mine,
         pos: NavPos.top,
-        label: '我的',
+        // label: '我的',
         iconData: IconFont.favorite),
   ];
 
@@ -115,8 +105,6 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     children: [
                       TitleBar(
-                        // onSearchChanged: (value) {},
-                        // onSearchClicked: () async {},
                         onCompactClicked: () async {
                           Size size = await windowManager.getSize();
                           preWinSize = size;

@@ -24,12 +24,12 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
     NavItem(
         type: NavType.station,
         pos: NavPos.top,
-        label: '电台',
+        // label: '电台',
         iconData: IconFont.station),
     NavItem(
         type: NavType.record,
         pos: NavPos.top,
-        label: '录音',
+        // label: '录音',
         iconData: IconFont.record),
   ];
 
@@ -37,12 +37,12 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
     NavItem(
         type: NavType.discovery,
         pos: NavPos.top,
-        label: '收藏',
+        // label: '收藏',
         iconData: IconFont.favorite),
     NavItem(
         type: NavType.mine,
         pos: NavPos.top,
-        label: '我的',
+        // label: '我的',
         iconData: IconFont.discovery),
   ];
 
@@ -264,7 +264,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                 height: 1.0,
               ),
               Text(
-                elem.label,
+                elem.getTypeText(context),                
                 style: TextStyle(
                   color: actNavItem.type != elem.type
                       ? Theme.of(context).textTheme.bodyMedium!.color!

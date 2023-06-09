@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:hiqradio/src/utils/nav.dart';
 
-
 class NavBar extends StatefulWidget {
   final List<NavItem>? topNavTabs;
   final List<NavItem>? bottomNavTabs;
@@ -102,9 +101,7 @@ class _NavBarState extends State<NavBar> {
                   const SizedBox(
                     height: 1.0,
                   ),
-                  Text(
-                    elem.label,
-                  )
+                  Text(elem.getTypeText(context))
                 ],
               ),
             ),

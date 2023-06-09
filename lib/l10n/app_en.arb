@@ -1,4 +1,10 @@
 {
+    "mod_discovery": "DISC",
+    "mod_station": "STAT",
+    "mod_customized": "CUST",
+    "mod_recently": "RECT",
+    "mod_record": "RECD",
+    "mod_mine": "MINE",
     "cmm_clear": "Clear",
     "cmm_confirm": "Confirm",
     "cmm_cancel": "Cancel",
@@ -84,5 +90,16 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "stat_search": "Search",
+    "stat_hide_option": "Hide option",
+    "stat_show_option": "Show option",
+    "stat_station_total": "Station: total ",
+    "stat_station_unit": " ",
+    "stat_station_per_page": "",
+    "stat_station_total_page": " station(s)/page, total ",
+    "stat_station_cur_page": " page(s), page ",
+    "stat_station_cur_page_no": " ",
+    "stat_station_pre_page": "prev",
+    "stat_station_next_page": "next"
 }

@@ -140,9 +140,9 @@ class _MyRecentlyState extends State<MyRecently>
               color: index.isEven
                   ? MaterialStateProperty.all(Colors.grey.withOpacity(0.05))
                   : null,
-              onSecondaryTapDown: ((details) {
+              onSecondaryTapDown: (details) {
                 showContextMenu(details.globalPosition);
-              }),
+              },
               onDoubleTap: () {
                 if (isPlaying && playingStation != null) {
                   context.read<RecentlyCubit>().updateRecently(playingStation);
@@ -233,9 +233,14 @@ class _MyRecentlyState extends State<MyRecently>
         position: RelativeRect.fromLTRB(
             offset.dx, offset.dy + 5.0, offset.dx, offset.dy),
         items: [
-          _popMenuItem(() {
-            context.read<RecentlyCubit>().clearRecently();
-          }, IconFont.close, '清空播放记录'),
+          _popMenuItem(
+            () {
+              context.read<RecentlyCubit>().clearRecently();
+            },
+            IconFont.close,
+            // '清空播放记录'
+            AppLocalizations.of(context).recently_clear,
+          ),
         ],
         elevation: 8.0);
   }

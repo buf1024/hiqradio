@@ -1,4 +1,10 @@
 {
+    "mod_discovery": "发现",
+    "mod_station": "电台",
+    "mod_customized": "自定",
+    "mod_recently": "最近",
+    "mod_record": "录音",
+    "mod_mine": "我的",
     "cmm_clear": "清空",
     "cmm_confirm": "确定",
     "cmm_cancel": "取消",
@@ -84,6 +90,16 @@
                 "type": "String"
             }
         }
-    }
-    
+    },
+    "stat_search": "搜索",
+    "stat_hide_option": "隐藏选项",
+    "stat_show_option": "显示选项",
+    "stat_station_total": "电台： 共 ",
+    "stat_station_unit": " 个",
+    "stat_station_per_page": "每页 ",
+    "stat_station_total_page": "个 共 ",
+    "stat_station_cur_page": " 页 当前第 ",
+    "stat_station_cur_page_no": " 页",
+    "stat_station_pre_page": "前一页",
+    "stat_station_next_page": "后一页"
 }

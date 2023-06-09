@@ -8,6 +8,7 @@ import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/station_icon.dart';
 import 'package:hiqradio/src/views/components/search_option.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MyStation extends StatefulWidget {
   const MyStation({super.key});
@@ -169,9 +170,10 @@ class _MyStationState extends State<MyStation>
                   ),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
-                child: const Text(
-                  '搜索',
-                  style: TextStyle(
+                child: Text(
+                  // '搜索',
+                  AppLocalizations.of(context).stat_search,
+                  style: const TextStyle(
                     fontSize: 13.0,
                   ),
                 ),
@@ -194,7 +196,11 @@ class _MyStationState extends State<MyStation>
                   borderRadius: BorderRadius.circular(4.0),
                 ),
                 child: Text(
-                  isOptionShow ? '隐藏选项' : '显示选项',
+                  isOptionShow
+                      // ? '隐藏选项'
+                      ? AppLocalizations.of(context).stat_hide_option
+                      // : '显示选项',
+                      : AppLocalizations.of(context).stat_show_option,
                   style: const TextStyle(
                     fontSize: 13.0,
                   ),
@@ -246,9 +252,10 @@ class _MyStationState extends State<MyStation>
           const SizedBox(
             width: 6.0,
           ),
-          const Text(
-            '电台： 共 ',
-            style: TextStyle(fontSize: 13.0),
+          Text(
+            // '电台： 共 ',
+            AppLocalizations.of(context).stat_station_total,
+            style: const TextStyle(fontSize: 13.0),
           ),
           Container(
             width: 50,
@@ -264,16 +271,18 @@ class _MyStationState extends State<MyStation>
               style: const TextStyle(fontSize: 13.0),
             ),
           ),
-          const Text(
-            ' 个',
-            style: TextStyle(fontSize: 13.0),
+          Text(
+            // ' 个',
+            AppLocalizations.of(context).stat_station_unit,
+            style: const TextStyle(fontSize: 13.0),
           ),
           const Spacer(),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: const Text(
-              '每页 ',
-              style: TextStyle(fontSize: 13.0),
+            child: Text(
+              // '每页 ',
+              AppLocalizations.of(context).stat_station_per_page,
+              style: const TextStyle(fontSize: 13.0),
             ),
           ),
           _buildEditing(isPageSizeEditing, pageSizeEditController,
@@ -283,9 +292,10 @@ class _MyStationState extends State<MyStation>
           }),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: const Text(
-              '个 共 ',
-              style: TextStyle(fontSize: 13.0),
+            child: Text(
+              // '个 共 ',
+              AppLocalizations.of(context).stat_station_total_page,
+              style: const TextStyle(fontSize: 13.0),
             ),
           ),
           Container(
@@ -306,9 +316,10 @@ class _MyStationState extends State<MyStation>
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: const Text(
-              ' 页 当前第 ',
-              style: TextStyle(fontSize: 13.0),
+            child: Text(
+              // ' 页 当前第 ',
+              AppLocalizations.of(context).stat_station_cur_page,
+              style: const TextStyle(fontSize: 13.0),
             ),
           ),
           _buildEditing(
@@ -318,9 +329,10 @@ class _MyStationState extends State<MyStation>
           }),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: const Text(
-              ' 页',
-              style: TextStyle(fontSize: 13.0),
+            child: Text(
+              // ' 页',
+              AppLocalizations.of(context).stat_station_cur_page_no,
+              style: const TextStyle(fontSize: 13.0),
             ),
           ),
           Container(
@@ -334,9 +346,10 @@ class _MyStationState extends State<MyStation>
                   ),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
-                child: const Text(
-                  '前一页',
-                  style: TextStyle(
+                child: Text(
+                  // '前一页',
+                  AppLocalizations.of(context).stat_station_pre_page,
+                  style: const TextStyle(
                     fontSize: 13.0,
                   ),
                 ),
@@ -357,9 +370,11 @@ class _MyStationState extends State<MyStation>
                   ),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
-                child: const Text(
-                  '后一页',
-                  style: TextStyle(
+                child: Text(
+                  // '后一页',
+                  AppLocalizations.of(context).stat_station_next_page,
+
+                  style: const TextStyle(
                     fontSize: 13.0,
                   ),
                 ),
