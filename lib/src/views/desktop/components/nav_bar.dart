@@ -90,19 +90,27 @@ class _NavBarState extends State<NavBar> {
               height: 48.0,
               decoration: _boxDecoration(elem.type),
               padding: const EdgeInsets.all(5.0),
-              child: Column(
-                children: [
-                  Icon(
-                    elem.iconData,
-                    color: Theme.of(context).textTheme.bodyMedium!.color!,
-                    weight: 100,
-                    size: 18.0,
-                  ),
-                  const SizedBox(
-                    height: 1.0,
-                  ),
-                  Text(elem.getTypeText(context))
-                ],
+              // child: Tooltip(
+              //   message: elem.getTypeText(context),
+              //   decoration: BoxDecoration(
+              //       color: Colors.black26,
+              //       borderRadius: BorderRadius.circular(5.0)),
+              //   textStyle: TextStyle(
+              //       color: Theme.of(context).textTheme.bodyMedium!.color!,
+              //       fontSize: 10.0),
+              //   excludeFromSemantics: false,
+              //   child: Icon(
+              //     elem.iconData,
+              //     color: Theme.of(context).textTheme.bodyMedium!.color!,
+              //     weight: 48.0,
+              //     size: 22.0,
+              //   ),
+              // ),
+              child: Icon(
+                elem.iconData,
+                color: Theme.of(context).textTheme.bodyMedium!.color!,
+                weight: 48.0,
+                size: 22.0,
               ),
             ),
           ),

@@ -19,6 +19,7 @@
     "cmm_end_time": "结束时间",
     "cmm_last_time": "时长",
     "cmm_format": "格式",
+    "splash_loading": "正在初始化，请稍等片刻……",
     "cfg_activated": "已激活。",
     "cfg_try_version": "试用版。",
     "cfg_activate_expired": "激活码已过期。",

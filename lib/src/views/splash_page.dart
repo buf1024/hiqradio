@@ -10,6 +10,7 @@ import 'package:hiqradio/src/views/desktop/home_page.dart';
 import 'package:hiqradio/src/views/lock_page.dart';
 import 'package:hiqradio/src/views/phone/phone_home_page.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SplashPage extends StatefulWidget {
   final int maxInitMs;
@@ -76,10 +77,11 @@ class _SplashPageState extends State<SplashPage> {
                   ],
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: Text(
-                  '正在初始化，请稍等片刻……',
+                  // '正在初始化，请稍等片刻……',
+                  AppLocalizations.of(context).splash_loading,
                 ),
               ),
               const Spacer(),
