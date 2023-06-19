@@ -37,7 +37,7 @@ class FavoriteCubit extends Cubit<FavoriteState> {
   Future<FavGroup> addNewGroup() async {
     FavGroup group = await repo.addNewGroup();
     List<FavGroup> groups = await repo.loadGroups();
-    emit(state.copyWith(group: group, groups: groups));
+    emit(state.copyWith(group: group, groups: groups, stations: []));
     return group;
   }
 

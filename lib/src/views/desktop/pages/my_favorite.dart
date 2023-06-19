@@ -109,31 +109,35 @@ class _MyFavoriteState extends State<MyFavorite>
         padding: const EdgeInsets.all(15.0),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-              child: station != null &&
-                      station.favicon != null &&
-                      station.favicon!.isNotEmpty
-                  ? CachedNetworkImage(
-                      fit: BoxFit.fill,
-                      imageUrl: station.favicon!,
-                      placeholder: (context, url) {
-                        return const StationPlaceholder(
-                          height: 100.0,
-                          width: 100.0,
-                        );
-                      },
-                      errorWidget: (context, url, error) {
-                        return const StationPlaceholder(
-                          height: 100.0,
-                          width: 100.0,
-                        );
-                      },
-                    )
-                  : const StationPlaceholder(
-                      height: 145.0,
-                      width: 145.0,
-                    ),
+            SizedBox(
+              height: 145.0,
+              width: 145.0,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+                child: station != null &&
+                        station.favicon != null &&
+                        station.favicon!.isNotEmpty
+                    ? CachedNetworkImage(
+                        fit: BoxFit.fill,
+                        imageUrl: station.favicon!,
+                        placeholder: (context, url) {
+                          return const StationPlaceholder(
+                            height: 145.0,
+                            width: 145.0,
+                          );
+                        },
+                        errorWidget: (context, url, error) {
+                          return const StationPlaceholder(
+                            height: 145.0,
+                            width: 145.0,
+                          );
+                        },
+                      )
+                    : const StationPlaceholder(
+                        height: 145.0,
+                        width: 145.0,
+                      ),
+              ),
             ),
             Container(
               padding: const EdgeInsets.only(left: 20.0),
