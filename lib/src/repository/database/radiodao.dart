@@ -166,16 +166,16 @@ class RadioDao {
     db.transaction((txn) async {
       List<Map<String, Object?>> list = await txn.query('station',
           where: 'stationuuid = ?', whereArgs: [station.stationuuid], limit: 1);
+
       if (list.isEmpty) {
         var jsValues = station.toJson();
         await txn.insert('station', jsValues);
-
-        Map<String, Object?> values = {
-          'stationuuid': station.stationuuid,
-          'group_id': groupId
-        };
-        await txn.insert('favorite', values);
       }
+      Map<String, Object?> values = {
+        'stationuuid': station.stationuuid,
+        'group_id': groupId
+      };
+      await txn.insert('favorite', values);
     });
   }
 
