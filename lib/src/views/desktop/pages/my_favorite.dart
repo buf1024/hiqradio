@@ -570,9 +570,11 @@ class _MyFavoriteState extends State<MyFavorite>
                           ),
                         ),
                       ),
-                      Text(
-                        station.name,
-                        overflow: TextOverflow.ellipsis,
+                      Expanded(
+                        child: Text(
+                          station.name,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       )
                     ],
                   ),

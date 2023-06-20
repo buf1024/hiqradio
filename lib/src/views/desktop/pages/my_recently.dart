@@ -185,10 +185,12 @@ class _MyRecentlyState extends State<MyRecently>
                                 ),
                         ),
                       ),
-                      Text(
-                        station.name,
-                        overflow: TextOverflow.ellipsis,
-                      )
+                      Expanded(
+                        child: Text(
+                          station.name,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                 ),
