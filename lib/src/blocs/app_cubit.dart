@@ -15,6 +15,7 @@ import 'package:hiqradio/src/repository/repository.dart';
 import 'package:hiqradio/src/utils/check_license.dart';
 import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/utils/my_isolate.dart';
+import 'package:hiqradio/src/utils/pair.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
 // import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart';
@@ -235,14 +236,17 @@ abstract class AppCubit extends Cubit<AppState> {
     }
   }
 
-  void pauseResume() async {
+  Pair<int, Station>? pauseResume() {
     if (!state.isEditing) {
       if (state.isPlaying) {
         stop();
+        return Pair(-1, state.playingStation!);
       } else if (state.playingStation != null) {
         play(state.playingStation!);
-      }
+        return Pair(1, state.playingStation!);
+      }       
     }
+    return null;
   }
 
   void stop() async {

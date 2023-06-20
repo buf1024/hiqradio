@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
+import 'package:hiqradio/src/blocs/recently_cubit.dart';
+import 'package:hiqradio/src/models/station.dart';
+import 'package:hiqradio/src/utils/pair.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/play_ctrl.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
@@ -85,7 +88,15 @@ class _HomePageState extends State<HomePage> {
     await hotKeyManager.register(
       hotKey,
       keyDownHandler: (hotKey) {
-        context.read<AppCubit>().pauseResume();
+        Pair<int, Station>? playingInfo =
+            context.read<AppCubit>().pauseResume();
+        if (playingInfo != null) {
+          if (playingInfo.p1 < 0) {
+            context.read<RecentlyCubit>().updateRecently(playingInfo.p2);
+          } else {
+            context.read<RecentlyCubit>().addRecently(playingInfo.p2);
+          }
+        }
       },
       // 只在 macOS 上工作。
       // keyUpHandler: (hotKey) {
@@ -115,8 +126,7 @@ class _HomePageState extends State<HomePage> {
                           setState(() {
                             isCompactMode = !isCompactMode;
                           });
-                          await windowManager
-                              .setSize(const Size(318.0, 74));
+                          await windowManager.setSize(const Size(318.0, 74));
                           await windowManager.setResizable(false);
                         },
                       ),
