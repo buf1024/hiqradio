@@ -103,6 +103,7 @@ class FavoriteCubit extends Cubit<FavoriteState> {
         }
       }
     }
+    print('add fav');
   }
 
   void delFavorite(Station station) async {

@@ -1,4 +1,4 @@
-package com.example.hiqradio
+package com.toyent.hiqradio
 
 import io.flutter.embedding.android.FlutterActivity
 

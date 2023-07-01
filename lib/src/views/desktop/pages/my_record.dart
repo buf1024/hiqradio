@@ -42,7 +42,6 @@ class _MyRecordState extends State<MyRecord>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // _tableFuncs(),
           Expanded(child: _table())
         ],
       ),

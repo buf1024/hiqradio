@@ -21,6 +21,8 @@ class _PlayCtrlState extends State<PlayCtrl> {
   Timer? recordingTimer;
   int tick = 0;
 
+  Station? recordStation;
+
   @override
   void initState() {
     super.initState();
@@ -71,6 +73,13 @@ class _PlayCtrlState extends State<PlayCtrl> {
 
     bool isRecording =
         context.select<AppCubit, bool>((value) => value.state.isRecording);
+
+    if (isRecording &&
+        playingStation != null &&
+        recordStation != null &&
+        playingStation.stationuuid != recordStation!.stationuuid) {
+      _doStopRecording();
+    }
 
     // int? recordingId =
     //     context.select<AppCubit, int?>((value) => value.state.recordingId);

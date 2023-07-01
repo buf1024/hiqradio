@@ -17,7 +17,6 @@ import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/utils/my_isolate.dart';
 import 'package:hiqradio/src/utils/pair.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
-// import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -73,8 +72,15 @@ abstract class AppCubit extends Cubit<AppState> {
 
     String? s = sp.getString(kSpAppLastPlayStation);
     Station? playingStation;
+    bool isFavStation = false;
     if (s != null) {
       playingStation = Station.fromJson(jsonDecode(s));
+      FavGroup? group = await repo.loadGroup();
+
+      if (group != null) {
+        isFavStation =
+            await repo.isFavStation(playingStation.stationuuid, group.id!);
+      }
     }
 
     HiqThemeMode themeMode = HiqThemeMode.dark;
@@ -115,7 +121,8 @@ abstract class AppCubit extends Cubit<AppState> {
         themeMode: themeMode,
         autoStart: autoStart,
         autoStop: autoStop,
-        locale: locale));
+        locale: locale,
+        isFavStation: isFavStation));
 
     await Future.delayed(const Duration(milliseconds: 1));
     if (expireDate != null) {
@@ -208,6 +215,8 @@ abstract class AppCubit extends Cubit<AppState> {
       SharedPreferences sp = await SharedPreferences.getInstance();
       sp.setString(kSpAppLastPlayStation, jsonEncode(station.toJson()));
 
+      
+
       if (state.playingRecord != null) {
         // await recordPlayer.stop();
         await _platformStop(isRecord: true);
@@ -244,7 +253,7 @@ abstract class AppCubit extends Cubit<AppState> {
       } else if (state.playingStation != null) {
         play(state.playingStation!);
         return Pair(1, state.playingStation!);
-      }       
+      }
     }
     return null;
   }

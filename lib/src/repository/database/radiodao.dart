@@ -373,6 +373,7 @@ class RadioDao {
         batch.insert('station', jsValues);
       } else {
         var jsValues = station.toJson();
+        jsValues.remove('id');
         batch.update('station', jsValues,
             where: 'id = ?', whereArgs: [list[0]['id']]);
       }
