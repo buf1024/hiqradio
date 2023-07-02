@@ -57,6 +57,7 @@ dependencies:
   oktoast: ^3.3.1
   dart_vlc: ^0.4.0
   intl: any
+  just_audio_background: ^0.0.1-beta.10
 
 dev_dependencies:
   flutter_test:

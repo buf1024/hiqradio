@@ -2,17 +2,20 @@ import 'dart:io';
 
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
+import 'package:hiqradio/src/models/station.dart';
 
 class AppVCLCubit extends AppCubit {
   AppVCLCubit() : super();
 
   @override
-  Future<void> audioPlay({required String uri, required bool isRecord}) async {
+  Future<void> audioPlay(
+      {required String uri, required bool isRecord, Station? station}) async {
     if (!isRecord) {
       player.open(Media.network(uri));
       emit(state.copyWith(isPlaying: true, isBuffering: true));
     } else {
-      recordPlayer.open(Media.file(File(uri)));
+      // recordPlayer.open(Media.file(File(uri)));
+      player.open(Media.file(File(uri)));
     }
   }
 
@@ -22,7 +25,8 @@ class AppVCLCubit extends AppCubit {
       player.stop();
       emit(state.copyWith(isPlaying: false, isBuffering: false));
     } else {
-      recordPlayer.stop();
+      // recordPlayer.stop();
+      player.stop();
       emit(state.copyWith(playingRecord: null));
     }
   }
@@ -30,21 +34,27 @@ class AppVCLCubit extends AppCubit {
   @override
   void initAudio() {
     player = Player(id: 1);
-    recordPlayer = Player(id: 2);
+    // recordPlayer = Player(id: 2);
 
     player.playbackStream.listen((PlaybackState playbackState) {
-      bool isBuffering = false;
-      bool isPlaying = false;
-      if (playbackState.isPlaying) {
-        isPlaying = true;
+      if (state.playingRecord == null) {
+        bool isBuffering = false;
+        bool isPlaying = false;
+        if (playbackState.isPlaying) {
+          isPlaying = true;
+        }
+        emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
+      } else {
+        if (playbackState.isCompleted) {
+          emit(state.copyWith(playingRecord: null));
+        }
       }
-      emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
     });
 
-    recordPlayer.playbackStream.listen((PlaybackState playbackState) {
-      if (playbackState.isCompleted) {
-        emit(state.copyWith(playingRecord: null));
-      }
-    });
+    // recordPlayer.playbackStream.listen((PlaybackState playbackState) {
+    //   if (playbackState.isCompleted) {
+    //     emit(state.copyWith(playingRecord: null));
+    //   }
+    // });
   }
 }

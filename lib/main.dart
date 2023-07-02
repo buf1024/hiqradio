@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
-import 'package:hiqradio/src/blocs/app_ja_cuibit.dart';
+import 'package:hiqradio/src/blocs/app_ja_cubit.dart';
 import 'package:hiqradio/src/blocs/app_vcl_cubit.dart';
 import 'package:hiqradio/src/blocs/favorite_cubit.dart';
 import 'package:hiqradio/src/blocs/my_station_cubit.dart';
@@ -15,6 +15,7 @@ import 'package:hiqradio/src/blocs/search_cubit.dart';
 import 'package:hiqradio/src/utils/utils.dart';
 import 'package:hiqradio/src/views/my_app.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -55,6 +56,13 @@ void main() async {
   if (Platform.isAndroid) {
     SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+  }
+  if (Platform.isAndroid || Platform.isIOS) {
+    await JustAudioBackground.init(
+      androidNotificationChannelId: 'com.toyent.hiqradio.channel.audio',
+      androidNotificationChannelName: 'Audio playback',
+      androidNotificationOngoing: true,
+    );
   }
 
   runApp(

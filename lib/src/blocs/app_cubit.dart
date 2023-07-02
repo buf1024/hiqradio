@@ -23,12 +23,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class AppCubit extends Cubit<AppState> {
   late dynamic player;
-  late dynamic recordPlayer;
 
   final RadioRepository repo = RadioRepository.instance;
 
   void initAudio();
-  Future<void> audioPlay({required String uri, required bool isRecord});
+  Future<void> audioPlay({required String uri, required bool isRecord, Station? station});
   Future<void> audioStop({required bool isRecord});
 
   AppCubit() : super(const AppState()) {
@@ -36,9 +35,9 @@ abstract class AppCubit extends Cubit<AppState> {
   }
 
   Future<void> _platformPlay(
-      {required String uri, required bool isRecord}) async {
+      {required String uri, required bool isRecord, Station? station}) async {
     try {
-      await audioPlay(uri: uri, isRecord: isRecord);
+      await audioPlay(uri: uri, isRecord: isRecord, station: station);
     } catch (e) {
       print("Error playing : $e");
     }
@@ -215,7 +214,7 @@ abstract class AppCubit extends Cubit<AppState> {
       SharedPreferences sp = await SharedPreferences.getInstance();
       sp.setString(kSpAppLastPlayStation, jsonEncode(station.toJson()));
 
-      
+
 
       if (state.playingRecord != null) {
         // await recordPlayer.stop();
@@ -241,7 +240,7 @@ abstract class AppCubit extends Cubit<AppState> {
       // } catch (e) {
       //   print("Error loading audio source and play: $e");
       // }
-      await _platformPlay(uri: url, isRecord: false);
+      await _platformPlay(uri: url, isRecord: false, station: station);
     }
   }
 
