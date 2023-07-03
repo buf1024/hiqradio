@@ -95,7 +95,11 @@ class _MyPhoneRecordState extends State<MyPhoneRecord>
         Size winSize = MediaQuery.of(context).size;
 
         return Container(
+          margin: const EdgeInsets.all(3.0),
           padding: const EdgeInsets.all(5.0),
+          decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(5.0)),
           child: Row(
             children: [
               GestureDetector(

@@ -63,6 +63,8 @@ void main() async {
       androidNotificationChannelName: 'Audio playback',
       androidNotificationOngoing: true,
     );
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
 
   runApp(

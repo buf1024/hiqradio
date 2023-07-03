@@ -3,6 +3,9 @@ import 'package:flutter/widgets.dart';
 
 class IconFont {
   IconFont._();
+  static const IconData rotateVertical = IconData(0xe66c, fontFamily: "IconFont");
+  static const IconData rotateHorizontal = IconData(0xe66b, fontFamily: "IconFont");
+  static const IconData car = IconData(0xec6d, fontFamily: "IconFont");
   static const IconData playlist = IconData(0xea71, fontFamily: "IconFont");
   static const IconData stop = IconData(0xea89, fontFamily: "IconFont");
   static const IconData customized = IconData(0xe605, fontFamily: "IconFont");

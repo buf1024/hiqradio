@@ -26,7 +26,7 @@ const kMaxPlayHis = 50;
 
 const kDefCheckCacheInterval = 30*24*60*60*1000;
 
-const kDefSearchText = '新闻';
+const kDefSearchText = 'kids';
 
 const kSpAppLicense = 'SpAppLicense';
 const kSpAppFistStarted = 'SpAppFistStarted';

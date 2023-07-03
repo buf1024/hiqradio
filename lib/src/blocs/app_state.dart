@@ -46,32 +46,38 @@ class AppState extends Equatable {
 
   final String locale;
 
-  const AppState(
-      {this.isTry = true,
-      this.expireDate = '',
-      this.isInit = false,
-      this.isPlaying = false,
-      this.isBuffering = false,
-      this.playingStation,
-      this.isFavStation = false,
-      this.isEditing = false,
-      this.languages = const [],
-      this.states = const {},
-      this.countries = const [],
-      this.tags = const [],
-      this.isLangLoading = false,
-      this.isStateLoading = false,
-      this.isCountriesLoading = false,
-      this.isTagLoading = false,
-      this.themeMode = HiqThemeMode.dark,
-      this.isRecording = false,
-      this.playingRecord,
-      this.playHis = const [],
-      this.playHisIndex = 0,
-      this.autoStart = false,
-      this.autoStop = true,
-      this.autoCache = true,
-      this.locale = '',});
+  final int stopTimer;
+  final bool isCaching;
+
+  const AppState({
+    this.isTry = true,
+    this.expireDate = '',
+    this.isInit = false,
+    this.isPlaying = false,
+    this.isBuffering = false,
+    this.playingStation,
+    this.isFavStation = false,
+    this.isEditing = false,
+    this.languages = const [],
+    this.states = const {},
+    this.countries = const [],
+    this.tags = const [],
+    this.isLangLoading = false,
+    this.isStateLoading = false,
+    this.isCountriesLoading = false,
+    this.isTagLoading = false,
+    this.themeMode = HiqThemeMode.dark,
+    this.isRecording = false,
+    this.playingRecord,
+    this.playHis = const [],
+    this.playHisIndex = 0,
+    this.autoStart = false,
+    this.autoStop = true,
+    this.autoCache = true,
+    this.locale = '',
+    this.stopTimer = -1,
+    this.isCaching = false,
+  });
 
   AppState copyWith({
     bool? isTry,
@@ -99,6 +105,8 @@ class AppState extends Equatable {
     bool? autoStop,
     bool? autoCache,
     String? locale,
+    int? stopTimer,
+    bool? isCaching
   }) {
     return AppState(
       isTry: isTry ?? this.isTry,
@@ -126,6 +134,8 @@ class AppState extends Equatable {
       autoStop: autoStop ?? this.autoStop,
       autoCache: autoCache ?? this.autoCache,
       locale: locale ?? this.locale,
+      stopTimer: stopTimer ?? this.stopTimer,
+      isCaching: isCaching ?? this.isCaching,
     );
   }
 
@@ -157,6 +167,8 @@ class AppState extends Equatable {
         autoStart,
         autoStop,
         autoCache,
-        locale
+        locale,
+        stopTimer,
+        isCaching
       ];
 }

@@ -102,7 +102,7 @@ class _SplashPageState extends State<SplashPage> {
       if (delay > 0) {
         await Future.delayed(Duration(milliseconds: delay));
       }
-
+      
       _jump(state.expireDate.isNotEmpty
           ? (isDesktop() ? const HomePage() : const PhoneHomePage())
           : const LockPage());

@@ -58,6 +58,8 @@ dependencies:
   dart_vlc: ^0.4.0
   intl: any
   just_audio_background: ^0.0.1-beta.10
+  flutter_time_picker_spinner: ^2.0.0
+  text_scroll: ^0.2.0
 
 dev_dependencies:
   flutter_test:

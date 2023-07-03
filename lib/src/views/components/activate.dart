@@ -33,9 +33,10 @@ class _ActivateState extends State<Activate> {
   @override
   Widget build(BuildContext context) {
     Color toastColor = Theme.of(context).scaffoldBackgroundColor;
-    return SizedBox(
+    return Container(
       width: 484,
       height: 120,
+      padding: const EdgeInsets.all(10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -50,36 +51,45 @@ class _ActivateState extends State<Activate> {
           ),
           Row(
             children: [
-              Container(
-                width: 360,
-                height: 48,
-                padding: const EdgeInsets.symmetric(vertical: 1.0),
-                child: TextField(
-                  controller: editingController,
-                  focusNode: focusNode,
-                  autofocus: true,
-                  obscureText: false,
-                  autocorrect: false,
-                  obscuringCharacter: '*',
-                  cursorWidth: 1.0,
-                  cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
-                  style: const TextStyle(fontSize: 15.0),
-                  decoration: InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color:
-                                Theme.of(context).textTheme.bodyMedium!.color!),
-                        borderRadius: BorderRadius.circular(5)),
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color:
-                                Theme.of(context).textTheme.bodyMedium!.color!),
-                        borderRadius: BorderRadius.circular(5)),
+              Expanded(
+                child: Container(
+                  // width: 360,
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(vertical: 1.0),
+                  child: TextField(
+                    onTapOutside: (_) {
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
+                    controller: editingController,
+                    focusNode: focusNode,
+                    autofocus: true,
+                    obscureText: false,
+                    autocorrect: false,
+                    obscuringCharacter: '*',
+                    cursorWidth: 1.0,
+                    cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
+                    style: const TextStyle(fontSize: 15.0),
+                    decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .color!),
+                            borderRadius: BorderRadius.circular(5)),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .color!),
+                            borderRadius: BorderRadius.circular(5)),
+                        contentPadding: const EdgeInsets.all(2.0)),
+                    onSubmitted: (text) {
+                      focusNode.requestFocus();
+                      onSubmitted(toastColor);
+                    },
                   ),
-                  onSubmitted: (text) {
-                    focusNode.requestFocus();
-                    onSubmitted(toastColor);
-                  },
                 ),
               ),
               const SizedBox(

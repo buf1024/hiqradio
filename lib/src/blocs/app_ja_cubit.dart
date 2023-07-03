@@ -38,6 +38,8 @@ class AppJACubit extends AppCubit {
   void initAudio() {
     player = AudioPlayer();
 
+    setVolume(0.75);
+
     player.playbackEventStream.listen((event) {},
         onError: (Object e, StackTrace stackTrace) {
       emit(state.copyWith(isPlaying: false, playingRecord: null));
@@ -71,50 +73,14 @@ class AppJACubit extends AppCubit {
           isPlaying: false, isBuffering: false, playingRecord: null));
     });
   }
-  // @override
-  // void initAudio() {
-  //   player = AudioPlayer();
-  //   recordPlayer = AudioPlayer();
 
-  //   player.playbackEventStream.listen((event) {},
-  //       onError: (Object e, StackTrace stackTrace) {
+  @override
+  void setVolume(double v) async {
+    await player.setVolume(v);
+  }
 
-  //     emit(state.copyWith(isPlaying: false));
-  //   });
-
-  //   player.playerStateStream.listen((playerState) {
-  //     ProcessingState processingState = playerState.processingState;
-  //     bool isPlaying = true;
-  //     bool isBuffering = false;
-  //     if (ProcessingState.idle == processingState ||
-  //         ProcessingState.completed == processingState) {
-  //       isPlaying = false;
-  //     }
-  //     if (ProcessingState.buffering == processingState ||
-  //         ProcessingState.loading == processingState) {
-  //       isBuffering = true;
-  //     }
-  //     emit(state.copyWith(isPlaying: isPlaying, isBuffering: isBuffering));
-  //   }, onError: (Object e, StackTrace stackTrace) {
-
-  //     emit(state.copyWith(isPlaying: false, isBuffering: false));
-  //   });
-
-  //   recordPlayer.playbackEventStream.listen((event) {},
-  //       onError: (Object e, StackTrace stackTrace) {
-  //     emit(state.copyWith(playingRecord: null));
-  //   });
-  //   recordPlayer.playerStateStream.listen((playerState) {
-  //     ProcessingState processingState = playerState.processingState;
-
-  //     if (ProcessingState.idle == processingState ||
-  //         ProcessingState.completed == processingState) {
-  //       emit(state.copyWith(playingRecord: null));
-  //     }
-  //   }, onError: (Object e, StackTrace stackTrace) {
-  //     print('A recordPlayer playerStateStream error occurred: $e');
-
-  //     emit(state.copyWith(playingRecord: null));
-  //   });
-  // }
+  @override
+  double getVolume() {
+    return player.volume;
+  }
 }

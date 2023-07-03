@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/utils/utils.dart';
-import 'package:hiqradio/src/views/desktop/components/activate.dart';
+import 'package:hiqradio/src/views/components/activate.dart';
 import 'package:hiqradio/src/views/desktop/components/title_bar.dart';
 import 'package:hiqradio/src/views/desktop/components/win_ready.dart';
 import 'package:hiqradio/src/views/desktop/home_page.dart';
@@ -30,11 +30,13 @@ class _LockPageState extends State<LockPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Column(
         children: [
-          const TitleBar(
-            withFuncs: false,
-          ),
+          if (isDesktop())
+            const TitleBar(
+              withFuncs: false,
+            ),
           Expanded(
             child: Center(
               child: Activate(

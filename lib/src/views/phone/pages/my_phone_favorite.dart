@@ -108,7 +108,11 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
             isPlaying && playingStation!.urlResolved == station.urlResolved;
 
         return Container(
+          margin: const EdgeInsets.all(3.0),
           padding: const EdgeInsets.all(5.0),
+          decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(5.0)),
           child: Row(
             children: [
               GestureDetector(
@@ -128,7 +132,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
                   List<String> sSelected = await context
                       .read<FavoriteCubit>()
                       .loadStationGroup(station);
-                  showTableContextMenu(
+                  _showContextMenu(
                       details.globalPosition,
                       station,
                       playingStation != null &&
@@ -163,7 +167,8 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
                             Icon(
                               !isStationPlaying ? IconFont.play : IconFont.stop,
                               size: 12.0,
-                              color: Colors.white,
+                              color:
+                                  Theme.of(context).textTheme.bodyMedium!.color,
                             )
                           ],
                         ),
@@ -221,7 +226,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
     );
   }
 
-  void showTableContextMenu(Offset offset, Station station, bool isPlaying,
+  void _showContextMenu(Offset offset, Station station, bool isPlaying,
       FavGroup? group, List<String> data, List<String> selected) {
     showMenu(
         context: context,

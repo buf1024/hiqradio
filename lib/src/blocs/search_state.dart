@@ -17,6 +17,7 @@ class SearchState extends Equatable {
   final String selectedState;
 
   final List<String> recentSearch;
+  final bool isCaching;
 
   const SearchState(
       {this.stations = const [],
@@ -29,7 +30,8 @@ class SearchState extends Equatable {
       this.selectedLanguage = '',
       this.selectedCountry = '',
       this.selectedState = '',
-      this.recentSearch = const []});
+      this.recentSearch = const [],
+      this.isCaching = false});
 
   SearchState copyWith(
       {List<Station>? stations,
@@ -42,7 +44,8 @@ class SearchState extends Equatable {
       String? selectedLanguage,
       String? selectedCountry,
       String? selectedState,
-      List<String>? recentSearch}) {
+      List<String>? recentSearch,
+      bool? isCaching}) {
     return SearchState(
       stations: stations ?? this.stations,
       searchText: searchText ?? this.searchText,
@@ -55,6 +58,7 @@ class SearchState extends Equatable {
       selectedCountry: selectedCountry ?? this.selectedCountry,
       selectedState: selectedState ?? this.selectedState,
       recentSearch: recentSearch ?? this.recentSearch,
+      isCaching: isCaching ?? this.isCaching,
     );
   }
 
@@ -70,6 +74,7 @@ class SearchState extends Equatable {
         selectedLanguage,
         selectedCountry,
         selectedState,
-        recentSearch
+        recentSearch,
+        isCaching,
       ];
 }

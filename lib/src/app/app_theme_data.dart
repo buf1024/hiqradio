@@ -62,10 +62,11 @@ class AppThemeData {
 
   static ThemeData get light => ThemeData(
         brightness: Brightness.light,
+        canvasColor: const Color(0xffF7F7F7),
         // backgroundColor: const Color(0xffF2F2F2),
         colorScheme: const ColorScheme.light(background: Color(0xff3C3F41)),
         highlightColor: Colors.blue.withOpacity(0.1),
-        scaffoldBackgroundColor: const Color(0xFFFFFFFF),
+        scaffoldBackgroundColor: const Color(0xFFEDEDED),
         // scaffoldBackgroundColor: const Color(0xffFAFAFA),
         appBarTheme: const AppBarTheme(
             iconTheme: IconThemeData(color: Colors.black),

@@ -6,5 +6,6 @@
     await windowManager.setMovable(false);
 
  }
+- StatefulBuilder 设置Dialog bottomSheet等状态
 ## 问题
 Flutter 不支持条件import，所以，有些涉及平台相关的代码，有些做不到，就必须删代码编译

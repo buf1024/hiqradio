@@ -1,7 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-// import 'package:dart_vlc/dart_vlc.dart' show Player, PlaybackState, Media;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/app_state.dart';
 import 'package:hiqradio/src/models/country.dart';
@@ -22,13 +22,20 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class AppCubit extends Cubit<AppState> {
+  Timer? stopTimer;
+
   late dynamic player;
 
   final RadioRepository repo = RadioRepository.instance;
 
   void initAudio();
-  Future<void> audioPlay({required String uri, required bool isRecord, Station? station});
+  Future<void> audioPlay(
+      {required String uri, required bool isRecord, Station? station});
   Future<void> audioStop({required bool isRecord});
+  void setVolume(double v) async {}
+  double getVolume() {
+    return 0;
+  }
 
   AppCubit() : super(const AppState()) {
     initAudio();
@@ -123,15 +130,20 @@ abstract class AppCubit extends Cubit<AppState> {
         locale: locale,
         isFavStation: isFavStation));
 
-    await Future.delayed(const Duration(milliseconds: 1));
     if (expireDate != null) {
       if (autoStart && playingStation != null) {
         play(playingStation);
       }
 
-      Future.delayed(const Duration(seconds: 1), () async {
-        await repo.doCacheStations();
-      });
+      emit(state.copyWith(isCaching: true));
+      await repo.doCacheStations();
+      emit(state.copyWith(isCaching: false));
+
+      // Future.delayed(const Duration(seconds: 30), () async {
+      //   emit(state.copyWith(isCaching: true));
+      //   await repo.doCacheStations();
+      //   emit(state.copyWith(isCaching: false));
+      // });
     }
   }
 
@@ -175,6 +187,11 @@ abstract class AppCubit extends Cubit<AppState> {
         state.playHisIndex < state.playHis.length) {
       Station station = state.playHis[state.playHisIndex - 1];
       play(station);
+    } else {
+      Station? station = await getRandomStation();
+      if (station != null) {
+        play(station);
+      }
     }
   }
 
@@ -184,6 +201,11 @@ abstract class AppCubit extends Cubit<AppState> {
         state.playHisIndex < state.playHis.length - 1) {
       Station station = state.playHis[state.playHisIndex + 1];
       play(station);
+    } else {
+      Station? station = await getRandomStation();
+      if (station != null) {
+        play(station);
+      }
     }
   }
 
@@ -213,8 +235,6 @@ abstract class AppCubit extends Cubit<AppState> {
       // last play
       SharedPreferences sp = await SharedPreferences.getInstance();
       sp.setString(kSpAppLastPlayStation, jsonEncode(station.toJson()));
-
-
 
       if (state.playingRecord != null) {
         // await recordPlayer.stop();
@@ -452,6 +472,38 @@ abstract class AppCubit extends Cubit<AppState> {
       sp.setString(kSpAppLocale, locale);
 
       emit(state.copyWith(locale: locale));
+    }
+  }
+
+  void cancelStopTimer() {
+    _stopStopTimer();
+    emit(state.copyWith(stopTimer: -1));
+  }
+
+  void restartStopTimer(int millSecs) {
+    emit(state.copyWith(stopTimer: millSecs));
+    _stopStopTimer();
+    _startStopTimer();
+  }
+
+  void _startStopTimer() {
+    if (stopTimer == null) {
+      DateTime now = DateTime.now();
+      int tick = (state.stopTimer - now.millisecondsSinceEpoch) ~/ 1000;
+      stopTimer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
+        if (timer.tick >= tick) {
+          _stopStopTimer();
+          stop();
+        }
+      });
+    }
+  }
+
+  void _stopStopTimer() {
+    if (stopTimer != null) {
+      stopTimer!.cancel();
+      stopTimer = null;
+      emit(state.copyWith(stopTimer: -1));
     }
   }
 }

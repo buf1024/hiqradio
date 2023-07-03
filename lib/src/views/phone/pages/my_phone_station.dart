@@ -104,6 +104,7 @@ class _MyPhoneStationState extends State<MyPhoneStation>
     bool isBuffering =
         context.select<AppCubit, bool>((value) => value.state.isBuffering);
 
+
     Size winSize = MediaQuery.of(context).size;
     return Column(
       children: [
@@ -125,7 +126,12 @@ class _MyPhoneStationState extends State<MyPhoneStation>
                           playingStation!.urlResolved == station.urlResolved;
 
                       return Container(
+                        margin: const EdgeInsets.all(3.0),
                         padding: const EdgeInsets.all(5.0),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(5.0)
+                        ),
                         child: Row(
                           children: [
                             InkClick(
@@ -173,7 +179,7 @@ class _MyPhoneStationState extends State<MyPhoneStation>
                                                 ? IconFont.play
                                                 : IconFont.stop,
                                             size: 12.0,
-                                            color: Colors.white,
+                                            color: Theme.of(context).textTheme.bodyMedium!.color!,
                                           )
                                         ],
                                       ),
@@ -185,7 +191,7 @@ class _MyPhoneStationState extends State<MyPhoneStation>
                                           width: 30.0,
                                           child: CircularProgressIndicator(
                                             color:
-                                                Colors.white.withOpacity(0.2),
+                                                Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(0.2),
                                             strokeWidth: 2.0,
                                           ),
                                         ),

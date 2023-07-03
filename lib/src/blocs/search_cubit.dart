@@ -52,6 +52,7 @@ class SearchCubit extends Cubit<SearchState> {
       emit(state.copyWith(recentSearch: recentSearch));
     }
   }
+
   Future<String?> recentSearch() async {
     List<String>? recentSearch = await _loadLastSearch();
     if (recentSearch != null) {
@@ -63,7 +64,6 @@ class SearchCubit extends Cubit<SearchState> {
     }
     return null;
   }
-  
 
   Future<List<Station>> search(String name) async {
     name = name.trim();
@@ -75,7 +75,6 @@ class SearchCubit extends Cubit<SearchState> {
       if (name.isNotEmpty) {
         _saveLastSearch(name);
       }
-
       emit(state.copyWith(
         searchText: name,
         isConditionChanged: false,
@@ -86,7 +85,8 @@ class SearchCubit extends Cubit<SearchState> {
           country: state.selectedCountry,
           countryState: state.selectedState,
           language: state.selectedLanguage,
-          tags: state.selectedTags);
+          tags: state.selectedTags,
+          skipCache: state.isCaching);
 
       int size =
           stations.length <= kDefListSize ? stations.length : kDefListSize;
@@ -188,6 +188,10 @@ class SearchCubit extends Cubit<SearchState> {
 
   void resetIsSetSearch(bool isSetSearch) {
     emit(state.copyWith(isSetSearch: isSetSearch));
+  }
+
+  void setIsCaching(bool isCaching) {
+    emit(state.copyWith(isCaching: isCaching));
   }
 
   void clearRecently() async {

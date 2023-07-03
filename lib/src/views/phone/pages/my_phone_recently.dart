@@ -107,7 +107,11 @@ class _MyPhoneRecentlyState extends State<MyPhoneRecently>
         Size winSize = MediaQuery.of(context).size;
 
         return Container(
+          margin: const EdgeInsets.all(3.0),
           padding: const EdgeInsets.all(5.0),
+          decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(5.0)),
           child: Row(
             children: [
               GestureDetector(
@@ -151,7 +155,8 @@ class _MyPhoneRecentlyState extends State<MyPhoneRecently>
                             Icon(
                               !isStationPlaying ? IconFont.play : IconFont.stop,
                               size: 12.0,
-                              color: Colors.white,
+                              color:
+                                  Theme.of(context).textTheme.bodyMedium!.color,
                             )
                           ],
                         ),
@@ -162,7 +167,11 @@ class _MyPhoneRecentlyState extends State<MyPhoneRecently>
                             height: 30.0,
                             width: 30.0,
                             child: CircularProgressIndicator(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .color!
+                                  .withOpacity(0.2),
                               strokeWidth: 2.0,
                             ),
                           ),
