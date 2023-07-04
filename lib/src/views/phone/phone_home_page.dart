@@ -819,7 +819,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                 ),
               ),
               child: SizedBox(
-                height: size.height*0.8,
+                height: size.height*0.7,
                 width: size.width - 20.0,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
