@@ -132,7 +132,7 @@ class _PlayCtrlState extends State<PlayCtrl> {
                 size: 20.0,
                 color: Color(0XFFEA3E3C),
               ),
-              onTap: () {
+              onTap: () async {
                 if (isPlaying) {
                   context.read<AppCubit>().stop();
                   if (playingStation != null) {
@@ -141,7 +141,7 @@ class _PlayCtrlState extends State<PlayCtrl> {
                         .updateRecently(playingStation);
                   }
                 }
-                Station? station = context.read<AppCubit>().getPrevStation();
+                Station? station = await context.read<AppCubit>().getPrevStation();
                 if (station != null) {
                   context.read<AppCubit>().play(station);
                   context.read<RecentlyCubit>().addRecently(station);
@@ -195,9 +195,15 @@ class _PlayCtrlState extends State<PlayCtrl> {
                   context.read<RecentlyCubit>().updateRecently(playingStation);
                 }
               } else {
-                if (playingStation != null) {
-                  context.read<AppCubit>().play(playingStation);
-                  context.read<RecentlyCubit>().addRecently(playingStation);
+                // if (playingStation != null) {
+                //   context.read<AppCubit>().play(playingStation);
+                //   context.read<RecentlyCubit>().addRecently(playingStation);
+                // }
+                Station? station = playingStation;
+                station ??= await context.read<AppCubit>().getRandomStation();
+                if (station != null) {
+                  context.read<AppCubit>().play(station);
+                  context.read<RecentlyCubit>().addRecently(station);
                 }
               }
             },
@@ -210,7 +216,7 @@ class _PlayCtrlState extends State<PlayCtrl> {
                 size: 20.0,
                 color: Color(0XFFEA3E3C),
               ),
-              onTap: () {
+              onTap: () async {
                 if (isPlaying) {
                   context.read<AppCubit>().stop();
                   if (playingStation != null) {
@@ -219,11 +225,12 @@ class _PlayCtrlState extends State<PlayCtrl> {
                         .updateRecently(playingStation);
                   }
                 }
-                Station? station = context.read<AppCubit>().getNextStation();
+                Station? station = await context.read<AppCubit>().getNextStation();
                 if (station != null) {
                   context.read<AppCubit>().play(station);
                   context.read<RecentlyCubit>().addRecently(station);
                 }
+                
               },
             ),
           ),

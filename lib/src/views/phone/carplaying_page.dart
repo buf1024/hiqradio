@@ -254,7 +254,7 @@ class _CarPlayingPageState extends State<CarPlayingPage> {
                 size: 58.0,
                 // color: Color(0XFFEA3E3C),
               ),
-              onTap: () {
+              onTap: () async {
                 if (isPlaying) {
                   context.read<AppCubit>().stop();
                   if (playingStation != null) {
@@ -263,7 +263,8 @@ class _CarPlayingPageState extends State<CarPlayingPage> {
                         .updateRecently(playingStation);
                   }
                 }
-                Station? station = context.read<AppCubit>().getPrevStation();
+                Station? station =
+                    await context.read<AppCubit>().getPrevStation();
                 if (station != null) {
                   context.read<AppCubit>().play(station);
                   context.read<RecentlyCubit>().addRecently(station);
@@ -334,7 +335,7 @@ class _CarPlayingPageState extends State<CarPlayingPage> {
                 size: 58.0,
                 // color: Color(0XFFEA3E3C),
               ),
-              onTap: () {
+              onTap: () async {
                 if (isPlaying) {
                   context.read<AppCubit>().stop();
                   if (playingStation != null) {
@@ -343,7 +344,8 @@ class _CarPlayingPageState extends State<CarPlayingPage> {
                         .updateRecently(playingStation);
                   }
                 }
-                Station? station = context.read<AppCubit>().getNextStation();
+                Station? station =
+                    await context.read<AppCubit>().getNextStation();
                 if (station != null) {
                   context.read<AppCubit>().play(station);
                   context.read<RecentlyCubit>().addRecently(station);

@@ -203,28 +203,32 @@ abstract class AppCubit extends Cubit<AppState> {
       play(station);
     } else {
       Station? station = await getRandomStation();
+      print('next: $station');
       if (station != null) {
         play(station);
       }
     }
   }
 
-  Station? getPrevStation() {
+  Future<Station?> getPrevStation() async {
     if (state.playHis.isNotEmpty &&
         state.playHisIndex > 0 &&
         state.playHisIndex < state.playHis.length) {
       return state.playHis[state.playHisIndex - 1];
+    } else {
+      return await getRandomStation();
     }
-    return null;
   }
 
-  Station? getNextStation() {
+  Future<Station?> getNextStation() async {
     if (state.playHis.isNotEmpty &&
         state.playHisIndex >= 0 &&
         state.playHisIndex < state.playHis.length - 1) {
       return state.playHis[state.playHisIndex + 1];
     }
-    return null;
+    else {
+      return await getRandomStation();
+    }
   }
 
   void play(Station station) async {
