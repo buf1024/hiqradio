@@ -66,6 +66,9 @@ class ResManager {
   final Map<String, LanguageInfo> _langNameMap = HashMap();
   final Map<String, String> _nativeLangMap = HashMap();
   final Map<String, String> _localeMap = HashMap();
+  final Map<String, String> _chgLogMap = HashMap();
+
+  late String _version;
 
   Future<void> initRes() async {
     if (isInit) {
@@ -114,6 +117,14 @@ class ResManager {
     map.forEach((key, value) {
       _localeMap[key] = value as String;
     });
+
+    String chgLog = await rootBundle.loadString('assets/files/chglog-zh.txt');
+    chgLog = chgLog.trim();
+    _chgLogMap['zh'] = chgLog;
+    _version = chgLog.split('\n')[0];
+
+    chgLog = await rootBundle.loadString('assets/files/chglog-en.txt');
+    _chgLogMap['en'] = chgLog.trim();
 
     isInit = true;
   }
@@ -172,6 +183,13 @@ class ResManager {
     return '$flag $language $countryState';
   }
 
+  String getChgLog(String locale) {
+    if (!_chgLogMap.containsKey(locale)) {
+      return '';
+    }
+    return _chgLogMap[locale]!;
+  }
+
   get cnL2RMap => _stateL2RMap;
   get cnR2LMap => _stateR2LMap;
   get countryMap => _countryMap;
@@ -179,4 +197,5 @@ class ResManager {
   get langNameMap => _langNameMap;
   get nativeLangMap => _nativeLangMap;
   get localeMap => _localeMap;
+  get version => _version;
 }

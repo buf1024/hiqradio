@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
@@ -21,6 +22,7 @@ class Config extends StatefulWidget {
 class _ConfigState extends State<Config> {
   OverlayEntry? activateOverlay;
   OverlayEntry? languageOverlay;
+  OverlayEntry? aboutOverlay;
 
   @override
   void initState() {
@@ -192,9 +194,151 @@ class _ConfigState extends State<Config> {
           '${AppLocalizations.of(context).cfg_about}: 1.0.0 $kAuthor',
           style: const TextStyle(fontSize: 12.0),
         ),
-        onTap: () {},
+        onTap: () {
+          _onShowAboutDlg(locale);
+        },
       ),
     ];
+  }
+
+  void _onShowAboutDlg(String locale) {
+    String chgLog = ResManager.instance.getChgLog(locale);
+
+    double width = 484.0;
+    Size size = MediaQuery.of(context).size;
+    double height = 300;
+    aboutOverlay ??= OverlayEntry(
+      opaque: false,
+      builder: (context) {
+        // 猥琐发育
+        return Stack(
+          children: [
+            Container(
+              padding: const EdgeInsets.only(top: kTitleBarHeight),
+              child: ModalBarrier(
+                onDismiss: () => _closeAboutOverlay(),
+              ),
+            ),
+            Positioned(
+              top: (size.height - height - kTitleBarHeight) / 2 +
+                  kTitleBarHeight,
+              left: (size.width - width) / 2,
+              child: Material(
+                color: Colors.black.withOpacity(0),
+                child: Dialog(
+                  // alignment: Alignment.centerRight,
+                  insetPadding: const EdgeInsets.only(
+                      top: 0, bottom: 0, right: 0, left: 0),
+                  elevation: 2.0,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(8.0),
+                    ),
+                  ),
+                  child: SizedBox(
+                    width: width,
+                    height: height,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 8.0, horizontal: 8.0),
+                                child: InkClick(
+                                  onTap: () {
+                                    _closeAboutOverlay();
+                                  },
+                                  child: const Icon(
+                                    IconFont.close,
+                                    size: 18.0,
+                                  ),
+                                ),
+                              ),
+                              const Spacer(),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  AppLocalizations.of(context).cfg_about,
+                                  style: const TextStyle(fontSize: 14.0),
+                                ),
+                              ),
+                              const Spacer(),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                          child: Text(
+                              'HiqRadio: ${AppLocalizations.of(context).hiqradio} by $kAuthor'),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(
+                              top: 5.0, left: 10.0, bottom: 10.0),
+                          child: Text(ResManager.instance.version),
+                        ),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Container(
+                                width: width,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 5.0, horizontal: 15.0),
+                                child: Text(
+                                  chgLog,
+                                  style: TextStyle(
+                                      fontSize: 12.0,
+                                      color: Colors.grey.withOpacity(0.8)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10.0),
+                              child: MaterialButton(
+                                color: Colors.red.withOpacity(0.8),
+                                onPressed: () {
+                                  _closeAboutOverlay();
+                                },
+                                child: Text(
+                                  AppLocalizations.of(context).cmm_confirm,
+                                  style: const TextStyle(
+                                    fontSize: 14.0,
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    Overlay.of(context).insert(aboutOverlay!);
+  }
+
+  void _closeAboutOverlay() {
+    if (aboutOverlay != null) {
+      aboutOverlay!.remove();
+      aboutOverlay = null;
+    }
   }
 
   void _onShowActivateDlg(Function(String, String) onActivate) {
@@ -225,9 +369,8 @@ class _ConfigState extends State<Config> {
                       top: 0, bottom: 0, right: 0, left: 0),
                   elevation: 2.0,
                   shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(8.0),
-                      bottomLeft: Radius.circular(8.0),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(8.0),
                     ),
                   ),
                   child: SizedBox(
@@ -236,12 +379,13 @@ class _ConfigState extends State<Config> {
                     child: Column(
                       children: <Widget>[
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 8.0),
                           child: Row(
                             children: [
                               Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 2.0),
+                                    const EdgeInsets.symmetric(vertical: 8.0),
                                 child: InkClick(
                                   onTap: () {
                                     _closeActivateOverlay();
@@ -255,7 +399,7 @@ class _ConfigState extends State<Config> {
                               const Spacer(),
                               Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 2.0),
+                                    const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Text(
                                   // '激活码',
                                   AppLocalizations.of(context)

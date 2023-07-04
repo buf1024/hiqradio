@@ -789,13 +789,125 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
           style: const TextStyle(fontSize: 16.0),
         ),
         subtitle: Text(
-          // '版本: 1.0.0 $kAuthor',
-          '${AppLocalizations.of(context).cfg_about}: 1.0.0 $kAuthor',
+          '${ResManager.instance.version} by $kAuthor',
           style: const TextStyle(fontSize: 13.0),
         ),
-        onTap: () {},
+        onTap: () {
+          Navigator.of(context).pop();
+          _onShowAboutDlg(locale);
+        },
       ),
     ];
+  }
+
+  void _onShowAboutDlg(String locale) {
+    String chgLog = ResManager.instance.getChgLog(locale);
+
+    Size size = MediaQuery.of(context).size;
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Material(
+            color: Colors.black.withOpacity(0),
+            child: Dialog(
+              insetPadding:
+                  const EdgeInsets.only(top: 0, bottom: 0, right: 0, left: 0),
+              elevation: 2.0,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(8.0),
+                ),
+              ),
+              child: SizedBox(
+                height: size.height*0.8,
+                width: size.width - 20.0,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: InkClick(
+                              onTap: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Icon(
+                                IconFont.close,
+                                size: 22.0,
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              AppLocalizations.of(context).cfg_about,
+                              style: const TextStyle(fontSize: 18.0),
+                            ),
+                          ),
+                          const Spacer(),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                      child: Text(
+                          'HiqRadio: ${AppLocalizations.of(context).hiqradio} by $kAuthor'),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(
+                          top: 5.0, left: 10.0, bottom: 10.0),
+                      child: Text(ResManager.instance.version),
+                    ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Container(
+                            width: size.width - 20.0,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 5.0, horizontal: 15.0),
+                            child: Text(
+                              chgLog,
+                              style: TextStyle(
+                                  fontSize: 12.0,
+                                  color: Colors.grey.withOpacity(0.8)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10.0),
+                          child: MaterialButton(
+                            color: Colors.red.withOpacity(0.8),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(
+                              AppLocalizations.of(context).cmm_confirm,
+                              style: const TextStyle(
+                                fontSize: 14.0,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   void _onShowActivateDlg(Function(String, String) onActivate) {
