@@ -118,7 +118,11 @@ class _HomePageState extends State<HomePage> with TrayListener, WindowListener {
     } else if (menuItem.key == 'play_next') {
       _playNext();
     } else if (menuItem.key == 'quit') {
-      SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+      if (Platform.isWindows) {
+        exit(0);
+      } else {
+        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+      }
     }
   }
 

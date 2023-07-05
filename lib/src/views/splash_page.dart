@@ -121,7 +121,7 @@ class _SplashPageState extends State<SplashPage> {
                   await windowManager.setFullScreen(false);
                   await windowManager.setResizable(false);
                   await windowManager.setOpacity(1);
-                  await windowManager.setSize(const Size(800, 540));
+                  await windowManager.setSize(const Size(810, 540));
                   await windowManager.center();
                   await windowManager.setPreventClose(true);
                 },
