@@ -8,7 +8,6 @@ import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/pair.dart';
-import 'package:hiqradio/src/utils/utils.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/play_ctrl.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
@@ -31,7 +30,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with TrayListener {
+class _HomePageState extends State<HomePage> with TrayListener, WindowListener {
   final PageController pageController = PageController(keepPage: true);
   late NavItem actNavItem;
   Color navColor = Colors.red;
@@ -77,15 +76,23 @@ class _HomePageState extends State<HomePage> with TrayListener {
     // });
 
     actNavItem = topNavTabs[0];
+
+    windowManager.addListener(this);
+    trayManager.addListener(this);
   }
 
   @override
   void dispose() {
     super.dispose();
-    if (isDesktop()) {
-      trayManager.removeListener(this);
-    }
+    trayManager.removeListener(this);
+    windowManager.removeListener(this);
+
     pageController.dispose();
+  }
+
+  @override
+  void onWindowClose() async {
+    await windowManager.hide();
   }
 
   @override
@@ -116,36 +123,31 @@ class _HomePageState extends State<HomePage> with TrayListener {
   }
 
   void _registerTray() async {
-    if (isDesktop()) {
-      trayManager.addListener(this);
-      await trayManager.setIcon(
-        Platform.isWindows
-            ? 'assets/images/logo.ico'
-            : 'assets/images/logo.png',
-      );
-      Menu menu = Menu(
-        items: [
-          MenuItem(
-            key: 'play_prev',
-            label: 'Previous(^ ⌥ B)',
-          ),
-          MenuItem(
-            key: 'play',
-            label: 'Play or Stop(^ ⌥ P)',
-          ),
-          MenuItem(
-            key: 'play_next',
-            label: 'Previous(^ ⌥ F)',
-          ),
-          MenuItem.separator(),
-          MenuItem(
-            key: 'quit',
-            label: 'Quit ',
-          ),
-        ],
-      );
-      await trayManager.setContextMenu(menu);
-    }
+    await trayManager.setIcon(
+      Platform.isWindows ? 'assets/images/logo.ico' : 'assets/images/logo.png',
+    );
+    Menu menu = Menu(
+      items: [
+        MenuItem(
+          key: 'play_prev',
+          label: 'Previous(^ ⌥ B)',
+        ),
+        MenuItem(
+          key: 'play',
+          label: 'Play or Stop(^ ⌥ P)',
+        ),
+        MenuItem(
+          key: 'play_next',
+          label: 'Previous(^ ⌥ F)',
+        ),
+        MenuItem.separator(),
+        MenuItem(
+          key: 'quit',
+          label: 'Quit ',
+        ),
+      ],
+    );
+    await trayManager.setContextMenu(menu);
   }
 
   void _registerHotKey() async {
