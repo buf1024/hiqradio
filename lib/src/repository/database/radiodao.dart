@@ -190,7 +190,7 @@ class RadioDao {
 
   Future<List<Recently>> queryRecently() async {
     List<Map<String, Object?>> data =
-        await db.query('recently', orderBy: 'start_time desc');
+        await db.query('recently', orderBy: 'start_time desc', limit: 500);
     return data.map(Recently.fromJson).toList();
   }
 

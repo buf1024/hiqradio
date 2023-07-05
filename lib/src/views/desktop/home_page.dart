@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/pair.dart';
+import 'package:hiqradio/src/utils/utils.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/play_ctrl.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
@@ -17,6 +21,7 @@ import 'package:hiqradio/src/views/desktop/pages/my_station.dart';
 import 'package:hiqradio/src/views/desktop/pages/my_recently.dart';
 import 'package:hiqradio/src/views/desktop/pages/my_record.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
 class HomePage extends StatefulWidget {
@@ -26,7 +31,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TrayListener {
   final PageController pageController = PageController(keepPage: true);
   late NavItem actNavItem;
   Color navColor = Colors.red;
@@ -65,6 +70,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _registerHotKey();
+    _registerTray();
 
     // Future.delayed(const Duration(seconds: 5), () {
     //   CacheDownload.download();
@@ -76,7 +82,70 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     super.dispose();
+    if (isDesktop()) {
+      trayManager.removeListener(this);
+    }
     pageController.dispose();
+  }
+
+  @override
+  void onTrayIconMouseDown() async {
+    if (await windowManager.isVisible()) {
+      trayManager.popUpContextMenu();
+    } else {
+      windowManager.show();
+    }
+  }
+
+  @override
+  void onTrayIconRightMouseDown() {
+    trayManager.popUpContextMenu();
+  }
+
+  @override
+  void onTrayMenuItemClick(MenuItem menuItem) {
+    if (menuItem.key == 'play_prev') {
+      _playPrev();
+    } else if (menuItem.key == 'play') {
+      _play();
+    } else if (menuItem.key == 'play_next') {
+      _playNext();
+    } else if (menuItem.key == 'quit') {
+      SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+    }
+  }
+
+  void _registerTray() async {
+    if (isDesktop()) {
+      trayManager.addListener(this);
+      await trayManager.setIcon(
+        Platform.isWindows
+            ? 'assets/images/logo.ico'
+            : 'assets/images/logo.png',
+      );
+      Menu menu = Menu(
+        items: [
+          MenuItem(
+            key: 'play_prev',
+            label: 'Previous(^ ⌥ B)',
+          ),
+          MenuItem(
+            key: 'play',
+            label: 'Play or Stop(^ ⌥ P)',
+          ),
+          MenuItem(
+            key: 'play_next',
+            label: 'Previous(^ ⌥ F)',
+          ),
+          MenuItem.separator(),
+          MenuItem(
+            key: 'quit',
+            label: 'Quit ',
+          ),
+        ],
+      );
+      await trayManager.setContextMenu(menu);
+    }
   }
 
   void _registerHotKey() async {
@@ -88,21 +157,88 @@ class _HomePageState extends State<HomePage> {
     await hotKeyManager.register(
       hotKey,
       keyDownHandler: (hotKey) {
-        Pair<int, Station>? playingInfo =
-            context.read<AppCubit>().pauseResume();
-        if (playingInfo != null) {
-          if (playingInfo.p1 < 0) {
-            context.read<RecentlyCubit>().updateRecently(playingInfo.p2);
-          } else {
-            context.read<RecentlyCubit>().addRecently(playingInfo.p2);
-          }
-        }
+        _play();
       },
-      // 只在 macOS 上工作。
-      // keyUpHandler: (hotKey) {
-      //   print('onKeyUp+${hotKey.toJson()}');
-      // },
     );
+    hotKey = HotKey(
+      KeyCode.keyP,
+      modifiers: [KeyModifier.control, KeyModifier.alt],
+      // 设置热键范围（默认为 HotKeyScope.system）
+      scope: HotKeyScope.system, // 设置为应用范围的热键。
+    );
+    await hotKeyManager.register(
+      hotKey,
+      keyDownHandler: (hotKey) {
+        _play();
+      },
+    );
+
+    hotKey = HotKey(
+      KeyCode.keyB,
+      modifiers: [KeyModifier.control, KeyModifier.alt],
+      // 设置热键范围（默认为 HotKeyScope.system）
+      scope: HotKeyScope.system, // 设置为应用范围的热键。
+    );
+    await hotKeyManager.register(
+      hotKey,
+      keyDownHandler: (hotKey) {
+        _playPrev();
+      },
+    );
+
+    hotKey = HotKey(
+      KeyCode.keyF,
+      modifiers: [KeyModifier.control, KeyModifier.alt],
+      // 设置热键范围（默认为 HotKeyScope.system）
+      scope: HotKeyScope.system, // 设置为应用范围的热键。
+    );
+    await hotKeyManager.register(
+      hotKey,
+      keyDownHandler: (hotKey) {
+        _playNext();
+      },
+    );
+  }
+
+  void _playPrev() async {
+    Pair<int, Station>? playingInfo = context.read<AppCubit>().playingStatus();
+    if (playingInfo != null) {
+      if (playingInfo.p1 > 0) {
+        context.read<AppCubit>().stop();
+        context.read<RecentlyCubit>().updateRecently(playingInfo.p2);
+      }
+    }
+    Station? station = await context.read<AppCubit>().getPrevStation();
+    if (station != null) {
+      context.read<AppCubit>().play(station);
+      context.read<RecentlyCubit>().addRecently(station);
+    }
+  }
+
+  void _play() async {
+    Pair<int, Station>? playingInfo = context.read<AppCubit>().pauseResume();
+    if (playingInfo != null) {
+      if (playingInfo.p1 < 0) {
+        context.read<RecentlyCubit>().updateRecently(playingInfo.p2);
+      } else {
+        context.read<RecentlyCubit>().addRecently(playingInfo.p2);
+      }
+    }
+  }
+
+  void _playNext() async {
+    Pair<int, Station>? playingInfo = context.read<AppCubit>().playingStatus();
+    if (playingInfo != null) {
+      if (playingInfo.p1 > 0) {
+        context.read<AppCubit>().stop();
+        context.read<RecentlyCubit>().updateRecently(playingInfo.p2);
+      }
+    }
+    Station? station = await context.read<AppCubit>().getNextStation();
+    if (station != null) {
+      context.read<AppCubit>().play(station);
+      context.read<RecentlyCubit>().addRecently(station);
+    }
   }
 
   @override

@@ -225,8 +225,7 @@ abstract class AppCubit extends Cubit<AppState> {
         state.playHisIndex >= 0 &&
         state.playHisIndex < state.playHis.length - 1) {
       return state.playHis[state.playHisIndex + 1];
-    }
-    else {
+    } else {
       return await getRandomStation();
     }
   }
@@ -278,6 +277,16 @@ abstract class AppCubit extends Cubit<AppState> {
         return Pair(1, state.playingStation!);
       }
     }
+    return null;
+  }
+
+  Pair<int, Station>? playingStatus() {
+    if (state.isPlaying) {
+      return Pair(1, state.playingStation!);
+    } else if (state.playingStation != null) {
+      return Pair(-1, state.playingStation!);
+    }
+
     return null;
   }
 
