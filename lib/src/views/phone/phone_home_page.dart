@@ -24,6 +24,7 @@ import 'package:hiqradio/src/views/phone/pages/my_phone_station.dart';
 import 'package:hiqradio/src/views/phone/playing_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:oktoast/oktoast.dart';
 
 class PhoneHomePage extends StatefulWidget {
   const PhoneHomePage({super.key});
@@ -615,6 +616,13 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
 
                                   tmpSleepTime = null;
                                   context.read<AppCubit>().cancelStopTimer();
+                                  showToast(
+                                    AppLocalizations.of(context)
+                                        .cmm_stop_time_cancel_msg,
+                                    position: const ToastPosition(
+                                      align: Alignment.bottomCenter,
+                                    ),
+                                  );
                                 },
                                 child: Text(
                                   // '确定',
@@ -677,18 +685,22 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                                     Navigator.of(context).pop();
                                     if (tmpSleepTime != null) {
                                       var now = DateTime.now();
-                                      int ms = (now.hour * 24 +
-                                              now.minute * 60 +
-                                              now.second) *
-                                          1000;
+                                      int ms = now.millisecondsSinceEpoch;
 
                                       int setMs =
                                           tmpSleepTime!.millisecondsSinceEpoch;
                                       if (setMs < ms) {
                                         setMs += (24 * 60 * 60 * 1000);
                                       }
-                                      context.read<AppCubit>().restartStopTimer(
-                                          tmpSleepTime!.millisecondsSinceEpoch);
+                                      context
+                                          .read<AppCubit>()
+                                          .restartStopTimer(setMs);
+                                      showToast(
+                                        '${AppLocalizations.of(context).cmm_stop_time_tips}  ${DateFormat("HH:mm:ss").format(DateTime.fromMillisecondsSinceEpoch(setMs))}',
+                                        position: const ToastPosition(
+                                          align: Alignment.bottomCenter,
+                                        ),
+                                      );
                                     }
                                   },
                                 ),
@@ -819,7 +831,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                 ),
               ),
               child: SizedBox(
-                height: size.height*0.7,
+                height: size.height * 0.7,
                 width: size.width - 20.0,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,

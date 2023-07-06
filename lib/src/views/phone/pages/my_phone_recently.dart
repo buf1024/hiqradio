@@ -231,7 +231,7 @@ class _MyPhoneRecentlyState extends State<MyPhoneRecently>
       VoidCallback onTap, IconData icon, String text) {
     return PopupMenuItem<Never>(
       mouseCursor: SystemMouseCursors.basic,
-      height: 20.0,
+      height: 30.0,
       onTap: () => onTap(),
       padding: const EdgeInsets.all(0.0),
       child: Container(
@@ -243,14 +243,14 @@ class _MyPhoneRecentlyState extends State<MyPhoneRecently>
               padding: const EdgeInsets.only(left: 18.0, right: 12.0),
               child: Icon(
                 icon,
-                size: 14.0,
+                size: 16.0,
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(right: 2.0),
               child: Text(
                 text,
-                style: const TextStyle(fontSize: 14.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             )
           ],

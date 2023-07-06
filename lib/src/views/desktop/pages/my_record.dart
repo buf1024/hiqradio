@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
@@ -12,6 +16,7 @@ import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/station_placeholder.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:oktoast/oktoast.dart';
 
 class MyRecord extends StatefulWidget {
   const MyRecord({super.key});
@@ -41,9 +46,7 @@ class _MyRecordState extends State<MyRecord>
       padding: const EdgeInsets.symmetric(horizontal: 2.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(child: _table())
-        ],
+        children: [Expanded(child: _table())],
       ),
     );
   }
@@ -266,10 +269,40 @@ class _MyRecordState extends State<MyRecord>
         items: [
           _popMenuItem(() {
             context.read<RecordCubit>().delRecord(record.id!);
+            if (record.file != null) {
+              File input = File(record.file!);
+              input.delete();
+            }
           },
               IconFont.delete,
               // '删除录音'
               AppLocalizations.of(context).record_delete),
+          _popMenuItem(() async {
+            String? selectedDirectory =
+                await FilePicker.platform.getDirectoryPath();
+
+            if (selectedDirectory != null) {
+              String file = record.file!;
+              int index = file.lastIndexOf(Platform.pathSeparator);
+              String fileName = file.substring(index + 1);
+              String outFileName =
+                  '$selectedDirectory${Platform.pathSeparator}$fileName';
+
+              File input = File(record.file!);
+              File output = File(outFileName);
+              if (!await output.exists()) {
+                await output.create(recursive: true);
+              }
+              Uint8List data = await input.readAsBytes();
+              await output.writeAsBytes(data.toList());
+              showToast(
+                  '${AppLocalizations.of(context).record_export_msg}  $outFileName',
+                  position: const ToastPosition(
+                    align: Alignment.bottomCenter,
+                  ),
+                  duration: const Duration(seconds: 3));
+            }
+          }, IconFont.quit, AppLocalizations.of(context).record_export),
         ],
         elevation: 8.0);
   }

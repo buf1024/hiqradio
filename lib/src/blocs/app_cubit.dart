@@ -203,7 +203,6 @@ abstract class AppCubit extends Cubit<AppState> {
       play(station);
     } else {
       Station? station = await getRandomStation();
-      print('next: $station');
       if (station != null) {
         play(station);
       }
@@ -503,6 +502,7 @@ abstract class AppCubit extends Cubit<AppState> {
     if (stopTimer == null) {
       DateTime now = DateTime.now();
       int tick = (state.stopTimer - now.millisecondsSinceEpoch) ~/ 1000;
+      print('tick: $tick');
       stopTimer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
         if (timer.tick >= tick) {
           _stopStopTimer();

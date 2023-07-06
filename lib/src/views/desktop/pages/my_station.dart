@@ -422,10 +422,6 @@ class _MyStationState extends State<MyStation>
                     borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
                     borderRadius: BorderRadius.circular(5.0)),
               ),
-              // onChanged: (value) => onChanged(value),
-              // onSubmitted: (value) {
-              //   print('onSubmitted: $value');
-              // },
               onTap: () {
                 context.read<AppCubit>().setEditing(true);
               },

@@ -16,6 +16,7 @@ import 'package:hiqradio/src/views/components/station_placeholder.dart';
 import 'package:hiqradio/src/views/phone/carplaying_page.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:text_scroll/text_scroll.dart';
 
 class PlayingPage extends StatefulWidget {
@@ -235,7 +236,8 @@ class _PlayingPageState extends State<PlayingPage> {
                         .updateRecently(playingStation);
                   }
                 }
-                Station? station = await context.read<AppCubit>().getPrevStation();
+                Station? station =
+                    await context.read<AppCubit>().getPrevStation();
                 if (station != null) {
                   context.read<AppCubit>().play(station);
                   context.read<RecentlyCubit>().addRecently(station);
@@ -313,7 +315,8 @@ class _PlayingPageState extends State<PlayingPage> {
                         .updateRecently(playingStation);
                   }
                 }
-                Station? station = await context.read<AppCubit>().getNextStation();
+                Station? station =
+                    await context.read<AppCubit>().getNextStation();
                 if (station != null) {
                   context.read<AppCubit>().play(station);
                   context.read<RecentlyCubit>().addRecently(station);
@@ -559,6 +562,13 @@ class _PlayingPageState extends State<PlayingPage> {
                                       context
                                           .read<AppCubit>()
                                           .cancelStopTimer();
+                                      showToast(
+                                        AppLocalizations.of(context)
+                                            .cmm_stop_time_cancel_msg,
+                                        position: const ToastPosition(
+                                          align: Alignment.bottomCenter,
+                                        ),
+                                      );
                                     },
                                     child: Text(
                                       AppLocalizations.of(context).cmm_confirm,
@@ -622,10 +632,7 @@ class _PlayingPageState extends State<PlayingPage> {
                                         Navigator.of(context).pop();
                                         if (tmpSleepTime != null) {
                                           var now = DateTime.now();
-                                          int ms = (now.hour * 24 +
-                                                  now.minute * 60 +
-                                                  now.second) *
-                                              1000;
+                                          int ms = now.millisecondsSinceEpoch;
 
                                           int setMs = tmpSleepTime!
                                               .millisecondsSinceEpoch;
@@ -636,6 +643,13 @@ class _PlayingPageState extends State<PlayingPage> {
                                           context
                                               .read<AppCubit>()
                                               .restartStopTimer(setMs);
+
+                                          showToast(
+                                            '${AppLocalizations.of(context).cmm_stop_time_tips}  ${DateFormat("HH:mm:ss").format(DateTime.fromMillisecondsSinceEpoch(setMs))}',
+                                            position: const ToastPosition(
+                                              align: Alignment.bottomCenter,
+                                            ),
+                                          );
                                         }
                                       },
                                     ),

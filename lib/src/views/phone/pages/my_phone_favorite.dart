@@ -248,10 +248,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
                   context.read<RecentlyCubit>().addRecently(station);
                 }
               },
-              icon: Icon(
-                isPlaying ? IconFont.stop : IconFont.play,
-                size: 14.0,
-              ),
+              icon: isPlaying ? IconFont.stop : IconFont.play,
               text: isPlaying
                   ?
                   // '停止'
@@ -268,10 +265,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
                   await launchUrl(url);
                 }
               },
-              icon: const Icon(
-                IconFont.home,
-                size: 14.0,
-              ),
+              icon: IconFont.home,
               text:
                   // '电台主页'
                   AppLocalizations.of(context).mine_station_page),
@@ -280,10 +274,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
               onTap: () {
                 context.read<FavoriteCubit>().delFavorite(station);
               },
-              icon: const Icon(
-                IconFont.delete,
-                size: 14.0,
-              ),
+              icon:  IconFont.delete,
               text:
                   //  '删除'
                   AppLocalizations.of(context).mine_station_delete),
@@ -294,10 +285,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
                   context.read<FavoriteCubit>().clearFavorite(group.id!);
                 }
               },
-              icon: const Icon(
-                IconFont.close,
-                size: 14.0,
-              ),
+              icon: IconFont.close,
               text:
                   // '清空分组'
                   AppLocalizations.of(context).mine_group_clear),
@@ -308,11 +296,11 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
   PopupMenuItem<Never> _popMenuItem(
       {required bool enabled,
       required VoidCallback onTap,
-      required Widget icon,
+      required IconData icon,
       required String text}) {
     return PopupMenuItem<Never>(
       mouseCursor: SystemMouseCursors.basic,
-      height: 20.0,
+      height: 30.0,
       enabled: enabled,
       onTap: () => onTap(),
       padding: const EdgeInsets.all(0.0),
@@ -323,13 +311,16 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 18.0, right: 12.0),
-              child: icon,
+              child: Icon(
+                icon,
+                size: 16.0,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(right: 2.0),
               child: Text(
                 text,
-                style: const TextStyle(fontSize: 14.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             )
           ],
