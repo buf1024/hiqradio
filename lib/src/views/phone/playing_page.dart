@@ -17,6 +17,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:text_scroll/text_scroll.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PlayingPage extends StatefulWidget {
   const PlayingPage({super.key});
@@ -167,7 +168,14 @@ class _PlayingPageState extends State<PlayingPage> {
       child: RotateStation(
           station: playingStation,
           isPlaying: isPlaying,
-          onClicked: (station) {}),
+          onClicked: (station) async {
+            if (station.homepage != null) {
+              Uri url = Uri.parse(station.homepage!);
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url);
+              }
+            }
+          }),
     );
 
     // return Center(
