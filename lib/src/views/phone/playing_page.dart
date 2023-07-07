@@ -172,7 +172,7 @@ class _PlayingPageState extends State<PlayingPage> {
             if (station.homepage != null) {
               Uri url = Uri.parse(station.homepage!);
               if (await canLaunchUrl(url)) {
-                await launchUrl(url);
+                await launchUrl(url, mode: LaunchMode.externalApplication);
               }
             }
           }),
