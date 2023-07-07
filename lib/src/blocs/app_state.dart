@@ -48,6 +48,7 @@ class AppState extends Equatable {
 
   final int stopTimer;
   final bool isCaching;
+  final int cacheCount;
 
   const AppState({
     this.isTry = true,
@@ -77,6 +78,7 @@ class AppState extends Equatable {
     this.locale = '',
     this.stopTimer = -1,
     this.isCaching = false,
+    this.cacheCount = 0
   });
 
   AppState copyWith({
@@ -106,7 +108,8 @@ class AppState extends Equatable {
     bool? autoCache,
     String? locale,
     int? stopTimer,
-    bool? isCaching
+    bool? isCaching,
+    int? cacheCount
   }) {
     return AppState(
       isTry: isTry ?? this.isTry,
@@ -136,6 +139,7 @@ class AppState extends Equatable {
       locale: locale ?? this.locale,
       stopTimer: stopTimer ?? this.stopTimer,
       isCaching: isCaching ?? this.isCaching,
+      cacheCount: cacheCount ?? this.cacheCount,
     );
   }
 
@@ -169,6 +173,7 @@ class AppState extends Equatable {
         autoCache,
         locale,
         stopTimer,
-        isCaching
+        isCaching,
+        cacheCount,
       ];
 }

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
@@ -12,8 +11,8 @@ import 'package:hiqradio/src/blocs/record_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
-import 'package:hiqradio/src/views/components/station_placeholder.dart';
 import 'package:hiqradio/src/views/phone/carplaying_page.dart';
+import 'package:hiqradio/src/views/phone/components/rotate_station.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:oktoast/oktoast.dart';
@@ -162,40 +161,44 @@ class _PlayingPageState extends State<PlayingPage> {
     }
 
     return Center(
-      child: Container(
-        height: size.width - 120.0,
-        width: size.width - 120.0,
-        margin: const EdgeInsets.only(top: 90.0),
-        decoration: BoxDecoration(boxShadow: [
-          BoxShadow(blurRadius: 1024.0, color: Colors.black.withOpacity(0.5))
-        ]),
-        child: ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(size.width - 120.0)),
-          child: playingStation.favicon != null &&
-                  playingStation.favicon!.isNotEmpty
-              ? CachedNetworkImage(
-                  fit: BoxFit.fill,
-                  imageUrl: playingStation.favicon!,
-                  placeholder: (context, url) {
-                    return StationPlaceholder(
-                      height: size.width - 120.0,
-                      width: size.width - 120.0,
-                    );
-                  },
-                  errorWidget: (context, url, error) {
-                    return StationPlaceholder(
-                      height: size.width - 120.0,
-                      width: size.width - 120.0,
-                    );
-                  },
-                )
-              : StationPlaceholder(
-                  height: size.width - 120.0,
-                  width: size.width - 120.0,
-                ),
-        ),
-      ),
+      child: RotateStation(station: playingStation),
     );
+
+    // return Center(
+    //   child: Container(
+    //     height: size.width - 120.0,
+    //     width: size.width - 120.0,
+    //     margin: const EdgeInsets.only(top: 90.0),
+    //     decoration: BoxDecoration(boxShadow: [
+    //       BoxShadow(blurRadius: 1024.0, color: Colors.black.withOpacity(0.5))
+    //     ]),
+    //     child: ClipRRect(
+    //       borderRadius: BorderRadius.all(Radius.circular(size.width - 120.0)),
+    //       child: playingStation.favicon != null &&
+    //               playingStation.favicon!.isNotEmpty
+    //           ? CachedNetworkImage(
+    //               fit: BoxFit.fill,
+    //               imageUrl: playingStation.favicon!,
+    //               placeholder: (context, url) {
+    //                 return StationPlaceholder(
+    //                   height: size.width - 120.0,
+    //                   width: size.width - 120.0,
+    //                 );
+    //               },
+    //               errorWidget: (context, url, error) {
+    //                 return StationPlaceholder(
+    //                   height: size.width - 120.0,
+    //                   width: size.width - 120.0,
+    //                 );
+    //               },
+    //             )
+    //           : StationPlaceholder(
+    //               height: size.width - 120.0,
+    //               width: size.width - 120.0,
+    //             ),
+    //     ),
+    //   ),
+    // );
   }
 
   Widget _playCtrl() {

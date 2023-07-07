@@ -269,6 +269,18 @@ class RadioDao {
     return null;
   }
 
+  Future<int> queryStationCount() async {
+    List<Map<String, Object?>> data =
+        await db.rawQuery("SELECT COUNT(*) as count from station");
+
+    if (data.isNotEmpty) {
+      Map<String, Object?> m = data.first;
+      return m['count']! as int;
+    }
+
+    return 0;
+  }
+
   Future<List<Map<String, Object?>>> queryStationCountByLanguage() async {
     return await db.rawQuery(
         "SELECT  DISTINCT language as language, COUNT(*) as count from station where language is not null and language != '' GROUP BY language");

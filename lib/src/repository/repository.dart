@@ -226,6 +226,10 @@ class RadioRepository {
     return tags;
   }
 
+  Future<int> loadStationCount() async {
+    return await dao.queryStationCount();
+  }
+
   Future<List<Station>> search(String name,
       {String country = '',
       String countryState = '',
@@ -443,7 +447,7 @@ class RadioRepository {
     return await dao.queryRandomStation();
   }
 
-  Future<void> doCacheStations() async {
+  Future<int> doCacheStations() async {
     Cache? cache = await dao.queryCache();
     bool needUpdate = false;
     if (cache == null) {
@@ -470,5 +474,6 @@ class RadioRepository {
       print('no need cache');
     }
     print('done update cache');
+    return await dao.queryStationCount();
   }
 }

@@ -135,15 +135,10 @@ abstract class AppCubit extends Cubit<AppState> {
         play(playingStation);
       }
 
-      emit(state.copyWith(isCaching: true));
-      await repo.doCacheStations();
-      emit(state.copyWith(isCaching: false));
-
-      // Future.delayed(const Duration(seconds: 30), () async {
-      //   emit(state.copyWith(isCaching: true));
-      //   await repo.doCacheStations();
-      //   emit(state.copyWith(isCaching: false));
-      // });
+      int cacheCount = await repo.loadStationCount();
+      emit(state.copyWith(isCaching: true, cacheCount: cacheCount));
+      cacheCount = await repo.doCacheStations();
+      emit(state.copyWith(isCaching: false, cacheCount: cacheCount));
     }
   }
 

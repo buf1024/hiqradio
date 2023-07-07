@@ -357,6 +357,9 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
     }
     Map<String, String> localeMap = ResManager.instance.localeMap;
 
+    int cacheCount =
+        context.select<AppCubit, int>((value) => value.state.cacheCount);
+
     return [
       ListTile(
         title: const Text(
@@ -801,7 +804,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
           style: const TextStyle(fontSize: 16.0),
         ),
         subtitle: Text(
-          '${ResManager.instance.version} by $kAuthor',
+          '${ResManager.instance.version} by $kAuthor\n${AppLocalizations.of(context).cfg_cache} $cacheCount ${AppLocalizations.of(context).cmm_stations}',
           style: const TextStyle(fontSize: 13.0),
         ),
         onTap: () {
@@ -1175,24 +1178,14 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                 InkClick(
                   child: StationInfo(
                     onClicked: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const PlayingPage(),
-                        ),
-                      );
+                      _jumpPlayingPage(playingStation);
                     },
                     width: winSize.width - 106,
                     height: 54,
                     station: playingStation,
                   ),
                   onTap: () {
-                    setState(() {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const PlayingPage(),
-                        ),
-                      );
-                    });
+                    _jumpPlayingPage(playingStation);
                   },
                 ),
                 const PlayFuncs(),
@@ -1200,5 +1193,13 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
             ),
           )
         : Container();
+  }
+
+  void _jumpPlayingPage(Station playingStation) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const PlayingPage(),
+      ),
+    );
   }
 }

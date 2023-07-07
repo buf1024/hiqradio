@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
@@ -72,6 +71,9 @@ class _ConfigState extends State<Config> {
       locale = Platform.localeName.substring(0, 2);
     }
     Map<String, String> localeMap = ResManager.instance.localeMap;
+
+    int cacheCount =
+        context.select<AppCubit, int>((value) => value.state.cacheCount);
 
     return [
       GestureDetector(
@@ -190,8 +192,7 @@ class _ConfigState extends State<Config> {
           style: const TextStyle(fontSize: 14.0),
         ),
         subtitle: Text(
-          // '版本: 1.0.0 $kAuthor',
-          '${AppLocalizations.of(context).cfg_about}: 1.0.0 $kAuthor',
+          '${ResManager.instance.version} by $kAuthor\n${AppLocalizations.of(context).cfg_cache} $cacheCount ${AppLocalizations.of(context).cmm_stations}',
           style: const TextStyle(fontSize: 12.0),
         ),
         onTap: () {
