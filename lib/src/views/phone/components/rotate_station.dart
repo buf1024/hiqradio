@@ -5,8 +5,13 @@ import 'package:hiqradio/src/views/components/station_placeholder.dart';
 
 class RotateStation extends StatefulWidget {
   final Station station;
+  final bool isPlaying;
   final ValueChanged<Station>? onClicked;
-  const RotateStation({super.key, required this.station, this.onClicked});
+  const RotateStation(
+      {super.key,
+      required this.station,
+      this.onClicked,
+      required this.isPlaying});
 
   @override
   State<RotateStation> createState() => _RotateStationState();
@@ -39,6 +44,12 @@ class _RotateStationState extends State<RotateStation>
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+
+    if (!widget.isPlaying) {
+      controller.stop();
+    } else {
+      controller.forward();
+    }
 
     return Container(
       height: size.width - 120.0,

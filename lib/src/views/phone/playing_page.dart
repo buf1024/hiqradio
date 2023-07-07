@@ -149,6 +149,9 @@ class _PlayingPageState extends State<PlayingPage> {
   }
 
   Widget _playIcon() {
+    bool isPlaying =
+        context.select<AppCubit, bool>((value) => value.state.isPlaying);
+
     Station? playingStation = context
         .select<AppCubit, Station?>((value) => value.state.playingStation);
 
@@ -161,7 +164,10 @@ class _PlayingPageState extends State<PlayingPage> {
     }
 
     return Center(
-      child: RotateStation(station: playingStation),
+      child: RotateStation(
+          station: playingStation,
+          isPlaying: isPlaying,
+          onClicked: (station) {}),
     );
 
     // return Center(
