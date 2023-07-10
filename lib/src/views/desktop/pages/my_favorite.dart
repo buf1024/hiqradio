@@ -683,6 +683,7 @@ class _MyFavoriteState extends State<MyFavorite>
                               },
                               onDelete: (favGroup) {
                                 onDelete?.call(favGroup);
+                                _popOverlay();
                               },
                               onNew: () {
                                 onNew?.call();

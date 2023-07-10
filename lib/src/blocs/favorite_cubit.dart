@@ -47,6 +47,7 @@ class FavoriteCubit extends Cubit<FavoriteState> {
     if (state.group != null && state.group!.name == group.name) {
       FavGroup? group = await repo.loadGroup();
       emit(state.copyWith(group: group, groups: groups));
+      await loadFavorite(groupName: group!.name);
     } else {
       emit(state.copyWith(groups: groups));
     }
