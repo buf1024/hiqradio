@@ -116,7 +116,7 @@ class MyStationCubit extends Cubit<MyStationState> {
   void changePageSize(int pageSize) {
     if (state.pageSize != pageSize &&
         pageSize > 0 &&
-        pageSize < kMaxPageSize &&
+        pageSize <= kMaxPageSize &&
         !state.isSearching) {
       int totalPage = (state.totalSize / pageSize).truncate();
       if (state.totalSize ~/ pageSize > 0) {
