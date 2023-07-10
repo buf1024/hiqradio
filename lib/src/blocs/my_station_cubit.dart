@@ -33,6 +33,13 @@ class MyStationCubit extends Cubit<MyStationState> {
 
   void initSearch() async {
     if (state.isFirstTrigger) {
+      SharedPreferences sp = await SharedPreferences.getInstance();
+
+      int? pageSize = sp.getInt(kSpMSLastPageSize);
+      if (pageSize != null) {
+        emit(state.copyWith(pageSize: pageSize));
+      }
+
       String searchText = state.searchText;
       String country = state.selectedCountry;
       String countryState = state.selectedState;
@@ -113,11 +120,15 @@ class MyStationCubit extends Cubit<MyStationState> {
     return state.stations;
   }
 
-  void changePageSize(int pageSize) {
+  void changePageSize(int pageSize) async {
     if (state.pageSize != pageSize &&
         pageSize > 0 &&
         pageSize <= kMaxPageSize &&
         !state.isSearching) {
+      SharedPreferences sp = await SharedPreferences.getInstance();
+
+      sp.setInt(kSpMSLastPageSize, pageSize);
+
       int totalPage = (state.totalSize / pageSize).truncate();
       if (state.totalSize ~/ pageSize > 0) {
         totalPage += 1;

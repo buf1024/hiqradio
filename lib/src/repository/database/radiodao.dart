@@ -345,7 +345,11 @@ class RadioDao {
       condition += " tags like '%$tagList%'";
       hasCond = true;
     }
-    return await db.rawQuery('select * from station where $condition');
+    if (hasCond) {
+      condition = ' where $condition';
+    }
+
+    return await db.rawQuery('select * from station $condition');
   }
 
   Future<Cache?> queryCache() async {
