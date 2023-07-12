@@ -12,21 +12,25 @@ class StationPlaceholder extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: const Alignment(-0.5, -1),
-          end: const Alignment(0, 1),
-          colors: [
-            Colors.orangeAccent.withOpacity(0.9),
-            Colors.orange.withOpacity(0.9),
-          ],
-        ),
+      decoration: const BoxDecoration(
+        color: Color(0xfff4b119),
+        // gradient: LinearGradient(
+        //   begin: Alignment(-0.5, -1),
+        //   end: Alignment(0, 1),
+        //   colors: [
+        //     // Colors.orangeAccent.withOpacity(0.9),
+        //     // Colors.orange.withOpacity(0.9),
+        //     Color(0xfff4b119),
+        //     Color(0xfff4b119),
+        //     Color(0xfff4b119),
+        //   ],
+        // ),
       ),
       child: Center(
         child: Icon(IconFont.station,
             // size: 25.0,
             size: height * 0.4,
-            color: Colors.white.withOpacity(0.8)),
+            color: Colors.white.withOpacity(0.7)),
       ),
     );
   }
