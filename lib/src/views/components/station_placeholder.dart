@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 
@@ -12,11 +14,18 @@ class StationPlaceholder extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      decoration: const BoxDecoration(
-          gradient: LinearGradient(colors: [
-        Colors.blueGrey,
-        Colors.grey,
-      ])),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: const Alignment(-0.5, -1),
+          end: const Alignment(0, 1),
+          colors: [
+            Colors.orangeAccent.withOpacity(0.9),
+            Colors.orange.withOpacity(0.9),
+            Colors.deepOrangeAccent.withOpacity(0.9),
+            Colors.deepOrange.withOpacity(0.9),
+          ],
+        ),
+      ),
       child: Center(
         child: Icon(IconFont.station,
             // size: 25.0,
