@@ -19,8 +19,6 @@ class StationPlaceholder extends StatelessWidget {
           colors: [
             Colors.orangeAccent.withOpacity(0.9),
             Colors.orange.withOpacity(0.9),
-            Colors.deepOrangeAccent.withOpacity(0.9),
-            Colors.deepOrange.withOpacity(0.9),
           ],
         ),
       ),
