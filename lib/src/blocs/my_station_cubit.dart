@@ -130,7 +130,7 @@ class MyStationCubit extends Cubit<MyStationState> {
       sp.setInt(kSpMSLastPageSize, pageSize);
 
       int totalPage = (state.totalSize / pageSize).truncate();
-      if (state.totalSize ~/ pageSize > 0) {
+      if (state.totalSize % pageSize > 0) {
         totalPage += 1;
       }
       int page = 1;

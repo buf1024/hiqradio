@@ -8,6 +8,7 @@ import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/models/recently.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/pair.dart';
+import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/station_placeholder.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -21,10 +22,48 @@ class MyRecently extends StatefulWidget {
 
 class _MyRecentlyState extends State<MyRecently>
     with AutomaticKeepAliveClientMixin {
+  TextEditingController pageSizeEditController = TextEditingController();
+  FocusNode pageSizeFocusNode = FocusNode();
+  bool isPageSizeEditing = false;
+
+  TextEditingController pageEditController = TextEditingController();
+  FocusNode pageFocusNode = FocusNode();
+  bool isPageEditing = false;
+
   @override
   void initState() {
     super.initState();
     context.read<RecentlyCubit>().loadRecently();
+
+    pageSizeFocusNode.addListener(() {
+      if (!pageSizeFocusNode.hasFocus) {
+        if (isPageSizeEditing) {
+          int? pageSize = int.tryParse(pageSizeEditController.text);
+          if (pageSize != null) {
+            context.read<RecentlyCubit>().changePageSize(pageSize);
+          }
+        }
+        setState(() {
+          isPageSizeEditing = !isPageSizeEditing;
+        });
+        context.read<AppCubit>().setEditing(false);
+      }
+    });
+    pageFocusNode.addListener(() {
+      if (!pageFocusNode.hasFocus) {
+        if (isPageEditing) {
+          int? page = int.tryParse(pageEditController.text);
+          if (page != null) {
+            context.read<RecentlyCubit>().changePage(page);
+          }
+        }
+
+        setState(() {
+          isPageEditing = !isPageEditing;
+        });
+        context.read<AppCubit>().setEditing(false);
+      }
+    });
   }
 
   @override
@@ -42,7 +81,8 @@ class _MyRecentlyState extends State<MyRecently>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // _tableFuncs(),
-          Expanded(child: _table())
+          Expanded(child: _table()),
+          _buildJumpInfo()
         ],
       ),
     );
@@ -75,10 +115,209 @@ class _MyRecentlyState extends State<MyRecently>
     );
   }
 
+  Widget _buildJumpInfo() {
+    int totalPage =
+        context.select<RecentlyCubit, int>((value) => value.state.totalPage);
+
+    // int totalSize =
+    //     context.select<RecentlyCubit, int>((value) => value.state.totalSize);
+
+    int pageSize =
+        context.select<RecentlyCubit, int>((value) => value.state.pageSize);
+    pageSizeEditController.text = '$pageSize';
+
+    int page = context.select<RecentlyCubit, int>((value) => value.state.page);
+    pageEditController.text = '$page';
+
+    // if (totalSize <= pageSize) {
+    //   return Container();
+    // }
+
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 2.0),
+      decoration: BoxDecoration(color: Colors.grey.withOpacity(0.1)),
+      child: Row(
+        children: [
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Text(
+              // '每页 ',
+              AppLocalizations.of(context).stat_station_per_page,
+              style: const TextStyle(fontSize: 13.0),
+            ),
+          ),
+          _buildEditing(isPageSizeEditing, pageSizeEditController,
+              pageSizeFocusNode, '$pageSize', () {
+            isPageSizeEditing = true;
+            setState(() {});
+          }),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Text(
+              // '个 共 ',
+              AppLocalizations.of(context).stat_station_total_page,
+              style: const TextStyle(fontSize: 13.0),
+            ),
+          ),
+          Container(
+            width: 50,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).textTheme.bodyMedium!.color!,
+              ),
+              borderRadius: BorderRadius.circular(4.0),
+            ),
+            child: Text(
+              '$totalPage',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyMedium!.color!,
+                  fontSize: 13.0),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Text(
+              // ' 页 当前第 ',
+              AppLocalizations.of(context).stat_station_cur_page,
+              style: const TextStyle(fontSize: 13.0),
+            ),
+          ),
+          _buildEditing(
+              isPageEditing, pageEditController, pageFocusNode, '$page', () {
+            isPageEditing = true;
+            setState(() {});
+          }),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Text(
+              // ' 页',
+              AppLocalizations.of(context).stat_station_cur_page_no,
+              style: const TextStyle(fontSize: 13.0),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: InkClick(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Theme.of(context).textTheme.bodyMedium!.color!,
+                  ),
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                child: Text(
+                  // '前一页',
+                  AppLocalizations.of(context).stat_station_pre_page,
+                  style: const TextStyle(
+                    fontSize: 13.0,
+                  ),
+                ),
+              ),
+              onTap: () {
+                context.read<RecentlyCubit>().changePage(page - 1);
+              },
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: InkClick(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Theme.of(context).textTheme.bodyMedium!.color!,
+                  ),
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                child: Text(
+                  // '后一页',
+                  AppLocalizations.of(context).stat_station_next_page,
+
+                  style: const TextStyle(
+                    fontSize: 13.0,
+                  ),
+                ),
+              ),
+              onTap: () {
+                context.read<RecentlyCubit>().changePage(page + 1);
+              },
+            ),
+          ),
+          const SizedBox(
+            width: 6.0,
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditing(bool test, TextEditingController controller,
+      FocusNode focusNode, String text, VoidCallback onEditSwitch) {
+    return test
+        ? SizedBox(
+            // padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            width: 40.0,
+            height: 18.0,
+            child: TextField(
+              controller: controller,
+              focusNode: focusNode,
+              keyboardType: TextInputType.number,
+              autocorrect: false,
+              obscuringCharacter: '*',
+              cursorWidth: 1.0,
+              showCursor: true,
+              cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
+              style: const TextStyle(fontSize: 13.0),
+              decoration: InputDecoration(
+                // hintText: '10~100',
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 2.0, horizontal: 6.0),
+                fillColor: Colors.grey.withOpacity(0.2),
+                filled: true,
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
+                    borderRadius: BorderRadius.circular(5.0)),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey.withOpacity(0.0)),
+                    borderRadius: BorderRadius.circular(5.0)),
+              ),
+              onTap: () {
+                context.read<AppCubit>().setEditing(true);
+              },
+            ),
+          )
+        : InkClick(
+            onTap: () {
+              onEditSwitch.call();
+              context.read<AppCubit>().setEditing(true);
+              pageSizeFocusNode.requestFocus();
+            },
+            child: Container(
+              width: 40,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Theme.of(context).textTheme.bodyMedium!.color!,
+                ),
+                borderRadius: BorderRadius.circular(4.0),
+              ),
+              child: Text(
+                text,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          );
+  }
+
   Widget _table() {
     List<Pair<Station, Recently>> recentlys =
         context.select<RecentlyCubit, List<Pair<Station, Recently>>>(
-            (value) => value.state.recentlys);
+            (value) => value.state.pagedRecently);
+
     Station? playingStation = context.select<AppCubit, Station?>(
       (value) => value.state.playingStation,
     );

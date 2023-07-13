@@ -141,7 +141,8 @@ class _PlayCtrlState extends State<PlayCtrl> {
                         .updateRecently(playingStation);
                   }
                 }
-                Station? station = await context.read<AppCubit>().getPrevStation();
+                Station? station =
+                    await context.read<AppCubit>().getPrevStation();
                 if (station != null) {
                   context.read<AppCubit>().play(station);
                   context.read<RecentlyCubit>().addRecently(station);
@@ -225,12 +226,12 @@ class _PlayCtrlState extends State<PlayCtrl> {
                         .updateRecently(playingStation);
                   }
                 }
-                Station? station = await context.read<AppCubit>().getNextStation();
+                Station? station =
+                    await context.read<AppCubit>().getNextStation();
                 if (station != null) {
                   context.read<AppCubit>().play(station);
                   context.read<RecentlyCubit>().addRecently(station);
                 }
-                
               },
             ),
           ),

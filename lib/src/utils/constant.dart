@@ -39,6 +39,7 @@ const kSpAppAutoCache = 'AppAutoCache';
 const kSpMSLastSearch = 'MSLastSearchText';
 const kSpMSLastPageSize = 'MSLastPageSize';
 const kSpTBLastSearch = 'TBLastSearchText';
+const kSpRCLastPageSize = 'RCLastPageSize';
 
 const kSpAppCheckCacheInterval = 'AppCheckCacheInterval';
 

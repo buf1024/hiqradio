@@ -488,6 +488,11 @@ class _MyStationState extends State<MyStation>
                   if (!isPlaying) {
                     context.read<AppCubit>().play(station);
                     context.read<RecentlyCubit>().addRecently(station);
+                    if (playingStation != null && playingState) {
+                      context
+                          .read<RecentlyCubit>()
+                          .updateRecently(playingStation);
+                    }
                   } else {
                     context.read<AppCubit>().stop();
                     context.read<RecentlyCubit>().updateRecently(station);
