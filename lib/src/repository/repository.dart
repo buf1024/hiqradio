@@ -447,6 +447,26 @@ class RadioRepository {
     return await dao.queryRandomStation();
   }
 
+  Future<String> loadExportJson() async {
+    return await dao.queryExportJson();
+  }
+
+  Future<void> saveImportJson(List<dynamic> jsObj) async {
+    List<Pair<FavGroup, List<Station>>> data = [];
+    for (var map in jsObj) {
+      var groupOjb = map['group'];
+      FavGroup g = FavGroup.fromJson(groupOjb);
+
+      List<Station> s = [];
+      var stations = map['stations'];
+      for (var station in stations) {
+        s.add(Station.fromJson(station));
+      }
+      data.add(Pair(g, s));
+    }
+    await dao.insertFavImport(data);
+  }
+
   Future<int> doCacheStations() async {
     Cache? cache = await dao.queryCache();
     bool needUpdate = false;

@@ -85,9 +85,9 @@ class Station extends Equatable {
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson({bool withId = true}) {
     Map<String, dynamic> map = {
-      'id': id,
+      'id': withId ? id : null,
       'stationuuid': stationuuid,
       'name': name,
       'url_resolved': urlResolved,

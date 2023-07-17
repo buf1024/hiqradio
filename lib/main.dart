@@ -61,7 +61,9 @@ void main() async {
     await JustAudioBackground.init(
       androidNotificationChannelId: 'com.toyent.hiqradio.channel.audio',
       androidNotificationChannelName: 'Audio playback',
-      androidNotificationOngoing: true,
+      androidNotificationOngoing: false,
+      androidStopForegroundOnPause: false,
+      androidShowNotificationBadge: true
     );
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);

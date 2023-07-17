@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +19,7 @@ import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/station_placeholder.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:intl/intl.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -36,6 +41,9 @@ class _MyFavoriteState extends State<MyFavorite>
   FocusNode groupDescFocusNode = FocusNode();
 
   OverlayEntry? overlay;
+
+  bool isExporting = false;
+  bool isImporting = false;
 
   @override
   void initState() {
@@ -139,281 +147,439 @@ class _MyFavoriteState extends State<MyFavorite>
                       ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.only(left: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 28.0,
-                    child: Row(
-                      children: [
-                        InkClick(
-                          onTap: () {},
-                          child: Container(
-                            width: 100.0,
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              // '分组：',
-                              AppLocalizations.of(context).mine_group,
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.only(left: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 28.0,
+                      child: Row(
+                        children: [
+                          InkClick(
+                            onTap: () {},
+                            child: Container(
+                              width: 100.0,
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                // '分组：',
+                                AppLocalizations.of(context).mine_group,
+                              ),
                             ),
                           ),
-                        ),
-                        group != null
-                            ? (isGroupEditing
-                                ? Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0),
-                                    width: 220.0,
-                                    height: 28.0,
-                                    child: TextField(
-                                      controller: groupEditingController,
-                                      focusNode: groupFocusNode,
-                                      autocorrect: false,
-                                      obscuringCharacter: '*',
-                                      cursorWidth: 1.0,
-                                      showCursor: true,
-                                      cursorColor: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium!
-                                          .color!,
-                                      style: const TextStyle(fontSize: 14.0),
-                                      decoration: InputDecoration(
-                                        hintText:
-                                            // '分组名称',
-                                            AppLocalizations.of(context)
-                                                .mine_group_hit,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                vertical: 2.0, horizontal: 6.0),
-                                        fillColor: Colors.grey.withOpacity(0.2),
-                                        filled: true,
-                                        focusedBorder: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey
-                                                    .withOpacity(0.0)),
-                                            borderRadius:
-                                                BorderRadius.circular(5.0)),
-                                        enabledBorder: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey
-                                                    .withOpacity(0.0)),
-                                            borderRadius:
-                                                BorderRadius.circular(5.0)),
+                          group != null
+                              ? (isGroupEditing
+                                  ? Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      width: 220.0,
+                                      height: 28.0,
+                                      child: TextField(
+                                        controller: groupEditingController,
+                                        focusNode: groupFocusNode,
+                                        autocorrect: false,
+                                        obscuringCharacter: '*',
+                                        cursorWidth: 1.0,
+                                        showCursor: true,
+                                        cursorColor: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium!
+                                            .color!,
+                                        style: const TextStyle(fontSize: 14.0),
+                                        decoration: InputDecoration(
+                                          hintText:
+                                              // '分组名称',
+                                              AppLocalizations.of(context)
+                                                  .mine_group_hit,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 2.0,
+                                                  horizontal: 6.0),
+                                          fillColor:
+                                              Colors.grey.withOpacity(0.2),
+                                          filled: true,
+                                          focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey
+                                                      .withOpacity(0.0)),
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0)),
+                                          enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey
+                                                      .withOpacity(0.0)),
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0)),
+                                        ),
+                                        onSubmitted: (value) {
+                                          context
+                                              .read<FavoriteCubit>()
+                                              .updateGroup(
+                                                  value,
+                                                  group.desc == null
+                                                      ? ''
+                                                      : group.desc!);
+                                        },
+                                        onTap: () {
+                                          context
+                                              .read<AppCubit>()
+                                              .setEditing(true);
+                                        },
                                       ),
-                                      onSubmitted: (value) {
-                                        context
-                                            .read<FavoriteCubit>()
-                                            .updateGroup(
-                                                value,
-                                                group.desc == null
-                                                    ? ''
-                                                    : group.desc!);
-                                      },
+                                    )
+                                  : InkClick(
                                       onTap: () {
+                                        setState(() {
+                                          groupEditingController.text =
+                                              group.name;
+                                          isGroupEditing = true;
+                                        });
                                         context
                                             .read<AppCubit>()
                                             .setEditing(true);
+                                        groupFocusNode.requestFocus();
                                       },
-                                    ),
-                                  )
-                                : InkClick(
-                                    onTap: () {
+                                      child: Text(
+                                        group.name,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ))
+                              : Container(),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4.0, horizontal: 8.0),
+                            child: InkClick(
+                              onTapDown: (globalOffset, localOffset) {
+                                _onShowDialog(
+                                    offset: globalOffset,
+                                    groups: groups,
+                                    group: group,
+                                    width: 40.0,
+                                    height: 250.0,
+                                    onConfirmed: (isModified, favGroup) {
+                                      if (isModified && favGroup != null) {
+                                        context
+                                            .read<FavoriteCubit>()
+                                            .switchGroup(favGroup);
+                                      }
+                                    },
+                                    onDelete: (favGroup) {
+                                      context
+                                          .read<FavoriteCubit>()
+                                          .deleteGroup(favGroup);
+                                    },
+                                    onNew: () async {
+                                      FavGroup g = await context
+                                          .read<FavoriteCubit>()
+                                          .addNewGroup();
                                       setState(() {
-                                        groupEditingController.text =
-                                            group.name;
+                                        groupEditingController.text = g.name;
                                         isGroupEditing = true;
                                       });
                                       context.read<AppCubit>().setEditing(true);
                                       groupFocusNode.requestFocus();
-                                    },
-                                    child: Text(
-                                      group.name,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ))
-                            : Container(),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4.0, horizontal: 8.0),
-                          child: InkClick(
-                            onTapDown: (globalOffset, localOffset) {
-                              _onShowDialog(
-                                  offset: globalOffset,
-                                  groups: groups,
-                                  group: group,
-                                  width: 40.0,
-                                  height: 250.0,
-                                  onConfirmed: (isModified, favGroup) {
-                                    if (isModified && favGroup != null) {
-                                      context
-                                          .read<FavoriteCubit>()
-                                          .switchGroup(favGroup);
-                                    }
-                                  },
-                                  onDelete: (favGroup) {
-                                    context
-                                        .read<FavoriteCubit>()
-                                        .deleteGroup(favGroup);
-                                  },
-                                  onNew: () async {
-                                    FavGroup g = await context
-                                        .read<FavoriteCubit>()
-                                        .addNewGroup();
-                                    setState(() {
-                                      groupEditingController.text = g.name;
-                                      isGroupEditing = true;
                                     });
-                                    context.read<AppCubit>().setEditing(true);
-                                    groupFocusNode.requestFocus();
-                                  });
-                            },
-                            child: Container(
-                              height: 20.0,
-                              padding: const EdgeInsets.only(
-                                  top: 1.0, bottom: 4.0, left: 4.0, right: 4.0),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.white.withOpacity(0.5),
+                              },
+                              child: Container(
+                                height: 20.0,
+                                padding: const EdgeInsets.only(
+                                    top: 1.0,
+                                    bottom: 4.0,
+                                    left: 4.0,
+                                    right: 4.0),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.5),
+                                  ),
+                                  borderRadius: BorderRadius.circular(4.0),
                                 ),
-                                borderRadius: BorderRadius.circular(4.0),
-                              ),
-                              child: const Icon(
-                                Icons.expand_more_outlined,
-                                size: 18.0,
+                                child: const Icon(
+                                  Icons.expand_more_outlined,
+                                  size: 18.0,
+                                ),
                               ),
                             ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 28.0,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 100.0,
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            // '创建时间: ',
-                            AppLocalizations.of(context).mine_create_time,
+                    SizedBox(
+                      height: 28.0,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 100.0,
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              // '创建时间: ',
+                              AppLocalizations.of(context).mine_create_time,
+                            ),
                           ),
-                        ),
-                        Text(
+                          Text(
+                            group != null
+                                ? DateFormat("yyyy-MM-dd HH:mm:ss").format(
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                        group.createTime))
+                                : '',
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 28.0,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 100.0,
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                                // '电台数量: ',
+                                AppLocalizations.of(context)
+                                    .mine_station_count),
+                          ),
+                          Text(
+                            '${stations.length}',
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 28.0,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 100.0,
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                                // '简介: ',
+                                AppLocalizations.of(context).mine_group_desc),
+                          ),
                           group != null
-                              ? DateFormat("yyyy-MM-dd HH:mm:ss").format(
-                                  DateTime.fromMillisecondsSinceEpoch(
-                                      group.createTime))
-                              : '',
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 28.0,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 100.0,
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                              // '电台数量: ',
-                              AppLocalizations.of(context).mine_station_count),
-                        ),
-                        Text(
-                          '${stations.length}',
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 28.0,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 100.0,
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                              // '简介: ',
-                              AppLocalizations.of(context).mine_group_desc),
-                        ),
-                        group != null
-                            ? (isGroupDescEditing
-                                ? Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0),
-                                    width: 320.0,
-                                    height: 28.0,
-                                    child: TextField(
-                                      controller: groupDescEditingController,
-                                      focusNode: groupDescFocusNode,
-                                      autocorrect: false,
-                                      obscuringCharacter: '*',
-                                      cursorWidth: 1.0,
-                                      showCursor: true,
-                                      cursorColor: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium!
-                                          .color!,
-                                      style: const TextStyle(fontSize: 14.0),
-                                      decoration: InputDecoration(
-                                        hintText:
-                                            // '分组描述',
-                                            AppLocalizations.of(context)
-                                                .mine_group_desc_hit,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                vertical: 2.0, horizontal: 6.0),
-                                        fillColor: Colors.grey.withOpacity(0.2),
-                                        filled: true,
-                                        focusedBorder: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey
-                                                    .withOpacity(0.0)),
-                                            borderRadius:
-                                                BorderRadius.circular(5.0)),
-                                        enabledBorder: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey
-                                                    .withOpacity(0.0)),
-                                            borderRadius:
-                                                BorderRadius.circular(5.0)),
+                              ? (isGroupDescEditing
+                                  ? Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      width: 320.0,
+                                      height: 28.0,
+                                      child: TextField(
+                                        controller: groupDescEditingController,
+                                        focusNode: groupDescFocusNode,
+                                        autocorrect: false,
+                                        obscuringCharacter: '*',
+                                        cursorWidth: 1.0,
+                                        showCursor: true,
+                                        cursorColor: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium!
+                                            .color!,
+                                        style: const TextStyle(fontSize: 14.0),
+                                        decoration: InputDecoration(
+                                          hintText:
+                                              // '分组描述',
+                                              AppLocalizations.of(context)
+                                                  .mine_group_desc_hit,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 2.0,
+                                                  horizontal: 6.0),
+                                          fillColor:
+                                              Colors.grey.withOpacity(0.2),
+                                          filled: true,
+                                          focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey
+                                                      .withOpacity(0.0)),
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0)),
+                                          enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey
+                                                      .withOpacity(0.0)),
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0)),
+                                        ),
+                                        onSubmitted: (value) {
+                                          context
+                                              .read<FavoriteCubit>()
+                                              .updateGroup(group.name, value);
+                                        },
+                                        onTap: () {
+                                          context
+                                              .read<AppCubit>()
+                                              .setEditing(true);
+                                        },
                                       ),
-                                      onSubmitted: (value) {
-                                        context
-                                            .read<FavoriteCubit>()
-                                            .updateGroup(group.name, value);
-                                      },
+                                    )
+                                  : InkClick(
                                       onTap: () {
+                                        setState(() {
+                                          groupDescEditingController.text =
+                                              group.desc ?? '';
+                                          isGroupDescEditing = true;
+                                        });
                                         context
                                             .read<AppCubit>()
                                             .setEditing(true);
+                                        groupDescFocusNode.requestFocus();
                                       },
-                                    ),
-                                  )
-                                : InkClick(
-                                    onTap: () {
-                                      setState(() {
-                                        groupDescEditingController.text =
-                                            group.desc ?? '';
-                                        isGroupDescEditing = true;
-                                      });
-                                      context.read<AppCubit>().setEditing(true);
-                                      groupDescFocusNode.requestFocus();
-                                    },
-                                    child: Text(
-                                      group.desc ?? '',
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ))
-                            : Container(),
-                      ],
-                    ),
-                  )
-                ],
+                                      child: Text(
+                                        group.desc ?? '',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ))
+                              : Container(),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
-            )
+            ),
+            Container(
+                padding: const EdgeInsets.only(left: 20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    InkClick(
+                      child: Container(
+                        height: 28.0,
+                        width: 48.0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 4.0),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color:
+                                Theme.of(context).textTheme.bodyMedium!.color!,
+                          ),
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                        child: isExporting
+                            ? Center(
+                                child: Container(
+                                  height: 20.0,
+                                  width: 20.0,
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1.0,
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .color,
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                AppLocalizations.of(context).cmm_export,
+                                style: const TextStyle(
+                                  fontSize: 13.0,
+                                ),
+                              ),
+                      ),
+                      onTap: () async {
+                        if (isExporting) {
+                          return;
+                        }
+                        setState(() {
+                          isExporting = true;
+                        });
+                        String? selectedDirectory =
+                            await FilePicker.platform.getDirectoryPath();
+
+                        if (selectedDirectory != null) {
+                          String fileName =
+                              'Export-${DateFormat("yyyyMMddHHmmss").format(DateTime.now())}.json';
+                          String outFileName =
+                              '$selectedDirectory${Platform.pathSeparator}$fileName';
+
+                          String jsStr = await context
+                              .read<FavoriteCubit>()
+                              .exportFavJson();
+                          File output = File(outFileName);
+                          if (!await output.exists()) {
+                            await output.create(recursive: true);
+                          }
+
+                          await output.writeAsString(jsStr);
+                          setState(() {
+                            isExporting = false;
+                          });
+                          showToast(
+                              '${AppLocalizations.of(context).mine_export_msg}  $outFileName',
+                              position: const ToastPosition(
+                                align: Alignment.bottomCenter,
+                              ),
+                              duration: const Duration(seconds: 5));
+                        }
+                      },
+                    ),
+                    InkClick(
+                      child: Container(
+                        height: 28.0,
+                        width: 48.0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 4.0),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color:
+                                Theme.of(context).textTheme.bodyMedium!.color!,
+                          ),
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                        child: isImporting
+                            ? Center(
+                                child: Container(
+                                  height: 20.0,
+                                  width: 20.0,
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1.0,
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .color,
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                AppLocalizations.of(context).cmm_import,
+                                style: const TextStyle(
+                                  fontSize: 13.0,
+                                ),
+                              ),
+                      ),
+                      onTap: () async {
+                        if (isImporting) {
+                          return;
+                        }
+                        setState(() {
+                          isImporting = true;
+                        });
+                        FilePickerResult? result =
+                            await FilePicker.platform.pickFiles();
+
+                        if (result != null) {
+                          File file = File(result.files.single.path!);
+                          String jsStr = await file.readAsString();
+                          List<dynamic> jsObj = jsonDecode(jsStr);
+                          await context
+                              .read<FavoriteCubit>()
+                              .importFavJson(jsObj);
+
+                          setState(() {
+                            isImporting = false;
+                          });
+                          showToast(
+                              AppLocalizations.of(context).mine_import_msg,
+                              position: const ToastPosition(
+                                align: Alignment.bottomCenter,
+                              ),
+                              duration: const Duration(seconds: 5));
+                        }
+                      },
+                    ),
+                  ],
+                )),
           ],
         ));
   }

@@ -125,4 +125,15 @@ class FavoriteCubit extends Cubit<FavoriteState> {
 
     emit(state.copyWith(stations: []));
   }
+
+  Future<String> exportFavJson() async {
+    return await repo.loadExportJson();
+  }
+
+  Future<void> importFavJson(List<dynamic> jsObj) async {
+    await repo.saveImportJson(jsObj);
+    String? groupName = getLoadedGroup();
+    await loadFavorite(groupName: groupName);
+    loadGroups();
+  }
 }

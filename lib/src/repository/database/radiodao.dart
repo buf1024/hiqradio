@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:hiqradio/src/models/cache.dart';
 import 'package:hiqradio/src/models/fav_group.dart';
 import 'package:hiqradio/src/models/recently.dart';
 import 'package:hiqradio/src/models/record.dart';
 import 'package:hiqradio/src/models/station.dart';
+import 'package:hiqradio/src/utils/pair.dart';
 import 'package:sqflite_common/sqlite_api.dart' show Database;
 
 class RadioDao {
@@ -91,10 +94,13 @@ class RadioDao {
       var gList = await txn
           .query('fav_group', where: 'name = ?', whereArgs: [oldGroup]);
       if (gList.isNotEmpty) {
-        var oldGroupId = gList[0]['id'];
+        // var oldGroupId = gList[0]['id'];
+        // await txn.delete('favorite',
+        //     where: 'stationuuid = ? and group_id = ?',
+        //     whereArgs: [stationuuid, oldGroupId]);
         await txn.delete('favorite',
-            where: 'stationuuid = ? and group_id = ?',
-            whereArgs: [stationuuid, oldGroupId]);
+            where: 'stationuuid = ?',
+            whereArgs: [stationuuid]);
         for (var newGroup in newGroups) {
           gList = await txn
               .query('fav_group', where: 'name = ?', whereArgs: [newGroup]);
@@ -146,6 +152,24 @@ class RadioDao {
       return data.map((e) => Station.fromJson(e)).toList();
     }
     return null;
+  }
+
+  Future<String> queryExportJson() async {
+    List<Map<String, Object?>> data = await db.query('fav_group');
+    if (data.isNotEmpty) {
+      List<Map<String, Object?>> jsObj = [];
+      for (var group in data) {
+        String groupName = group['name'] as String;
+
+        List<Map<String, Object?>> stations = await db.rawQuery(
+            'select a.* from station a, favorite b, fav_group c where a.stationuuid = b.stationuuid and b.group_id = c.id and c.name = ? order by id',
+            [groupName]);
+
+        jsObj.add({'group': group, 'stations': stations});
+      }
+      return jsonEncode(jsObj);
+    }
+    return "[]";
   }
 
   Future<Station?> queryStation(String stationuuid) async {
@@ -375,6 +399,60 @@ class RadioDao {
           where: 'tab = ?', whereArgs: ['station'], limit: 1);
       assert(data.isNotEmpty);
       return Cache.fromJson(data[0]);
+    });
+  }
+
+  Future<void> insertFavImport(List<Pair<FavGroup, List<Station>>> data) async {
+    await db.transaction((txn) async {
+      for (Pair<FavGroup, List<Station>> gs in data) {
+        FavGroup group = gs.p1;
+        List<Station> stations = gs.p2;
+
+        List<Map<String, Object?>> data = await txn.query('fav_group',
+            where: 'name = ?', whereArgs: [group.name], limit: 1);
+        if (data.isNotEmpty) {
+          group = FavGroup(
+              id: data[0]['id'] as int?,
+              createTime: group.createTime,
+              name: group.name,
+              desc: group.desc,
+              isDef: group.isDef);
+          // await txn.update('fav_group', group.toJson(),
+          //     where: 'id = ?', whereArgs: [group.id]);
+        } else {
+          group = FavGroup(
+              id: null,
+              createTime: group.createTime,
+              name: group.name,
+              desc: group.desc,
+              isDef: group.isDef);
+          await txn.insert('fav_group', group.toJson());
+
+          data = await txn.query('fav_group',
+              where: 'name = ?', whereArgs: [group.name], limit: 1);
+          group = FavGroup.fromJson(data[0]);
+        }
+
+        for (Station s in stations) {
+          data = await txn.rawQuery(
+              'select a.* from favorite a where a.group_id = ? and a.stationuuid = ?',
+              [group.id, s.stationuuid]);
+          if (data.isEmpty) {
+            Map<String, Object?> values = {
+              'stationuuid': s.stationuuid,
+              'group_id': group.id
+            };
+            await txn.insert('favorite', values);
+          }
+
+          data = await txn.query('station',
+              where: 'stationuuid = ?', whereArgs: [s.stationuuid], limit: 1);
+
+          if (data.isEmpty) {
+            await txn.insert('station', s.toJson(withId: false));
+          }
+        }
+      }
     });
   }
 
