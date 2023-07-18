@@ -160,11 +160,11 @@ class _MyFavoriteState extends State<MyFavorite>
                           InkClick(
                             onTap: () {},
                             child: Container(
-                              width: 100.0,
+                              width: 110.0,
                               alignment: Alignment.centerRight,
                               child: Text(
                                 // '分组：',
-                                AppLocalizations.of(context).mine_group,
+                                "${AppLocalizations.of(context).mine_group}(${AppLocalizations.of(context).mine_group_is_def}${(group != null && group.id == 1) ? 'Y' : 'N'}): ",
                               ),
                             ),
                           ),
@@ -309,7 +309,7 @@ class _MyFavoriteState extends State<MyFavorite>
                       child: Row(
                         children: [
                           Container(
-                            width: 100.0,
+                            width: 110.0,
                             alignment: Alignment.centerRight,
                             child: Text(
                               // '创建时间: ',
@@ -331,7 +331,7 @@ class _MyFavoriteState extends State<MyFavorite>
                       child: Row(
                         children: [
                           Container(
-                            width: 100.0,
+                            width: 110.0,
                             alignment: Alignment.centerRight,
                             child: Text(
                                 // '电台数量: ',
@@ -349,7 +349,7 @@ class _MyFavoriteState extends State<MyFavorite>
                       child: Row(
                         children: [
                           Container(
-                            width: 100.0,
+                            width: 110.0,
                             alignment: Alignment.centerRight,
                             child: Text(
                                 // '简介: ',
@@ -1112,7 +1112,7 @@ class _PopupContentState extends State<PopupContent> {
                                 groups.remove(groupTryingDel!);
                                 if (group!.name == groupTryingDel!.name) {
                                   FavGroup g = groups
-                                      .where((element) => element.isDef == 1)
+                                      .where((element) => element.id == 1)
                                       .first;
                                   group = g;
                                 }
@@ -1211,7 +1211,7 @@ class _PopupContentState extends State<PopupContent> {
                           ),
                         ),
                       ),
-                      favGroup.isDef == 0
+                      favGroup.id != 1
                           ? InkClick(
                               onTap: () {
                                 setState(() {

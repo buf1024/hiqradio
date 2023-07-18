@@ -99,8 +99,7 @@ class RadioDao {
         //     where: 'stationuuid = ? and group_id = ?',
         //     whereArgs: [stationuuid, oldGroupId]);
         await txn.delete('favorite',
-            where: 'stationuuid = ?',
-            whereArgs: [stationuuid]);
+            where: 'stationuuid = ?', whereArgs: [stationuuid]);
         for (var newGroup in newGroups) {
           gList = await txn
               .query('fav_group', where: 'name = ?', whereArgs: [newGroup]);
@@ -408,29 +407,32 @@ class RadioDao {
         FavGroup group = gs.p1;
         List<Station> stations = gs.p2;
 
-        List<Map<String, Object?>> data = await txn.query('fav_group',
-            where: 'name = ?', whereArgs: [group.name], limit: 1);
-        if (data.isNotEmpty) {
-          group = FavGroup(
-              id: data[0]['id'] as int?,
-              createTime: group.createTime,
-              name: group.name,
-              desc: group.desc,
-              isDef: group.isDef);
-          // await txn.update('fav_group', group.toJson(),
-          //     where: 'id = ?', whereArgs: [group.id]);
-        } else {
-          group = FavGroup(
-              id: null,
-              createTime: group.createTime,
-              name: group.name,
-              desc: group.desc,
-              isDef: group.isDef);
-          await txn.insert('fav_group', group.toJson());
-
+        List<Map<String, Object?>> data;
+        if (group.id != 1) {
           data = await txn.query('fav_group',
               where: 'name = ?', whereArgs: [group.name], limit: 1);
-          group = FavGroup.fromJson(data[0]);
+          if (data.isNotEmpty) {
+            group = FavGroup(
+                id: data[0]['id'] as int?,
+                createTime: group.createTime,
+                name: group.name,
+                desc: group.desc,
+                isDef: group.isDef);
+            // await txn.update('fav_group', group.toJson(),
+            //     where: 'id = ?', whereArgs: [group.id]);
+          } else {
+            group = FavGroup(
+                id: null,
+                createTime: group.createTime,
+                name: group.name,
+                desc: group.desc,
+                isDef: group.isDef);
+            await txn.insert('fav_group', group.toJson());
+
+            data = await txn.query('fav_group',
+                where: 'name = ?', whereArgs: [group.name], limit: 1);
+            group = FavGroup.fromJson(data[0]);
+          }
         }
 
         for (Station s in stations) {

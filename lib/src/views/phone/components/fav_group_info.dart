@@ -291,14 +291,13 @@ class _FavGroupInfoState extends State<FavGroupInfo> {
                           width: 85.0,
                           alignment: Alignment.centerRight,
                           child: Text(
-                            // '创建时间: ',
                             AppLocalizations.of(context).mine_group_is_def,
                             style: const TextStyle(fontSize: 20.0),
                           ),
                         ),
                         Expanded(
                           child: Text(
-                            group.isDef == 1 ? ' Y' : ' N',
+                            group.id == 1 ? ' Y' : ' N',
                             style: const TextStyle(fontSize: 20.0),
                           ),
                         )
@@ -567,7 +566,7 @@ class _FavGroupInfoState extends State<FavGroupInfo> {
                   )
                 : InkClick(
                     onTap: () {
-                      if (group.isDef == 0) {
+                      if (group.id != 1) {
                         setState(() {
                           isTryingDel = true;
                         });
@@ -578,7 +577,7 @@ class _FavGroupInfoState extends State<FavGroupInfo> {
                       // height: 25.0,
                       width: size.width,
                       decoration: BoxDecoration(
-                          color: group.isDef == 0
+                          color: group.id != 1
                               ? Colors.red.withOpacity(0.8)
                               : Colors.grey.withOpacity(0.2),
                           borderRadius:

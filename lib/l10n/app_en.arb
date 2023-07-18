@@ -94,7 +94,7 @@
     "record_delete": "Delete record",
     "record_export": "Export record",
     "record_export_msg": "Record exported: ",
-    "mine_group": "Group: ",
+    "mine_group": "Group",
     "mine_group_hit": "Group name",
     "mine_group_is_def": "Default: ",
     "mine_create_time": "Time: ",
