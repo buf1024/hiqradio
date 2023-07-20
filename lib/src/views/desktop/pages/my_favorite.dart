@@ -941,7 +941,7 @@ class _MyFavoriteState extends State<MyFavorite>
               onTap: () async {
                 if (station.homepage != null) {
                   Uri url = Uri.parse(station.homepage!);
-                  await launchUrl(url);
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
                 }
               },
               icon: const Icon(

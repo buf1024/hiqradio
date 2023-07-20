@@ -24,6 +24,7 @@ void main() async {
   if (isDesktop()) {
     await windowManager.ensureInitialized();
     await hotKeyManager.unregisterAll();
+
     if (Platform.isLinux || Platform.isWindows) {
       DartVLC.initialize();
     }
@@ -33,7 +34,7 @@ void main() async {
       // minimumSize: Size(kMinWindowWidth, kMinWindowWidth),
       center: true,
       backgroundColor: Colors.transparent,
-      skipTaskbar: false,
+      skipTaskbar: true,
       // titleBarStyle: TitleBarStyle.hidden,
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
@@ -59,12 +60,11 @@ void main() async {
   }
   if (Platform.isAndroid || Platform.isIOS) {
     await JustAudioBackground.init(
-      androidNotificationChannelId: 'com.toyent.hiqradio.channel.audio',
-      androidNotificationChannelName: 'Audio playback',
-      androidNotificationOngoing: false,
-      androidStopForegroundOnPause: false,
-      androidShowNotificationBadge: true
-    );
+        androidNotificationChannelId: 'com.toyent.hiqradio.channel.audio',
+        androidNotificationChannelName: 'Audio playback',
+        androidNotificationOngoing: false,
+        androidStopForegroundOnPause: false,
+        androidShowNotificationBadge: true);
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }

@@ -72,7 +72,7 @@ class StationInfo extends StatelessWidget {
                     ? () async {
                         if (station.homepage != null) {
                           Uri url = Uri.parse(station.homepage!);
-                          await launchUrl(url);
+                          await launchUrl(url, mode: LaunchMode.externalApplication);
                         }
                       }
                     : null,

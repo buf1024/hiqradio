@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/favorite_cubit.dart';
@@ -9,6 +10,7 @@ import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/views/components/station_info.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/phone/components/fav_group_info.dart';
+import 'package:hiqradio/src/views/phone/components/my_slidable_action.dart';
 import 'package:hiqradio/src/views/phone/playing_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -109,108 +111,157 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
         bool isStationPlaying =
             isPlaying && playingStation!.urlResolved == station.urlResolved;
 
-        return Container(
-          margin: const EdgeInsets.all(3.0),
-          padding: const EdgeInsets.all(5.0),
-          decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(5.0)),
-          child: Row(
+        return Slidable(
+          key: ValueKey(index),
+          endActionPane: ActionPane(
+            extentRatio: 1,
+            motion: const BehindMotion(),
             children: [
-              GestureDetector(
-                child: StationInfo(
-                  onClicked: () {
-                    _jumpPlayingPage(isPlaying, playingStation, station);
-                  },
-                  width: winSize.width - 68,
-                  height: 60,
-                  station: station,
-                ),
-                onTap: () {
-                  _jumpPlayingPage(isPlaying, playingStation, station);
+              MySlidableAction(
+                isFirst: true,
+                isEnd: false,
+                color: Colors.blue,
+                icon: IconFont.home,
+                onPressed: () async {
+                  if (station.homepage != null) {
+                    Uri url = Uri.parse(station.homepage!);
+                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                  }
                 },
-                onLongPressEnd: (details) async {
+              ),
+              MySlidableAction(
+                isFirst: false,
+                isEnd: false,
+                color: Colors.orange,
+                icon: IconFont.edit,
+                onPressed: () async {
                   List<String> data = groups.map((e) => e.name).toList();
                   List<String> sSelected = await context
                       .read<FavoriteCubit>()
                       .loadStationGroup(station);
-                  var ret = await _showContextMenu(
-                      details.globalPosition,
-                      station,
-                      playingStation != null &&
-                          playingStation.urlResolved == station.urlResolved &&
-                          isPlaying,
-                      group,
-                      data,
-                      sSelected);
-                  if (ret != null && ret == 'modify') {
-                    _showModifyGroup(group, station, data, sSelected);
-                  }
+
+                  _showModifyGroup(group, station, data, sSelected);
                 },
               ),
-              InkClick(
-                child: Container(
-                  width: 30.0,
-                  height: 30.0,
-                  padding: const EdgeInsets.all(5.0),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Theme.of(context).textTheme.bodyMedium!.color!,
-                    ),
-                    borderRadius: BorderRadius.circular(30.0),
-                    // color: Theme.of(context).textTheme.bodyMedium!.color,
-                  ),
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: Row(
-                          children: [
-                            // 不能完全居中
-                            SizedBox(
-                              width: !isStationPlaying ? 4.0 : 3.0,
-                            ),
-                            Icon(
-                              !isStationPlaying ? IconFont.play : IconFont.stop,
-                              size: 12.0,
-                              color:
-                                  Theme.of(context).textTheme.bodyMedium!.color,
-                            )
-                          ],
-                        ),
-                      ),
-                      if (isBuffering && isStationPlaying)
-                        Center(
-                          child: SizedBox(
-                            height: 30.0,
-                            width: 30.0,
-                            child: CircularProgressIndicator(
-                              color: Colors.white.withOpacity(0.2),
-                              strokeWidth: 2.0,
-                            ),
-                          ),
-                        )
-                    ],
-                  ),
-                ),
-                onTap: () async {
-                  if (isPlaying) {
-                    context.read<AppCubit>().stop();
-                    if (playingStation != null) {
-                      context
-                          .read<RecentlyCubit>()
-                          .updateRecently(playingStation);
-                      if (playingStation.urlResolved != station.urlResolved) {
-                        context.read<AppCubit>().play(station);
-                        context.read<RecentlyCubit>().addRecently(station);
-                      }
-                    }
-                  } else {
-                    context.read<AppCubit>().play(station);
-                    context.read<RecentlyCubit>().addRecently(station);
-                  }
+              MySlidableAction(
+                isFirst: false,
+                isEnd: true,
+                color: Colors.red,
+                icon: IconFont.delete,
+                iconSize: 30.0,
+                onPressed: () {
+                  context.read<FavoriteCubit>().delFavorite(station);
                 },
               ),
             ],
+          ),
+          child: Container(
+            margin: const EdgeInsets.all(3.0),
+            padding: const EdgeInsets.all(5.0),
+            decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(5.0)),
+            child: Row(
+              children: [
+                GestureDetector(
+                  child: StationInfo(
+                    onClicked: () {
+                      _jumpPlayingPage(isPlaying, playingStation, station);
+                    },
+                    width: winSize.width - 68,
+                    height: 60,
+                    station: station,
+                  ),
+                  onTap: () {
+                    _jumpPlayingPage(isPlaying, playingStation, station);
+                  },
+                  onLongPressEnd: (details) async {
+                    List<String> data = groups.map((e) => e.name).toList();
+                    List<String> sSelected = await context
+                        .read<FavoriteCubit>()
+                        .loadStationGroup(station);
+                    var ret = await _showContextMenu(
+                        details.globalPosition,
+                        station,
+                        playingStation != null &&
+                            playingStation.urlResolved == station.urlResolved &&
+                            isPlaying,
+                        group,
+                        data,
+                        sSelected);
+                    if (ret != null && ret == 'modify') {
+                      _showModifyGroup(group, station, data, sSelected);
+                    }
+                  },
+                ),
+                InkClick(
+                  child: Container(
+                    width: 30.0,
+                    height: 30.0,
+                    padding: const EdgeInsets.all(5.0),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Theme.of(context).textTheme.bodyMedium!.color!,
+                      ),
+                      borderRadius: BorderRadius.circular(30.0),
+                      // color: Theme.of(context).textTheme.bodyMedium!.color,
+                    ),
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Row(
+                            children: [
+                              // 不能完全居中
+                              SizedBox(
+                                width: !isStationPlaying ? 4.0 : 3.0,
+                              ),
+                              Icon(
+                                !isStationPlaying
+                                    ? IconFont.play
+                                    : IconFont.stop,
+                                size: 12.0,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .color,
+                              )
+                            ],
+                          ),
+                        ),
+                        if (isBuffering && isStationPlaying)
+                          Center(
+                            child: SizedBox(
+                              height: 30.0,
+                              width: 30.0,
+                              child: CircularProgressIndicator(
+                                color: Colors.white.withOpacity(0.2),
+                                strokeWidth: 2.0,
+                              ),
+                            ),
+                          )
+                      ],
+                    ),
+                  ),
+                  onTap: () async {
+                    if (isPlaying) {
+                      context.read<AppCubit>().stop();
+                      if (playingStation != null) {
+                        context
+                            .read<RecentlyCubit>()
+                            .updateRecently(playingStation);
+                        if (playingStation.urlResolved != station.urlResolved) {
+                          context.read<AppCubit>().play(station);
+                          context.read<RecentlyCubit>().addRecently(station);
+                        }
+                      }
+                    } else {
+                      context.read<AppCubit>().play(station);
+                      context.read<RecentlyCubit>().addRecently(station);
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -335,7 +386,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
               onTap: () async {
                 if (station.homepage != null) {
                   Uri url = Uri.parse(station.homepage!);
-                  await launchUrl(url);
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
                 }
               },
               icon: IconFont.home,

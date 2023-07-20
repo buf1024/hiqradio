@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/record_cubit.dart';
@@ -13,6 +14,7 @@ import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/pair.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/station_placeholder.dart';
+import 'package:hiqradio/src/views/phone/components/my_slidable_action.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:oktoast/oktoast.dart';
@@ -100,17 +102,64 @@ class _MyPhoneRecordState extends State<MyPhoneRecord>
 
         Size winSize = MediaQuery.of(context).size;
 
-        return Container(
-          margin: const EdgeInsets.all(3.0),
-          padding: const EdgeInsets.all(5.0),
-          decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(5.0)),
-          child: Row(
-            children: [
-              GestureDetector(
-                child: StationRecord(
-                  onClicked: () {
+        return Slidable(
+          key: ValueKey(index),
+          endActionPane: ActionPane(
+              extentRatio: 1,
+              motion: const BehindMotion(),
+              children: [
+                if (record.file != null)
+                  MySlidableAction(
+                    isFirst: true,
+                    isEnd: false,
+                    color: Colors.green,
+                    icon: IconFont.quit,
+                    onPressed: () async {
+                      _exportRecord(record);
+                    },
+                  ),
+                MySlidableAction(
+                  isFirst: record.file == null,
+                  isEnd: true,
+                  color: Colors.red,
+                  icon: IconFont.delete,
+                  iconSize: 30,
+                  onPressed: () {
+                    context.read<RecordCubit>().delRecord(record.id!);
+                    if (record.file != null) {
+                      File input = File(record.file!);
+                      input.delete();
+                    }
+                  },
+                ),
+              ]),
+          child: Container(
+            margin: const EdgeInsets.all(3.0),
+            padding: const EdgeInsets.all(5.0),
+            decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(5.0)),
+            child: Row(
+              children: [
+                GestureDetector(
+                  child: StationRecord(
+                    onClicked: () {
+                      setState(() {
+                        selectedId = record.id!;
+                      });
+                      if (playingRecord != null &&
+                          playingRecord.id == record.id) {
+                        context.read<AppCubit>().stopPlayRecord();
+                      } else {
+                        context.read<AppCubit>().playRecord(record);
+                      }
+                    },
+                    width: winSize.width - 68,
+                    height: 60.0,
+                    station: station,
+                    record: record,
+                  ),
+                  onTap: () {
                     setState(() {
                       selectedId = record.id!;
                     });
@@ -121,46 +170,60 @@ class _MyPhoneRecordState extends State<MyPhoneRecord>
                       context.read<AppCubit>().playRecord(record);
                     }
                   },
-                  width: winSize.width - 68,
-                  height: 60.0,
-                  station: station,
-                  record: record,
+                  onLongPressEnd: (details) {
+                    showContextMenu(details.globalPosition, record);
+                  },
                 ),
-                onTap: () {
-                  setState(() {
-                    selectedId = record.id!;
-                  });
-                  if (playingRecord != null && playingRecord.id == record.id) {
-                    context.read<AppCubit>().stopPlayRecord();
-                  } else {
-                    context.read<AppCubit>().playRecord(record);
-                  }
-                },
-                onLongPressEnd: (details) {
-                  showContextMenu(details.globalPosition, record);
-                },
-              ),
-              playingRecord != null && playingRecord.id == record.id
-                  ? Icon(
-                      IconFont.volume,
-                      size: 28.0,
-                      color: Colors.red.withOpacity(0.8),
-                    )
-                  : InkClick(
-                      onTap: () {},
-                      child: Icon(
+                playingRecord != null && playingRecord.id == record.id
+                    ? Icon(
                         IconFont.volume,
                         size: 28.0,
-                        color: Colors.red.withOpacity(0.0),
-                      ),
-                    )
-            ],
+                        color: Colors.red.withOpacity(0.8),
+                      )
+                    : InkClick(
+                        onTap: () {},
+                        child: Icon(
+                          IconFont.volume,
+                          size: 28.0,
+                          color: Colors.red.withOpacity(0.0),
+                        ),
+                      )
+              ],
+            ),
           ),
         );
       },
       itemCount: records.length,
       controller: scrollController,
     );
+  }
+
+  void _exportRecord(Record record) async {
+    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+
+    if (selectedDirectory != null) {
+      String file = record.file!;
+      int index = file.lastIndexOf(Platform.pathSeparator);
+      String fileName = file.substring(index + 1);
+      String outFileName =
+          '$selectedDirectory${Platform.pathSeparator}$fileName';
+
+      if (await Permission.manageExternalStorage.request().isGranted) {
+        File input = File(record.file!);
+        File output = File(outFileName);
+        if (!await output.exists()) {
+          await output.create(recursive: true);
+        }
+        Uint8List data = await input.readAsBytes();
+        await output.writeAsBytes(data.toList());
+        showToast(
+            '${AppLocalizations.of(context).record_export_msg}  $outFileName',
+            position: const ToastPosition(
+              align: Alignment.bottomCenter,
+            ),
+            duration: const Duration(seconds: 3));
+      }
+    }
   }
 
   void showContextMenu(Offset offset, Record record) {
@@ -183,36 +246,8 @@ class _MyPhoneRecordState extends State<MyPhoneRecord>
               // '删除录音'
               AppLocalizations.of(context).record_delete),
           if (record.file != null)
-            _popMenuItem(() async {
-              String? selectedDirectory =
-                  await FilePicker.platform.getDirectoryPath();
-
-              if (selectedDirectory != null) {
-                String file = record.file!;
-                int index = file.lastIndexOf(Platform.pathSeparator);
-                String fileName = file.substring(index + 1);
-                String outFileName =
-                    '$selectedDirectory${Platform.pathSeparator}$fileName';
-
-                if (await Permission.manageExternalStorage
-                    .request()
-                    .isGranted) {
-                  File input = File(record.file!);
-                  File output = File(outFileName);
-                  if (!await output.exists()) {
-                    await output.create(recursive: true);
-                  }
-                  Uint8List data = await input.readAsBytes();
-                  await output.writeAsBytes(data.toList());
-                  showToast(
-                    '${AppLocalizations.of(context).record_export_msg}  $outFileName',
-                    position: const ToastPosition(
-                      align: Alignment.bottomCenter,
-                    ),
-                    duration: const Duration(seconds: 3)
-                  );
-                }
-              }
+            _popMenuItem(() {
+              _exportRecord(record);
             }, IconFont.quit, AppLocalizations.of(context).record_export),
         ],
         elevation: 8.0);

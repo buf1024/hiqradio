@@ -69,7 +69,7 @@
     "cfg_group_setting": "分组管理",
     "cfg_group_setting_desc": "收藏分组设置",
     "cfg_group_imexport": "导出/导入",
-    "cfg_group_imexport_desc": "藏导出导入",
+    "cfg_group_imexport_desc": "收藏导出导入",
     "title_theme": "主题",
     "title_theme_dark": "深色模式",
     "title_theme_light": "浅色模式",
