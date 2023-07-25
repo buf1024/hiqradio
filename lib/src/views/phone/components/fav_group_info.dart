@@ -208,7 +208,7 @@ class _FavGroupInfoState extends State<FavGroupInfo> {
                             alignment: Alignment.centerRight,
                             child: Text(
                               // '分组：',
-                              AppLocalizations.of(context).mine_group,
+                              '${AppLocalizations.of(context).mine_group}: ',
                               style: const TextStyle(fontSize: 20.0),
                             ),
                           ),

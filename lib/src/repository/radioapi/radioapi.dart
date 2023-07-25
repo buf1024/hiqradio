@@ -143,6 +143,47 @@ class RadioApi {
     Response response = await dio.get(url);
     return response.data;
   }
+  Future<dynamic> stationsByUuid({required String uuid}) async {
+    // [{'changeuuid': 'abbf72c1-6ff9-4408-8402-3de417d3b52c',
+    // 'stationuuid': '4a018de7-b452-4412-b86f-86254c5d53be',
+    // 'serveruuid': None,
+    // 'name': 'ABC Lounge Radio',
+    // 'url': 'https://eu1.fastcast4u.com/proxy/kpmxz?mp=/1',
+    // 'url_resolved': 'https://eu1.fastcast4u.com/proxy/kpmxz?mp=/1',
+    // 'homepage': 'https://www.abc-lounge.com/radio/lounge-jazz-folk/#home',
+    // 'favicon': '',
+    // 'tags': 'ambient,chillout,easy listening,lounge,smooth jazz',
+    // 'country': 'France',
+    // 'countrycode': 'FR',
+    // 'iso_3166_2': None,
+    // 'state': '',
+    // 'language': 'english,french',
+    // 'languagecodes': 'en,fr',
+    // 'votes': 3910,
+    // 'lastchangetime': '2022-11-03 09:32:32',
+    // 'lastchangetime_iso8601': '2022-11-03T09:32:32Z',
+    // 'codec': 'MP3',
+    // 'bitrate': 128,
+    // 'hls': 0,
+    // 'lastcheckok': 1,
+    // 'lastchecktime': '2023-05-01 00:25:43',
+    // 'lastchecktime_iso8601': '2023-05-01T00:25:43Z',
+    // 'lastcheckoktime': '2023-05-01 00:25:43',
+    // 'lastcheckoktime_iso8601': '2023-05-01T00:25:43Z',
+    // 'lastlocalchecktime': '2023-05-01 00:25:43',
+    // 'lastlocalchecktime_iso8601': '2023-05-01T00:25:43Z',
+    // 'clicktimestamp': '2023-05-01 06:51:04',
+    // 'clicktimestamp_iso8601': '2023-05-01T06:51:04Z',
+    // 'clickcount': 492,
+    // 'clicktrend': -15,
+    // 'ssl_error': 0,
+    // 'geo_lat': None,
+    // 'geo_long': None,
+    // 'has_extended_info': False}]
+    String url = 'json/stations/byuuid/$uuid';
+    Response response = await dio.get(url);
+    return response.data;
+  }
 
   Future<dynamic> stations() async {
     // [{'changeuuid': 'abbf72c1-6ff9-4408-8402-3de417d3b52c',

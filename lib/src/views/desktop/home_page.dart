@@ -98,7 +98,15 @@ class _HomePageState extends State<HomePage> with TrayListener, WindowListener {
   @override
   void onTrayIconMouseDown() async {
     if (await windowManager.isVisible()) {
-      trayManager.popUpContextMenu();
+      if (Platform.isMacOS) {
+        if (await windowManager.isFocused()) {
+          trayManager.popUpContextMenu();
+        } else {
+          await windowManager.orderFront();
+        }
+      } else {
+        trayManager.popUpContextMenu();
+      }
     } else {
       windowManager.show();
     }

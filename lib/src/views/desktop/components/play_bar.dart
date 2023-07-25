@@ -7,16 +7,24 @@ import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/station_info.dart';
 import 'package:hiqradio/src/views/components/play_ctrl.dart';
+import 'package:hiqradio/src/views/components/station_qr_code.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 
 class PlayBar extends StatefulWidget {
   const PlayBar({super.key});
 
   @override
-  State<PlayBar> createState() => _StatusBarState();
+  State<PlayBar> createState() => _PlayBarState();
 }
 
-class _StatusBarState extends State<PlayBar> {
+class _PlayBarState extends State<PlayBar> {
+  OverlayEntry? shareOverlay;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     Station? playingStation = context
@@ -83,15 +91,78 @@ class _StatusBarState extends State<PlayBar> {
             },
           ),
         ),
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 4.0),
-        //   child: InkClick(
-        //     child: const Icon(IconFont.volume, size: 20.0),
-        //     onTap: () {},
-        //   ),
-        // ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: InkClick(
+            child: const Icon(IconFont.share, size: 20.0),
+            onTap: () {
+              if (playingStation != null) {
+                _onShareOverlay(playingStation);
+              }
+            },
+          ),
+        ),
       ]),
     );
+  }
+
+  void _closeShareOverlay() {
+    if (shareOverlay != null) {
+      shareOverlay!.remove();
+      shareOverlay = null;
+    }
+  }
+
+  void _onShareOverlay(Station playingStation) {
+    double width = 300.0;
+    double posLeft = (MediaQuery.of(context).size.width - width) / 2;
+    double height = MediaQuery.of(context).size.height - kTitleBarHeight;
+
+    shareOverlay ??= OverlayEntry(
+      opaque: false,
+      builder: (context) {
+        // 猥琐发育
+        return Stack(
+          fit: StackFit.loose,
+          children: [
+            Container(
+              padding: const EdgeInsets.only(top: kTitleBarHeight),
+              child: ModalBarrier(
+                onDismiss: () => _closeShareOverlay(),
+              ),
+            ),
+            Positioned(
+              top: kTitleBarHeight,
+              left: posLeft,
+              width: width,
+              height: height,
+              child: Material(
+                color: Colors.black.withOpacity(0),
+                child: Dialog(
+                    alignment: Alignment.center,
+                    insetPadding: const EdgeInsets.only(
+                        top: 0, bottom: 0, right: 0, left: 0),
+                    elevation: 2.0,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(8.0),
+                      ),
+                    ),
+                    child: StationQrCode(
+                      station: playingStation,
+                      width: width,
+                      height: height,
+                      onTap: () {
+                        _closeShareOverlay();
+                      },
+                    ),),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    Overlay.of(context).insert(shareOverlay!);
   }
 
   void _play(Station station, Station? playingStation, bool isPlaying) {

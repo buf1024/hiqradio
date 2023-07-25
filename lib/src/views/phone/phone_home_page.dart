@@ -1,13 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
-import 'package:hiqradio/src/blocs/favorite_cubit.dart';
 import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/blocs/search_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
@@ -19,7 +16,7 @@ import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/utils/nav.dart';
 import 'package:hiqradio/src/views/components/station_info.dart';
 import 'package:hiqradio/src/views/phone/carplaying_page.dart';
-import 'package:hiqradio/src/views/phone/components/fav_group_info.dart';
+import 'package:hiqradio/src/views/phone/components/fav_group_imexport.dart';
 import 'package:hiqradio/src/views/phone/components/play_funcs.dart';
 import 'package:hiqradio/src/views/phone/pages/my_phone_favorite.dart';
 import 'package:hiqradio/src/views/phone/pages/my_phone_recently.dart';
@@ -27,9 +24,9 @@ import 'package:hiqradio/src/views/phone/pages/my_phone_record.dart';
 import 'package:hiqradio/src/views/phone/pages/my_phone_station.dart';
 import 'package:hiqradio/src/views/phone/playing_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:hiqradio/src/views/phone/qr_scan_page.dart';
 import 'package:intl/intl.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class PhoneHomePage extends StatefulWidget {
   const PhoneHomePage({super.key});
@@ -337,6 +334,20 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
     return text;
   }
 
+  void _playScanUuid(String qrCode) async {
+    Station? station = await context.read<AppCubit>().getStationByUuid(qrCode);
+    if (station != null) {
+      context.read<AppCubit>().play(station);
+      context.read<RecentlyCubit>().addRecently(station);
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const PlayingPage(),
+        ),
+      );
+    }
+  }
+
   List<Widget> _buildConfigItem() {
     List<HiqThemeMode> themeLabelList = [
       HiqThemeMode.dark,
@@ -366,6 +377,31 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
         context.select<AppCubit, int>((value) => value.state.cacheCount);
 
     return [
+      ListTile(
+        title: Text(
+          AppLocalizations.of(context).cfg_scan,
+          style: const TextStyle(
+            fontSize: 16.0,
+          ),
+        ),
+        subtitle: Text(
+          AppLocalizations.of(context).cfg_scan_desc,
+        ),
+        mouseCursor: SystemMouseCursors.click,
+        onTap: () async {
+          Navigator.of(context).pop();
+
+          String? qrCode = await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const QrScanPage(),
+            ),
+          );
+          if (qrCode != null) {
+            print('qrCode: $qrCode');
+            _playScanUuid(qrCode);
+          }
+        },
+      ),
       ListTile(
         title: const Text(
           'Language',
@@ -746,186 +782,54 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
               });
         },
       ),
-      if (actNavItem.type == NavType.mine)
-        ListTile(
-          title: Text(
-            AppLocalizations.of(context).cfg_group_imexport,
-            style: const TextStyle(
-              fontSize: 16.0,
-            ),
+      // if (actNavItem.type == NavType.mine)
+      ListTile(
+        title: Text(
+          AppLocalizations.of(context).cfg_group_imexport,
+          style: const TextStyle(
+            fontSize: 16.0,
           ),
-          subtitle: Text(
-            AppLocalizations.of(context).cfg_group_imexport_desc,
-          ),
-          mouseCursor: SystemMouseCursors.click,
-          onTap: () {
-            Navigator.of(context).pop();
-            showModalBottomSheet(
-                context: context,
-                elevation: 2.0,
-                enableDrag: false,
-                backgroundColor: Colors.black.withOpacity(0),
-                builder: (context) {
-                  return StatefulBuilder(builder: (context, setState) {
-                    return Container(
-                      height: 120,
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).canvasColor,
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(10.0),
-                              topRight: Radius.circular(10.0))),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              InkClick(
-                                child: const SizedBox(
-                                  height: 50.0,
-                                  width: 50.0,
-                                  child: Icon(
-                                    Icons.close_rounded,
-                                    size: 25,
-                                  ),
-                                ),
-                                onTap: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                              InkClick(
-                                child: const SizedBox(
-                                  height: 50.0,
-                                  width: 50.0,
-                                  child: Icon(
-                                    Icons.done_outlined,
-                                    size: 25,
-                                  ),
-                                ),
-                                onTap: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              MaterialButton(
-                                color: Theme.of(context)
-                                    .cardColor
-                                    .withOpacity(0.8),
-                                onPressed: () async {
-                                  String? selectedDirectory = await FilePicker
-                                      .platform
-                                      .getDirectoryPath();
-
-                                  if (selectedDirectory != null) {
-                                    String fileName =
-                                        'Export-${DateFormat("yyyyMMddHHmmss").format(DateTime.now())}.json';
-                                    String outFileName =
-                                        '$selectedDirectory${Platform.pathSeparator}$fileName';
-
-                                    String jsStr = await context
-                                        .read<FavoriteCubit>()
-                                        .exportFavJson();
-                                    if (await Permission.manageExternalStorage
-                                        .request()
-                                        .isGranted) {
-                                      File output = File(outFileName);
-                                      if (!await output.exists()) {
-                                        await output.create(recursive: true);
-                                      }
-
-                                      await output.writeAsString(jsStr);
-
-                                      showToast(
-                                          '${AppLocalizations.of(context).mine_export_msg}  $outFileName',
-                                          position: const ToastPosition(
-                                            align: Alignment.bottomCenter,
-                                          ),
-                                          duration: const Duration(seconds: 5));
-                                    }
-                                    Navigator.of(context).pop();
-                                  }
-                                },
-                                child: Text(
-                                  AppLocalizations.of(context).cmm_export,
-                                  style: const TextStyle(
-                                    fontSize: 18.0,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 15.0,
-                              ),
-                              MaterialButton(
-                                color: Colors.red.withOpacity(0.8),
-                                onPressed: () async {
-                                  FilePickerResult? result =
-                                      await FilePicker.platform.pickFiles();
-
-                                  if (result != null) {
-                                    File file = File(result.files.single.path!);
-                                    String jsStr = await file.readAsString();
-                                    List<dynamic> jsObj = jsonDecode(jsStr);
-                                    await context
-                                        .read<FavoriteCubit>()
-                                        .importFavJson(jsObj);
-
-                                    showToast(
-                                        AppLocalizations.of(context)
-                                            .mine_import_msg,
-                                        position: const ToastPosition(
-                                          align: Alignment.bottomCenter,
-                                        ),
-                                        duration: const Duration(seconds: 5));
-                                  }
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text(
-                                  AppLocalizations.of(context).cmm_import,
-                                  style: const TextStyle(
-                                    fontSize: 18.0,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 15.0,
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  });
-                });
-          },
         ),
-      if (actNavItem.type == NavType.mine)
-        ListTile(
-          title: Text(
-            AppLocalizations.of(context).cfg_group_setting,
-            style: const TextStyle(
-              fontSize: 16.0,
-            ),
-          ),
-          subtitle: Text(
-            AppLocalizations.of(context).cfg_group_setting_desc,
-          ),
-          mouseCursor: SystemMouseCursors.click,
-          onTap: () {
-            Navigator.of(context).pop();
-            showModalBottomSheet(
-                context: context,
-                elevation: 2.0,
-                enableDrag: false,
-                backgroundColor: Colors.black.withOpacity(0),
-                builder: (context) {
-                  return const FavGroupInfo();
-                });
-          },
+        subtitle: Text(
+          AppLocalizations.of(context).cfg_group_imexport_desc,
         ),
+        mouseCursor: SystemMouseCursors.click,
+        onTap: () {
+          Navigator.of(context).pop();
+          showModalBottomSheet(
+              context: context,
+              elevation: 2.0,
+              enableDrag: false,
+              backgroundColor: Colors.black.withOpacity(0),
+              builder: (context) {
+                return const FavGroupImexport();
+              });
+        },
+      ),
+      // if (actNavItem.type == NavType.mine)
+      //   ListTile(
+      //     title: Text(
+      //       AppLocalizations.of(context).cfg_group_setting,
+      //       style: const TextStyle(
+      //         fontSize: 16.0,
+      //       ),
+      //     ),
+      //     subtitle: Text(
+      //       AppLocalizations.of(context).cfg_group_setting_desc,
+      //     ),
+      //     mouseCursor: SystemMouseCursors.click,
+      //     onTap: () {
+      //       Navigator.of(context).pop();
+      //       showModalBottomSheet(
+      //           context: context,
+      //           elevation: 2.0,
+      //           enableDrag: false,
+      //           backgroundColor: Colors.black.withOpacity(0),
+      //           builder: (context) {
+      //             return const FavGroupInfo();
+      //           });
+      //     },
+      //   ),
       ListTile(
           title: Text(
             // '自动播放',

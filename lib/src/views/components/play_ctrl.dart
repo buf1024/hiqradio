@@ -196,10 +196,6 @@ class _PlayCtrlState extends State<PlayCtrl> {
                   context.read<RecentlyCubit>().updateRecently(playingStation);
                 }
               } else {
-                // if (playingStation != null) {
-                //   context.read<AppCubit>().play(playingStation);
-                //   context.read<RecentlyCubit>().addRecently(playingStation);
-                // }
                 Station? station = playingStation;
                 station ??= await context.read<AppCubit>().getRandomStation();
                 if (station != null) {
@@ -260,14 +256,6 @@ class _PlayCtrlState extends State<PlayCtrl> {
             ),
           ),
           const Spacer(),
-          // Padding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          //   child: InkClick(
-          //     child: Icon(IconFont.share,
-          //         size: 20.0, color: Colors.white.withOpacity(0.8)),
-          //     onTap: () {},
-          //   ),
-          // ),
         ],
       ),
     );

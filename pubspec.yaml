@@ -37,7 +37,8 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   path: ^1.8.2
-  window_manager: ^0.3.2
+  window_manager: 
+    path: /Users/luoguochun/privt/learning-code/flutter/window/window_manager
   flutter_bloc: ^8.1.2
   meta: ^1.8.0
   equatable: ^2.0.5
@@ -64,6 +65,10 @@ dependencies:
   file_picker: ^5.3.2
   permission_handler: ^10.4.1
   flutter_slidable: ^3.0.0
+  qr_flutter: ^4.1.0
+  image_gallery_saver: ^2.0.3
+  mobile_scanner: ^3.3.0
+  image_picker: ^1.0.1
 
 dev_dependencies:
   flutter_test:

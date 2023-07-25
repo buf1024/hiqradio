@@ -11,6 +11,7 @@ import 'package:hiqradio/src/blocs/record_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
+import 'package:hiqradio/src/views/components/station_qr_code.dart';
 import 'package:hiqradio/src/views/phone/carplaying_page.dart';
 import 'package:hiqradio/src/views/phone/components/rotate_station.dart';
 import 'package:intl/intl.dart';
@@ -177,42 +178,6 @@ class _PlayingPageState extends State<PlayingPage> {
             }
           }),
     );
-
-    // return Center(
-    //   child: Container(
-    //     height: size.width - 120.0,
-    //     width: size.width - 120.0,
-    //     margin: const EdgeInsets.only(top: 90.0),
-    //     decoration: BoxDecoration(boxShadow: [
-    //       BoxShadow(blurRadius: 1024.0, color: Colors.black.withOpacity(0.5))
-    //     ]),
-    //     child: ClipRRect(
-    //       borderRadius: BorderRadius.all(Radius.circular(size.width - 120.0)),
-    //       child: playingStation.favicon != null &&
-    //               playingStation.favicon!.isNotEmpty
-    //           ? CachedNetworkImage(
-    //               fit: BoxFit.fill,
-    //               imageUrl: playingStation.favicon!,
-    //               placeholder: (context, url) {
-    //                 return StationPlaceholder(
-    //                   height: size.width - 120.0,
-    //                   width: size.width - 120.0,
-    //                 );
-    //               },
-    //               errorWidget: (context, url, error) {
-    //                 return StationPlaceholder(
-    //                   height: size.width - 120.0,
-    //                   width: size.width - 120.0,
-    //                 );
-    //               },
-    //             )
-    //           : StationPlaceholder(
-    //               height: size.width - 120.0,
-    //               width: size.width - 120.0,
-    //             ),
-    //     ),
-    //   ),
-    // );
   }
 
   Widget _playCtrl() {
@@ -349,6 +314,405 @@ class _PlayingPageState extends State<PlayingPage> {
     );
   }
 
+  Widget _funcVolume() {
+    return _funcs(
+        icon: IconFont.volume,
+        text: AppLocalizations.of(context).cmm_volume,
+        onTap: () {
+          showModalBottomSheet(
+              context: context,
+              elevation: 2.0,
+              backgroundColor: Colors.black.withOpacity(0),
+              builder: (context) {
+                return StatefulBuilder(builder: (context, setState) {
+                  return Container(
+                    height: 120,
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).canvasColor,
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(10.0),
+                            topRight: Radius.circular(10.0))),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            InkClick(
+                              child: const SizedBox(
+                                height: 50.0,
+                                width: 50.0,
+                                child: Icon(
+                                  Icons.close_rounded,
+                                  size: 25,
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            Text(
+                              AppLocalizations.of(context).cmm_volume,
+                              style: const TextStyle(fontSize: 16.0),
+                            ),
+                            InkClick(
+                              child: const SizedBox(
+                                height: 50.0,
+                                width: 50.0,
+                                child: Icon(
+                                  Icons.done_outlined,
+                                  size: 25,
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            InkClick(
+                              child: Container(
+                                padding: const EdgeInsets.only(left: 16.0),
+                                child: Icon(
+                                  volume > 0 ? IconFont.volume : IconFont.mute,
+                                  size: 25,
+                                ),
+                              ),
+                              onTap: () {},
+                            ),
+                            Expanded(
+                                child: Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6.0),
+                              child: Slider(
+                                  value: volume,
+                                  onChanged: (value) {
+                                    context.read<AppCubit>().setVolume(value);
+                                    setState(() {
+                                      volume = value;
+                                    });
+                                  }),
+                            ))
+                          ],
+                        )
+                      ],
+                    ),
+                  );
+                });
+              });
+          setState(() {});
+        });
+  }
+
+  Widget _funcShare(Station? playingStation) {
+    Size size = MediaQuery.of(context).size;
+    const padding = 40.0;
+    double width = size.width - padding * 2;
+    double height = size.height - padding * 4;
+    return _funcs(
+        icon: IconFont.share,
+        text: AppLocalizations.of(context).cmm_share,
+        onTap: () {
+          if (playingStation != null) {
+            showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (context) {
+                  return Material(
+                    color: Colors.black.withOpacity(0),
+                    child: Dialog(
+                      alignment: Alignment.center,
+                      insetPadding: const EdgeInsets.only(
+                          top: 0, bottom: 0, right: 0, left: 0),
+                      elevation: 2.0,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(8.0),
+                        ),
+                      ),
+                      child: StationQrCode(
+                        station: playingStation,
+                        width: width,
+                        height: height,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                  );
+                });
+          }
+        });
+  }
+
+  Widget _funcTimer(int stopTimer) {
+    return _funcs(
+        icon: IconFont.timer,
+        color: stopTimer > 0
+            ? const Color(0XFFEA3E3C)
+            : Theme.of(context).textTheme.bodyMedium!.color!,
+        text: AppLocalizations.of(context).cfg_timer,
+        onTap: () {
+          showModalBottomSheet(
+              context: context,
+              elevation: 2.0,
+              enableDrag: false,
+              backgroundColor: Colors.black.withOpacity(0),
+              builder: (context) {
+                return StatefulBuilder(builder: (context, setState) {
+                  if (stopTimer > 0) {
+                    return Container(
+                      height: 120,
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).canvasColor,
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(10.0),
+                              topRight: Radius.circular(10.0))),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 5.0),
+                                child: Text(
+                                  AppLocalizations.of(context)
+                                      .cmm_stop_time_confirm,
+                                  style: const TextStyle(fontSize: 18.0),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text(
+                                  DateFormat("HH:mm:ss").format(
+                                      DateTime.fromMillisecondsSinceEpoch(
+                                          stopTimer)),
+                                  style: TextStyle(
+                                      fontSize: 30,
+                                      color: Colors.red.withOpacity(0.8)),
+                                ),
+                              )
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              MaterialButton(
+                                color: Theme.of(context)
+                                    .cardColor
+                                    .withOpacity(0.8),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  // '取消',
+                                  AppLocalizations.of(context).cmm_cancel,
+                                  style: const TextStyle(
+                                    fontSize: 18.0,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 15.0,
+                              ),
+                              MaterialButton(
+                                color: Colors.red.withOpacity(0.8),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+
+                                  tmpSleepTime = null;
+                                  context.read<AppCubit>().cancelStopTimer();
+                                  showToast(
+                                    AppLocalizations.of(context)
+                                        .cmm_stop_time_cancel_msg,
+                                    position: const ToastPosition(
+                                      align: Alignment.bottomCenter,
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  AppLocalizations.of(context).cmm_confirm,
+                                  style: const TextStyle(
+                                    fontSize: 18.0,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 15.0,
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return WillPopScope(
+                      child: Container(
+                        height: 220,
+                        decoration: BoxDecoration(
+                            color: Theme.of(context).canvasColor,
+                            borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(10.0),
+                                topRight: Radius.circular(10.0))),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                InkClick(
+                                  child: const SizedBox(
+                                    height: 50.0,
+                                    width: 50.0,
+                                    child: Icon(
+                                      Icons.close_rounded,
+                                      size: 25,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    tmpSleepTime = null;
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                Text(
+                                  AppLocalizations.of(context).cmm_stop_time,
+                                  style: const TextStyle(fontSize: 16.0),
+                                ),
+                                InkClick(
+                                  child: const SizedBox(
+                                    height: 50.0,
+                                    width: 50.0,
+                                    child: Icon(
+                                      Icons.done_outlined,
+                                      size: 25,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                    if (tmpSleepTime != null) {
+                                      var now = DateTime.now();
+                                      int ms = now.millisecondsSinceEpoch;
+
+                                      int setMs =
+                                          tmpSleepTime!.millisecondsSinceEpoch;
+                                      if (setMs < ms) {
+                                        setMs += (24 * 60 * 60 * 1000);
+                                      }
+
+                                      context
+                                          .read<AppCubit>()
+                                          .restartStopTimer(setMs);
+
+                                      showToast(
+                                        '${AppLocalizations.of(context).cmm_stop_time_tips}  ${DateFormat("HH:mm:ss").format(DateTime.fromMillisecondsSinceEpoch(setMs))}',
+                                        position: const ToastPosition(
+                                          align: Alignment.bottomCenter,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                            TimePickerSpinner(
+                              time: tmpSleepTime,
+                              is24HourMode: true,
+                              isShowSeconds: true,
+                              normalTextStyle: TextStyle(
+                                  fontSize: 24,
+                                  color: Theme.of(context).hintColor),
+                              highlightedTextStyle: TextStyle(
+                                  fontSize: 24,
+                                  color: Colors.red.withOpacity(0.9)),
+                              spacing: 5,
+                              itemHeight: 45,
+                              isForce2Digits: true,
+                              onTimeChange: (time) {
+                                setState(() {
+                                  tmpSleepTime = time;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      onWillPop: () {
+                        tmpSleepTime = null;
+                        return Future(
+                          () => true,
+                        );
+                      });
+                });
+              });
+        });
+  }
+
+  Widget _funcFav(bool isFavStation, Station? playingStation) {
+    return _funcs(
+        icon: isFavStation ? IconFont.favoriteFill : IconFont.favorite,
+        color: isFavStation
+            ? const Color(0XFFEA3E3C)
+            : Theme.of(context).textTheme.bodyMedium!.color!,
+        text: AppLocalizations.of(context).cmm_favorite,
+        onTap: () {
+          if (playingStation != null) {
+            if (!isFavStation) {
+              context.read<FavoriteCubit>().addFavorite(null, playingStation);
+            } else {
+              context.read<FavoriteCubit>().delFavorite(playingStation);
+            }
+            context.read<AppCubit>().switchFavPlayingStation();
+          }
+        });
+  }
+
+  Widget _funcRecording(bool isRecording, Station? playingStation) {
+    return _funcs(
+        icon: IconFont.record,
+        color: isRecording && tick.isEven
+            ? const Color(0XFFEA3E3C)
+            : Theme.of(context).textTheme.bodyMedium!.color!,
+        text: AppLocalizations.of(context).mod_record,
+        onTap: () async {
+          if (playingStation != null) {
+            String? path =
+                await context.read<AppCubit>().getStationRecordingPath();
+            if (path != null && !isRecording) {
+              _doStartRecording(playingStation, path);
+            } else {
+              _doStopRecording();
+            }
+          }
+        });
+  }
+
+  Widget _funcs(
+      {required IconData icon,
+      required String text,
+      required VoidCallback onTap,
+      Color? color}) {
+    return InkClick(
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            size: 28.0,
+            color: color,
+          ),
+          const SizedBox(
+            height: 8.0,
+          ),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 14.0),
+          )
+        ],
+      ),
+      onTap: () => onTap.call(),
+    );
+  }
+
   Widget _buildFuncs() {
     Station? playingStation = context
         .select<AppCubit, Station?>((value) => value.state.playingStation);
@@ -375,404 +739,12 @@ class _PlayingPageState extends State<PlayingPage> {
 
     return SizedBox(
       height: 54.0,
-      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22.0),
-          child: InkClick(
-            child: Column(
-              children: [
-                const Icon(
-                  IconFont.volume,
-                  size: 28.0,
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                Text(
-                  AppLocalizations.of(context).cmm_volume,
-                  style: const TextStyle(fontSize: 14.0),
-                )
-              ],
-            ),
-            onTap: () {
-              showModalBottomSheet(
-                  context: context,
-                  elevation: 2.0,
-                  backgroundColor: Colors.black.withOpacity(0),
-                  builder: (context) {
-                    return StatefulBuilder(builder: (context, setState) {
-                      return Container(
-                        height: 120,
-                        decoration: BoxDecoration(
-                            color: Theme.of(context).canvasColor,
-                            borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(10.0),
-                                topRight: Radius.circular(10.0))),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                InkClick(
-                                  child: const SizedBox(
-                                    height: 50.0,
-                                    width: 50.0,
-                                    child: Icon(
-                                      Icons.close_rounded,
-                                      size: 25,
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                                Text(
-                                  AppLocalizations.of(context).cmm_volume,
-                                  style: const TextStyle(fontSize: 16.0),
-                                ),
-                                InkClick(
-                                  child: const SizedBox(
-                                    height: 50.0,
-                                    width: 50.0,
-                                    child: Icon(
-                                      Icons.done_outlined,
-                                      size: 25,
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                InkClick(
-                                  child: Container(
-                                    padding: const EdgeInsets.only(left: 16.0),
-                                    child: Icon(
-                                      volume > 0
-                                          ? IconFont.volume
-                                          : IconFont.mute,
-                                      size: 25,
-                                    ),
-                                  ),
-                                  onTap: () {},
-                                ),
-                                Expanded(
-                                    child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6.0),
-                                  child: Slider(
-                                      value: volume,
-                                      onChanged: (value) {
-                                        context
-                                            .read<AppCubit>()
-                                            .setVolume(value);
-                                        setState(() {
-                                          volume = value;
-                                        });
-                                      }),
-                                ))
-                              ],
-                            )
-                          ],
-                        ),
-                      );
-                    });
-                  });
-              setState(() {});
-            },
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22.0),
-          child: InkClick(
-            child: Column(
-              children: [
-                Icon(
-                  IconFont.timer,
-                  size: 28.0,
-                  color: stopTimer > 0
-                      ? const Color(0XFFEA3E3C)
-                      : Theme.of(context).textTheme.bodyMedium!.color!,
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                Text(
-                  AppLocalizations.of(context).cfg_timer,
-                  style: const TextStyle(fontSize: 14.0),
-                )
-              ],
-            ),
-            onTap: () {
-              showModalBottomSheet(
-                  context: context,
-                  elevation: 2.0,
-                  enableDrag: false,
-                  backgroundColor: Colors.black.withOpacity(0),
-                  builder: (context) {
-                    return StatefulBuilder(builder: (context, setState) {
-                      if (stopTimer > 0) {
-                        return Container(
-                          height: 120,
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).canvasColor,
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10.0),
-                                  topRight: Radius.circular(10.0))),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10.0, horizontal: 5.0),
-                                    child: Text(
-                                      AppLocalizations.of(context)
-                                          .cmm_stop_time_confirm,
-                                      style: const TextStyle(fontSize: 18.0),
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Text(
-                                      DateFormat("HH:mm:ss").format(
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                              stopTimer)),
-                                      style: TextStyle(
-                                          fontSize: 30,
-                                          color: Colors.red.withOpacity(0.8)),
-                                    ),
-                                  )
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  MaterialButton(
-                                    color: Theme.of(context)
-                                        .cardColor
-                                        .withOpacity(0.8),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      // '取消',
-                                      AppLocalizations.of(context).cmm_cancel,
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 15.0,
-                                  ),
-                                  MaterialButton(
-                                    color: Colors.red.withOpacity(0.8),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-
-                                      tmpSleepTime = null;
-                                      context
-                                          .read<AppCubit>()
-                                          .cancelStopTimer();
-                                      showToast(
-                                        AppLocalizations.of(context)
-                                            .cmm_stop_time_cancel_msg,
-                                        position: const ToastPosition(
-                                          align: Alignment.bottomCenter,
-                                        ),
-                                      );
-                                    },
-                                    child: Text(
-                                      AppLocalizations.of(context).cmm_confirm,
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 15.0,
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                      return WillPopScope(
-                          child: Container(
-                            height: 220,
-                            decoration: BoxDecoration(
-                                color: Theme.of(context).canvasColor,
-                                borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(10.0),
-                                    topRight: Radius.circular(10.0))),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    InkClick(
-                                      child: const SizedBox(
-                                        height: 50.0,
-                                        width: 50.0,
-                                        child: Icon(
-                                          Icons.close_rounded,
-                                          size: 25,
-                                        ),
-                                      ),
-                                      onTap: () {
-                                        tmpSleepTime = null;
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                    Text(
-                                      AppLocalizations.of(context)
-                                          .cmm_stop_time,
-                                      style: const TextStyle(fontSize: 16.0),
-                                    ),
-                                    InkClick(
-                                      child: const SizedBox(
-                                        height: 50.0,
-                                        width: 50.0,
-                                        child: Icon(
-                                          Icons.done_outlined,
-                                          size: 25,
-                                        ),
-                                      ),
-                                      onTap: () {
-                                        Navigator.of(context).pop();
-                                        if (tmpSleepTime != null) {
-                                          var now = DateTime.now();
-                                          int ms = now.millisecondsSinceEpoch;
-
-                                          int setMs = tmpSleepTime!
-                                              .millisecondsSinceEpoch;
-                                          if (setMs < ms) {
-                                            setMs += (24 * 60 * 60 * 1000);
-                                          }
-
-                                          context
-                                              .read<AppCubit>()
-                                              .restartStopTimer(setMs);
-
-                                          showToast(
-                                            '${AppLocalizations.of(context).cmm_stop_time_tips}  ${DateFormat("HH:mm:ss").format(DateTime.fromMillisecondsSinceEpoch(setMs))}',
-                                            position: const ToastPosition(
-                                              align: Alignment.bottomCenter,
-                                            ),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                TimePickerSpinner(
-                                  time: tmpSleepTime,
-                                  is24HourMode: true,
-                                  isShowSeconds: true,
-                                  normalTextStyle: TextStyle(
-                                      fontSize: 24,
-                                      color: Theme.of(context).hintColor),
-                                  highlightedTextStyle: TextStyle(
-                                      fontSize: 24,
-                                      color: Colors.red.withOpacity(0.9)),
-                                  spacing: 5,
-                                  itemHeight: 45,
-                                  isForce2Digits: true,
-                                  onTimeChange: (time) {
-                                    setState(() {
-                                      tmpSleepTime = time;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          onWillPop: () {
-                            tmpSleepTime = null;
-                            return Future(
-                              () => true,
-                            );
-                          });
-                    });
-                  });
-            },
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22.0),
-          child: InkClick(
-            child: Column(
-              children: [
-                Icon(
-                  isFavStation ? IconFont.favoriteFill : IconFont.favorite,
-                  size: 28.0,
-                  color: isFavStation
-                      ? const Color(0XFFEA3E3C)
-                      : Theme.of(context).textTheme.bodyMedium!.color!,
-                ),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                Text(
-                  AppLocalizations.of(context).cmm_favorite,
-                  style: const TextStyle(fontSize: 14.0),
-                )
-              ],
-            ),
-            onTap: () {
-              if (playingStation != null) {
-                if (!isFavStation) {
-                  context
-                      .read<FavoriteCubit>()
-                      .addFavorite(null, playingStation);
-                } else {
-                  context.read<FavoriteCubit>().delFavorite(playingStation);
-                }
-                context.read<AppCubit>().switchFavPlayingStation();
-              }
-            },
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22.0),
-          child: InkClick(
-              child: Column(
-                children: [
-                  Icon(
-                    IconFont.record,
-                    size: 28.0,
-                    color: isRecording && tick.isEven
-                        ? const Color(0XFFEA3E3C)
-                        : Theme.of(context).textTheme.bodyMedium!.color!,
-                  ),
-                  const SizedBox(
-                    height: 8.0,
-                  ),
-                  Text(
-                    AppLocalizations.of(context).mod_record,
-                    style: const TextStyle(fontSize: 14.0),
-                  )
-                ],
-              ),
-              onTap: () async {
-                if (playingStation != null) {
-                  String? path =
-                      await context.read<AppCubit>().getStationRecordingPath();
-                  if (path != null && !isRecording) {
-                    _doStartRecording(playingStation, path);
-                  } else {
-                    _doStopRecording();
-                  }
-                }
-              }),
-        ),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+        _funcShare(playingStation),
+        _funcVolume(),
+        _funcTimer(stopTimer),
+        _funcFav(isFavStation, playingStation),
+        _funcRecording(isRecording, playingStation),
       ]),
     );
   }

@@ -214,6 +214,10 @@ abstract class AppCubit extends Cubit<AppState> {
     }
   }
 
+  Future<Station?> getStationByUuid(String uuid) async {
+    return await repo.loadStationByUuid(uuid);
+  }
+
   Future<Station?> getNextStation() async {
     if (state.playHis.isNotEmpty &&
         state.playHisIndex >= 0 &&

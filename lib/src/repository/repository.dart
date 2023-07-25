@@ -496,4 +496,17 @@ class RadioRepository {
     print('done update cache');
     return await dao.queryStationCount();
   }
+
+  Future<Station?> loadStationByUuid(String uuid) async {
+    Station? station = await dao.queryStation(uuid);
+    if (station == null) {
+      List<dynamic> stations = await api.stationsByUuid(uuid: uuid);
+      for (var s in stations) {
+        station = Station.fromJson(s);
+        await dao.insertStation(station);
+      }
+    }
+
+    return station;
+  }
 }

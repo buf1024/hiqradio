@@ -484,4 +484,15 @@ class RadioDao {
 
     await batch.apply(noResult: true, continueOnError: true);
   }
+
+  Future<void> insertStation(Station station) async {
+    return await db.transaction((txn) async {
+      List<Map<String, Object?>> list = await txn.query('station',
+          where: 'stationuuid = ?', whereArgs: [station.stationuuid], limit: 1);
+      var jsValues = station.toJson();
+      if (list.isEmpty) {
+        txn.insert('station', jsValues);
+      }
+    });
+  }
 }

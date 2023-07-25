@@ -9,6 +9,7 @@ import 'package:hiqradio/src/models/fav_group.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/views/components/station_info.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
+import 'package:hiqradio/src/views/phone/components/fav_group_imexport.dart';
 import 'package:hiqradio/src/views/phone/components/fav_group_info.dart';
 import 'package:hiqradio/src/views/phone/components/my_slidable_action.dart';
 import 'package:hiqradio/src/views/phone/playing_page.dart';
@@ -50,15 +51,27 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
     List<Station> stations = context.select<FavoriteCubit, List<Station>>(
       (value) => value.state.stations,
     );
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-              child: stations.isNotEmpty ? _buildFavorite(stations) : _empty())
-        ],
+    FavGroup? group = context.select<FavoriteCubit, FavGroup?>(
+      (value) => value.state.group,
+    );
+    List<FavGroup> groups = context.select<FavoriteCubit, List<FavGroup>>(
+      (value) => value.state.groups,
+    );
+    return InkClick(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+                child:
+                    stations.isNotEmpty ? _buildFavorite(stations) : _empty())
+          ],
+        ),
       ),
+      onLongPress: () {
+        _showFavFuncs(group, groups);
+      },
     );
   }
 
@@ -132,6 +145,40 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
               MySlidableAction(
                 isFirst: false,
                 isEnd: false,
+                color: Colors.amber,
+                icon: IconFont.quit,
+                iconSize: 30.0,
+                onPressed: () {
+                  showModalBottomSheet(
+                      context: context,
+                      elevation: 2.0,
+                      enableDrag: false,
+                      backgroundColor: Colors.black.withOpacity(0),
+                      builder: (context) {
+                        return const FavGroupImexport();
+                      });
+                },
+              ),
+              MySlidableAction(
+                isFirst: false,
+                isEnd: false,
+                color: Colors.purple,
+                icon: IconFont.star,
+                iconSize: 30.0,
+                onPressed: () {
+                  showModalBottomSheet(
+                      context: context,
+                      elevation: 2.0,
+                      enableDrag: false,
+                      backgroundColor: Colors.black.withOpacity(0),
+                      builder: (context) {
+                        return const FavGroupInfo();
+                      });
+                },
+              ),
+              MySlidableAction(
+                isFirst: false,
+                isEnd: false,
                 color: Colors.orange,
                 icon: IconFont.edit,
                 onPressed: () async {
@@ -189,8 +236,16 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
                         group,
                         data,
                         sSelected);
-                    if (ret != null && ret == 'modify') {
-                      _showModifyGroup(group, station, data, sSelected);
+                    if (ret != null) {
+                      if (ret == 'modify') {
+                        _showModifyGroup(group, station, data, sSelected);
+                      }
+                      if (ret == 'imexport') {
+                        _showImexport();
+                      }
+                      if (ret == 'groupSetting') {
+                        _showSwitchSettingGroup();
+                      }
                     }
                   },
                 ),
@@ -277,24 +332,17 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
     return Column(
       children: [
         const Spacer(),
-        Text(
-          // '空空如也',
-          AppLocalizations.of(context).mine_empty,
-          style: const TextStyle(
-            fontSize: 15.0,
-          ),
-        ),
-        const SizedBox(
-          height: 4.0,
-        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              // '空空如也',
-              AppLocalizations.of(context).mine_group,
-              style: const TextStyle(
-                fontSize: 15.0,
+            Container(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                // '空空如也',
+                '${AppLocalizations.of(context).mine_group}: ',
+                style: const TextStyle(
+                  fontSize: 15.0,
+                ),
               ),
             ),
             InkWell(
@@ -302,6 +350,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
                 height: 28.0,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                margin: const EdgeInsets.only(left: 4.0, right: 4.0),
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: Theme.of(context).textTheme.bodyMedium!.color!,
@@ -328,6 +377,16 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
               },
             )
           ],
+        ),
+        const SizedBox(
+          height: 4.0,
+        ),
+        Text(
+          // '空空如也',
+          AppLocalizations.of(context).mine_empty,
+          style: const TextStyle(
+            fontSize: 15.0,
+          ),
         ),
         const Spacer(),
       ],
@@ -369,6 +428,19 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
                   :
                   // '播放'
                   AppLocalizations.of(context).cmm_play),
+
+          _popMenuItem(
+              enabled: true,
+              value: 'imexport',
+              onTap: () {},
+              icon: IconFont.quit,
+              text: AppLocalizations.of(context).cfg_group_imexport),
+          _popMenuItem(
+              enabled: true,
+              value: 'groupSetting',
+              onTap: () {},
+              icon: IconFont.star,
+              text: AppLocalizations.of(context).cfg_group_setting),
 
           _popMenuItem(
               enabled: true,
@@ -416,6 +488,119 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
         ],
         elevation: 8.0);
     return ret;
+  }
+
+  void _showFavFuncs(FavGroup? group, List<FavGroup> groups) async {
+    String? ret = await showModalBottomSheet(
+        context: context,
+        elevation: 2.0,
+        enableDrag: false,
+        backgroundColor: Colors.black.withOpacity(0),
+        builder: (context) {
+          return Container(
+            height: 130,
+            decoration: BoxDecoration(
+                color: Theme.of(context).canvasColor,
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(10.0),
+                    topRight: Radius.circular(10.0))),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkClick(
+                      child: const SizedBox(
+                        height: 50.0,
+                        width: 50.0,
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 25,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    InkClick(
+                      child: const SizedBox(
+                        height: 50.0,
+                        width: 50.0,
+                        child: Icon(
+                          Icons.done_outlined,
+                          size: 25,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    MaterialButton(
+                      color: Theme.of(context).cardColor.withOpacity(0.8),
+                      onPressed: () {
+                        Navigator.of(context).pop('imexport');
+                      },
+                      child: Text(
+                        AppLocalizations.of(context).cfg_group_imexport,
+                        style: const TextStyle(
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    ),
+                    MaterialButton(
+                      color: Theme.of(context).cardColor.withOpacity(0.8),
+                      onPressed: () {
+                        Navigator.of(context).pop('groupSetting');
+                      },
+                      child: Text(
+                        AppLocalizations.of(context).cfg_group_setting,
+                        style: const TextStyle(
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        });
+    if (ret != null) {
+      if (ret == 'imexport') {
+        _showImexport();
+      }
+      if (ret == 'groupSetting') {
+        _showSwitchSettingGroup();
+      }
+    }
+  }
+
+  void _showImexport() {
+    showModalBottomSheet(
+        context: context,
+        elevation: 2.0,
+        enableDrag: false,
+        backgroundColor: Colors.black.withOpacity(0),
+        builder: (context) {
+          return const FavGroupImexport();
+        });
+  }
+
+  void _showSwitchSettingGroup() {
+    showModalBottomSheet(
+        context: context,
+        elevation: 2.0,
+        enableDrag: false,
+        backgroundColor: Colors.black.withOpacity(0),
+        builder: (context) {
+          return const FavGroupInfo();
+        });
   }
 
   void _showModifyGroup(FavGroup? group, Station station, List<String> data,
