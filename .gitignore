@@ -74,10 +74,10 @@ python/notebook
 .flutter-plugins-dependencies
 *.iml
 
-linux
-windows
-web
-macos
-ios
+#linux
+#windows
+#web
+#macos
+#ios
 build
 
