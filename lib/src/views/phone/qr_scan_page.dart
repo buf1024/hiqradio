@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hiqradio/src/blocs/app_cubit.dart';
+import 'package:hiqradio/src/blocs/recently_cubit.dart';
+import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
+import 'package:hiqradio/src/views/phone/playing_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -15,6 +20,8 @@ class _QrScanPageState extends State<QrScanPage>
   final MobileScannerController controller = MobileScannerController(
     torchEnabled: false,
   );
+
+  String qrCode = '';
 
   @override
   void initState() {
@@ -33,10 +40,24 @@ class _QrScanPageState extends State<QrScanPage>
                   errorBuilder: (context, error, child) {
                     return Container();
                   },
-                  onDetect: (barcode) {
-                    if (barcode.barcodes.first.rawValue != null) {
-                      Navigator.of(context)
-                          .pop(barcode.barcodes.first.rawValue!);
+                  onDetect: (barcode) async {
+                    if (barcode.barcodes.first.rawValue != null &&
+                        qrCode.isEmpty) {
+                      qrCode = barcode.barcodes.first.rawValue!;
+
+                      Station? station = await context
+                          .read<AppCubit>()
+                          .getStationByUuid(qrCode);
+                      if (station != null && mounted) {
+                        context.read<AppCubit>().play(station);
+                        context.read<RecentlyCubit>().addRecently(station);
+
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (_) => const PlayingPage(),
+                          ),
+                        );
+                      }
                     }
                   }),
               Align(

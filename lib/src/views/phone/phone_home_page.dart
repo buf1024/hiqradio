@@ -334,20 +334,6 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
     return text;
   }
 
-  void _playScanUuid(String qrCode) async {
-    Station? station = await context.read<AppCubit>().getStationByUuid(qrCode);
-    if (station != null) {
-      context.read<AppCubit>().play(station);
-      context.read<RecentlyCubit>().addRecently(station);
-
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => const PlayingPage(),
-        ),
-      );
-    }
-  }
-
   List<Widget> _buildConfigItem() {
     List<HiqThemeMode> themeLabelList = [
       HiqThemeMode.dark,
@@ -391,15 +377,11 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
         onTap: () async {
           Navigator.of(context).pop();
 
-          String? qrCode = await Navigator.of(context).push(
+          await Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => const QrScanPage(),
             ),
           );
-          if (qrCode != null) {
-            print('qrCode: $qrCode');
-            _playScanUuid(qrCode);
-          }
         },
       ),
       ListTile(

@@ -180,7 +180,7 @@ class RadioApi {
     // 'geo_lat': None,
     // 'geo_long': None,
     // 'has_extended_info': False}]
-    String url = 'json/stations/byuuid/$uuid';
+    String url = '/json/stations/byuuid/$uuid';
     Response response = await dio.get(url);
     return response.data;
   }
