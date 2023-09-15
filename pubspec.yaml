@@ -38,7 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   path: ^1.8.2
   window_manager: 
-    path: /Users/luoguochun/privt/learning-code/flutter/window/window_manager
+    git: https://github.com/buf1024/window_manager.git
   flutter_bloc: ^8.1.2
   meta: ^1.8.0
   equatable: ^2.0.5
