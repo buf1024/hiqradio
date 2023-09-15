@@ -33,36 +33,13 @@
     "cmm_scan_to_play": "使用hiqradio扫一扫播放二维码电台",
     "cmm_save_picture": "保存图片",
     "splash_loading": "正在初始化，请稍等片刻……",
-    "cfg_activated": "已激活。",
-    "cfg_try_version": "试用版。",
-    "cfg_activate_expired": "激活码已过期。",
-    "cfg_activate_expired_at": "激活码将于 {expireDate} 过期",
-    "@cfg_activate_expired_at": {
-        "placeholders": {
-            "expireDate": {
-                "type": "String"
-            }
-        }
-    },
     "cfg_auto_play": "自动播放",
     "cfg_auto_play_desc": "启动应用时自动播放上次电台",
     "cfg_cache_station": "缓存电台",
     "cfg_cache_station_desc": "使用本地缓存电台(建议打开)",
-    "cfg_activate_code": "激活码",
     "cfg_about": "关于本应用",
     "cfg_cache": "已缓存：",
     "cfg_version": "版本",
-    "cfg_activate": "激活",
-    "cfg_activate_msg": "请输入激活码(邮件至{kAuthor}索取)：",
-    "@cfg_activate_msg": {
-        "placeholders": {
-            "kAuthor": {
-                "type": "String"
-            }
-        }
-    },
-    "cfg_input_correct_code": "请输入正确的32位激活码",
-    "cfg_invalid_code": "激活码无效",
     "cfg_drive_mode": "驾驶模式",
     "cfg_drive_mode_desc": "进入驾驶模式",
     "cfg_timer": "定时器",

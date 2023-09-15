@@ -76,7 +76,7 @@ class _MyPhoneRecentlyState extends State<MyPhoneRecently>
     return Center(
       child: Text(
         // '暂无播放记录',
-        AppLocalizations.of(context).recently_empty,
+        AppLocalizations.of(context)!.recently_empty,
         style: const TextStyle(
           fontSize: 15.0,
         ),
@@ -221,7 +221,7 @@ class _MyPhoneRecentlyState extends State<MyPhoneRecently>
             },
             IconFont.close,
             // '清空播放记录'
-            AppLocalizations.of(context).recently_clear,
+            AppLocalizations.of(context)!.recently_clear,
           ),
         ],
         elevation: 8.0);

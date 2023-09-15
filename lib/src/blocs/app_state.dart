@@ -82,8 +82,6 @@ class AppState extends Equatable {
   });
 
   AppState copyWith({
-    bool? isTry,
-    String? expireDate,
     bool? isInit,
     bool? isPlaying,
     bool? isBuffering,
@@ -112,8 +110,6 @@ class AppState extends Equatable {
     int? cacheCount
   }) {
     return AppState(
-      isTry: isTry ?? this.isTry,
-      expireDate: expireDate ?? this.expireDate,
       isInit: isInit ?? this.isInit,
       isPlaying: isPlaying ?? this.isPlaying,
       isBuffering: isBuffering ?? this.isBuffering,
@@ -147,8 +143,6 @@ class AppState extends Equatable {
 
   @override
   List<Object?> get props => [
-        isTry,
-        expireDate,
         isInit,
         isPlaying,
         isBuffering,

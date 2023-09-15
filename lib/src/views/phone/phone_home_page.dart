@@ -10,7 +10,6 @@ import 'package:hiqradio/src/blocs/search_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
-import 'package:hiqradio/src/views/components/activate.dart';
 import 'package:hiqradio/src/views/components/gradient_text.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/utils/nav.dart';
@@ -136,7 +135,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
               cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
               style: const TextStyle(fontSize: 14.0),
               decoration: InputDecoration(
-                hintText: AppLocalizations.of(context).title_search_hit,
+                hintText: AppLocalizations.of(context)!.title_search_hit,
                 contentPadding:
                     const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
                 fillColor: Colors.grey.withOpacity(0.2),
@@ -313,25 +312,12 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
 
   String _getThemeText(HiqThemeMode themeMode) {
     if (themeMode == HiqThemeMode.dark) {
-      return AppLocalizations.of(context).title_theme_dark;
+      return AppLocalizations.of(context)!.title_theme_dark;
     }
     if (themeMode == HiqThemeMode.light) {
-      return AppLocalizations.of(context).title_theme_light;
+      return AppLocalizations.of(context)!.title_theme_light;
     }
-    return AppLocalizations.of(context).title_theme_system;
-  }
-
-  String _getExpireText(bool isTry, String expireDate) {
-    String text = AppLocalizations.of(context).cfg_activated;
-    if (isTry) {
-      text = AppLocalizations.of(context).cfg_try_version;
-    }
-    if (expireDate.isEmpty) {
-      text += AppLocalizations.of(context).cfg_activate_expired;
-    } else {
-      text += AppLocalizations.of(context).cfg_activate_expired_at(expireDate);
-    }
-    return text;
+    return AppLocalizations.of(context)!.title_theme_system;
   }
 
   List<Widget> _buildConfigItem() {
@@ -345,9 +331,6 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
         context.select<AppCubit, bool>((value) => value.state.autoStart);
     int stopTimer =
         context.select<AppCubit, int>((value) => value.state.stopTimer);
-    bool isTry = context.select<AppCubit, bool>((value) => value.state.isTry);
-    String expireDate =
-        context.select<AppCubit, String>((value) => value.state.expireDate);
 
     HiqThemeMode themeMode = context
         .select<AppCubit, HiqThemeMode>((value) => value.state.themeMode);
@@ -365,13 +348,13 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
     return [
       ListTile(
         title: Text(
-          AppLocalizations.of(context).cfg_scan,
+          AppLocalizations.of(context)!.cfg_scan,
           style: const TextStyle(
             fontSize: 16.0,
           ),
         ),
         subtitle: Text(
-          AppLocalizations.of(context).cfg_scan_desc,
+          AppLocalizations.of(context)!.cfg_scan_desc,
         ),
         mouseCursor: SystemMouseCursors.click,
         onTap: () async {
@@ -456,13 +439,13 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
       ListTile(
         title: Text(
           // '主题',
-          AppLocalizations.of(context).title_theme,
+          AppLocalizations.of(context)!.title_theme,
           style: const TextStyle(
             fontSize: 16.0,
           ),
         ),
         subtitle: Text(
-          '${AppLocalizations.of(context).title_theme}: ${_getThemeText(themeMode)}',
+          '${AppLocalizations.of(context)!.title_theme}: ${_getThemeText(themeMode)}',
         ),
         mouseCursor: SystemMouseCursors.click,
         onTap: () {
@@ -523,13 +506,13 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
       ListTile(
         title: Text(
           // '驾驶模式',
-          AppLocalizations.of(context).cfg_drive_mode,
+          AppLocalizations.of(context)!.cfg_drive_mode,
           style: const TextStyle(
             fontSize: 16.0,
           ),
         ),
         subtitle: Text(
-          AppLocalizations.of(context).cfg_drive_mode_desc,
+          AppLocalizations.of(context)!.cfg_drive_mode_desc,
         ),
         mouseCursor: SystemMouseCursors.click,
         onTap: () {
@@ -544,8 +527,8 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
       ListTile(
         title: Text(
           stopTimer > 0
-              ? AppLocalizations.of(context).cfg_timer_cancel
-              : AppLocalizations.of(context).cfg_timer,
+              ? AppLocalizations.of(context)!.cfg_timer_cancel
+              : AppLocalizations.of(context)!.cfg_timer,
           style: const TextStyle(
             fontSize: 16.0,
           ),
@@ -554,7 +537,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
             ? Row(
                 children: [
                   Text(
-                    AppLocalizations.of(context).cfg_timer_cancel_desc,
+                    AppLocalizations.of(context)!.cfg_timer_cancel_desc,
                   ),
                   Text(
                     DateFormat("HH:mm:ss")
@@ -567,7 +550,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                 ],
               )
             : Text(
-                AppLocalizations.of(context).cfg_timer_desc,
+                AppLocalizations.of(context)!.cfg_timer_desc,
               ),
         mouseCursor: SystemMouseCursors.click,
         onTap: () {
@@ -596,7 +579,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 10.0, horizontal: 5.0),
                                 child: Text(
-                                  AppLocalizations.of(context)
+                                  AppLocalizations.of(context)!
                                       .cmm_stop_time_confirm,
                                   style: const TextStyle(fontSize: 18.0),
                                 ),
@@ -626,7 +609,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                                 },
                                 child: Text(
                                   // '取消',
-                                  AppLocalizations.of(context).cmm_cancel,
+                                  AppLocalizations.of(context)!.cmm_cancel,
                                   style: const TextStyle(
                                     fontSize: 18.0,
                                   ),
@@ -643,7 +626,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                                   tmpSleepTime = null;
                                   context.read<AppCubit>().cancelStopTimer();
                                   showToast(
-                                    AppLocalizations.of(context)
+                                    AppLocalizations.of(context)!
                                         .cmm_stop_time_cancel_msg,
                                     position: const ToastPosition(
                                       align: Alignment.bottomCenter,
@@ -652,7 +635,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                                 },
                                 child: Text(
                                   // '确定',
-                                  AppLocalizations.of(context).cmm_confirm,
+                                  AppLocalizations.of(context)!.cmm_confirm,
                                   style: const TextStyle(
                                     fontSize: 18.0,
                                   ),
@@ -695,7 +678,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                                   },
                                 ),
                                 Text(
-                                  AppLocalizations.of(context).cmm_stop_time,
+                                  AppLocalizations.of(context)!.cmm_stop_time,
                                   style: const TextStyle(fontSize: 16.0),
                                 ),
                                 InkClick(
@@ -722,7 +705,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                                           .read<AppCubit>()
                                           .restartStopTimer(setMs);
                                       showToast(
-                                        '${AppLocalizations.of(context).cmm_stop_time_tips}  ${DateFormat("HH:mm:ss").format(DateTime.fromMillisecondsSinceEpoch(setMs))}',
+                                        '${AppLocalizations.of(context)!.cmm_stop_time_tips}  ${DateFormat("HH:mm:ss").format(DateTime.fromMillisecondsSinceEpoch(setMs))}',
                                         position: const ToastPosition(
                                           align: Alignment.bottomCenter,
                                         ),
@@ -767,13 +750,13 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
       // if (actNavItem.type == NavType.mine)
       ListTile(
         title: Text(
-          AppLocalizations.of(context).cfg_group_imexport,
+          AppLocalizations.of(context)!.cfg_group_imexport,
           style: const TextStyle(
             fontSize: 16.0,
           ),
         ),
         subtitle: Text(
-          AppLocalizations.of(context).cfg_group_imexport_desc,
+          AppLocalizations.of(context)!.cfg_group_imexport_desc,
         ),
         mouseCursor: SystemMouseCursors.click,
         onTap: () {
@@ -791,13 +774,13 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
       // if (actNavItem.type == NavType.mine)
       //   ListTile(
       //     title: Text(
-      //       AppLocalizations.of(context).cfg_group_setting,
+      //       AppLocalizations.of(context)!.cfg_group_setting,
       //       style: const TextStyle(
       //         fontSize: 16.0,
       //       ),
       //     ),
       //     subtitle: Text(
-      //       AppLocalizations.of(context).cfg_group_setting_desc,
+      //       AppLocalizations.of(context)!.cfg_group_setting_desc,
       //     ),
       //     mouseCursor: SystemMouseCursors.click,
       //     onTap: () {
@@ -815,12 +798,12 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
       ListTile(
           title: Text(
             // '自动播放',
-            AppLocalizations.of(context).cfg_auto_play,
+            AppLocalizations.of(context)!.cfg_auto_play,
             style: const TextStyle(fontSize: 16.0),
           ),
           subtitle: Text(
               // '启动应用时自动播放上次电台'
-              AppLocalizations.of(context).cfg_auto_play_desc),
+              AppLocalizations.of(context)!.cfg_auto_play_desc),
           trailing: Checkbox(
             splashRadius: 0,
             checkColor: Theme.of(context).textTheme.bodyMedium!.color!,
@@ -850,32 +833,12 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
       ListTile(
         splashColor: Colors.black.withOpacity(0),
         title: Text(
-          // '激活码',
-          AppLocalizations.of(context).cfg_activate_code,
-          style: const TextStyle(
-            fontSize: 16.0,
-          ),
-        ),
-        subtitle: Text(
-          _getExpireText(isTry, expireDate),
-          style: const TextStyle(fontSize: 13.0),
-        ),
-        onTap: () {
-          Navigator.of(context).pop();
-          _onShowActivateDlg((license, expireDate) async {
-            context.read<AppCubit>().activate(license, expireDate);
-          });
-        },
-      ),
-      ListTile(
-        splashColor: Colors.black.withOpacity(0),
-        title: Text(
           // '关于本应用',
-          AppLocalizations.of(context).cfg_about,
+          AppLocalizations.of(context)!.cfg_about,
           style: const TextStyle(fontSize: 16.0),
         ),
         subtitle: Text(
-          '${ResManager.instance.version} by $kAuthor\n${AppLocalizations.of(context).cfg_cache} $cacheCount ${AppLocalizations.of(context).cmm_stations}',
+          '${ResManager.instance.version} by $kAuthor\n${AppLocalizations.of(context)!.cfg_cache} $cacheCount ${AppLocalizations.of(context)!.cmm_stations}',
           style: const TextStyle(fontSize: 13.0),
         ),
         onTap: () {
@@ -931,7 +894,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Text(
-                              AppLocalizations.of(context).cfg_about,
+                              AppLocalizations.of(context)!.cfg_about,
                               style: const TextStyle(fontSize: 18.0),
                             ),
                           ),
@@ -942,7 +905,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                     Container(
                       padding: const EdgeInsets.only(top: 10.0, left: 10.0),
                       child: Text(
-                          'HiqRadio: ${AppLocalizations.of(context).hiqradio} by $kAuthor'),
+                          'HiqRadio: ${AppLocalizations.of(context)!.hiqradio} by $kAuthor'),
                     ),
                     Container(
                       padding: const EdgeInsets.only(
@@ -979,7 +942,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                               Navigator.of(context).pop();
                             },
                             child: Text(
-                              AppLocalizations.of(context).cmm_confirm,
+                              AppLocalizations.of(context)!.cmm_confirm,
                               style: const TextStyle(
                                 fontSize: 14.0,
                               ),
@@ -987,74 +950,6 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                           ),
                         )
                       ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
-  }
-
-  void _onShowActivateDlg(Function(String, String) onActivate) {
-    Size size = MediaQuery.of(context).size;
-    showDialog(
-        context: context,
-        builder: (context) {
-          return Material(
-            color: Colors.black.withOpacity(0),
-            child: Dialog(
-              insetPadding:
-                  const EdgeInsets.only(top: 0, bottom: 0, right: 0, left: 0),
-              elevation: 2.0,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(8.0),
-                ),
-              ),
-              child: SizedBox(
-                height: 160,
-                width: size.width - 10.0,
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: InkClick(
-                              onTap: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Icon(
-                                IconFont.close,
-                                size: 22.0,
-                              ),
-                            ),
-                          ),
-                          const Spacer(),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Text(
-                              // '激活码',
-                              AppLocalizations.of(context).cfg_activate_code,
-                              style: const TextStyle(fontSize: 18.0),
-                            ),
-                          ),
-                          const Spacer(),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Activate(
-                            onActivate: onActivate,
-                          ),
-                        ),
-                      ),
                     ),
                   ],
                 ),

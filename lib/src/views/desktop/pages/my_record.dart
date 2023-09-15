@@ -70,7 +70,7 @@ class _MyRecordState extends State<MyRecord>
     return Center(
       child: Text(
         // '暂无录音记录',
-        AppLocalizations.of(context).record_empty,
+        AppLocalizations.of(context)!.record_empty,
 
         style: const TextStyle(
           fontSize: 15.0,
@@ -106,18 +106,18 @@ class _MyRecordState extends State<MyRecord>
             (states) => Colors.grey.withOpacity(0.1)),
         columns: [
           const DataColumn2(label: Text(''), fixedWidth: 24.0),
-          DataColumn2(label: Text(AppLocalizations.of(context).cmm_station)),
+          DataColumn2(label: Text(AppLocalizations.of(context)!.cmm_station)),
           DataColumn2(
-              label: Text(AppLocalizations.of(context).cmm_start_time),
+              label: Text(AppLocalizations.of(context)!.cmm_start_time),
               fixedWidth: 170.0),
           DataColumn2(
-              label: Text(AppLocalizations.of(context).cmm_end_time),
+              label: Text(AppLocalizations.of(context)!.cmm_end_time),
               fixedWidth: 170.0),
           DataColumn2(
-              label: Text(AppLocalizations.of(context).record_last_time),
+              label: Text(AppLocalizations.of(context)!.record_last_time),
               fixedWidth: 120.0),
           DataColumn2(
-              label: Text(AppLocalizations.of(context).cmm_format),
+              label: Text(AppLocalizations.of(context)!.cmm_format),
               fixedWidth: 65.0),
         ],
         empty: _empty(),
@@ -276,7 +276,7 @@ class _MyRecordState extends State<MyRecord>
           },
               IconFont.delete,
               // '删除录音'
-              AppLocalizations.of(context).record_delete),
+              AppLocalizations.of(context)!.record_delete),
           _popMenuItem(() async {
             String? selectedDirectory =
                 await FilePicker.platform.getDirectoryPath();
@@ -296,13 +296,13 @@ class _MyRecordState extends State<MyRecord>
               Uint8List data = await input.readAsBytes();
               await output.writeAsBytes(data.toList());
               showToast(
-                  '${AppLocalizations.of(context).record_export_msg}  $outFileName',
+                  '${AppLocalizations.of(context)!.record_export_msg}  $outFileName',
                   position: const ToastPosition(
                     align: Alignment.bottomCenter,
                   ),
                   duration: const Duration(seconds: 3));
             }
-          }, IconFont.quit, AppLocalizations.of(context).record_export),
+          }, IconFont.quit, AppLocalizations.of(context)!.record_export),
         ],
         elevation: 8.0);
   }

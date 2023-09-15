@@ -89,7 +89,7 @@ class _FavGroupImexportState extends State<FavGroupImexport> {
                       await output.writeAsString(jsStr);
 
                       showToast(
-                          '${AppLocalizations.of(context).mine_export_msg}  $outFileName',
+                          '${AppLocalizations.of(context)!.mine_export_msg}  $outFileName',
                           position: const ToastPosition(
                             align: Alignment.bottomCenter,
                           ),
@@ -99,7 +99,7 @@ class _FavGroupImexportState extends State<FavGroupImexport> {
                   }
                 },
                 child: Text(
-                  AppLocalizations.of(context).cmm_export,
+                  AppLocalizations.of(context)!.cmm_export,
                   style: const TextStyle(
                     fontSize: 18.0,
                   ),
@@ -120,7 +120,7 @@ class _FavGroupImexportState extends State<FavGroupImexport> {
                     List<dynamic> jsObj = jsonDecode(jsStr);
                     await context.read<FavoriteCubit>().importFavJson(jsObj);
 
-                    showToast(AppLocalizations.of(context).mine_import_msg,
+                    showToast(AppLocalizations.of(context)!.mine_import_msg,
                         position: const ToastPosition(
                           align: Alignment.bottomCenter,
                         ),
@@ -129,7 +129,7 @@ class _FavGroupImexportState extends State<FavGroupImexport> {
                   Navigator.of(context).pop();
                 },
                 child: Text(
-                  AppLocalizations.of(context).cmm_import,
+                  AppLocalizations.of(context)!.cmm_import,
                   style: const TextStyle(
                     fontSize: 18.0,
                   ),

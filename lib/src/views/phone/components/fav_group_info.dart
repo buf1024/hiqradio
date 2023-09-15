@@ -208,7 +208,7 @@ class _FavGroupInfoState extends State<FavGroupInfo> {
                             alignment: Alignment.centerRight,
                             child: Text(
                               // '分组：',
-                              '${AppLocalizations.of(context).mine_group}: ',
+                              '${AppLocalizations.of(context)!.mine_group}: ',
                               style: const TextStyle(fontSize: 20.0),
                             ),
                           ),
@@ -235,7 +235,7 @@ class _FavGroupInfoState extends State<FavGroupInfo> {
                                     decoration: InputDecoration(
                                       hintText:
                                           // '分组名称',
-                                          AppLocalizations.of(context)
+                                          AppLocalizations.of(context)!
                                               .mine_group_hit,
                                       contentPadding:
                                           const EdgeInsets.symmetric(
@@ -291,7 +291,7 @@ class _FavGroupInfoState extends State<FavGroupInfo> {
                           width: 85.0,
                           alignment: Alignment.centerRight,
                           child: Text(
-                            AppLocalizations.of(context).mine_group_is_def,
+                            AppLocalizations.of(context)!.mine_group_is_def,
                             style: const TextStyle(fontSize: 20.0),
                           ),
                         ),
@@ -313,7 +313,7 @@ class _FavGroupInfoState extends State<FavGroupInfo> {
                           alignment: Alignment.centerRight,
                           child: Text(
                             // '创建时间: ',
-                            AppLocalizations.of(context).mine_create_time,
+                            AppLocalizations.of(context)!.mine_create_time,
                             style: const TextStyle(fontSize: 20.0),
                           ),
                         ),
@@ -335,7 +335,7 @@ class _FavGroupInfoState extends State<FavGroupInfo> {
                           alignment: Alignment.centerRight,
                           child: Text(
                             // '电台数量: ',
-                            AppLocalizations.of(context).mine_station_count,
+                            AppLocalizations.of(context)!.mine_station_count,
                             style: const TextStyle(fontSize: 20.0),
                           ),
                         ),
@@ -357,7 +357,7 @@ class _FavGroupInfoState extends State<FavGroupInfo> {
                           alignment: Alignment.centerRight,
                           child: Text(
                             // '简介: ',
-                            AppLocalizations.of(context).mine_group_desc,
+                            AppLocalizations.of(context)!.mine_group_desc,
                             style: const TextStyle(fontSize: 20.0),
                           ),
                         ),
@@ -383,7 +383,7 @@ class _FavGroupInfoState extends State<FavGroupInfo> {
                                     decoration: InputDecoration(
                                       hintText:
                                           // '分组描述',
-                                          AppLocalizations.of(context)
+                                          AppLocalizations.of(context)!
                                               .mine_group_desc_hit,
                                       contentPadding:
                                           const EdgeInsets.symmetric(
@@ -524,7 +524,7 @@ class _FavGroupInfoState extends State<FavGroupInfo> {
                           padding: const EdgeInsets.symmetric(horizontal: 10.0),
                           child: Text(
                             // '确定删除: ${favGroup.name} ',
-                            AppLocalizations.of(context)
+                            AppLocalizations.of(context)!
                                 .mine_delete_group(group.name),
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -554,7 +554,7 @@ class _FavGroupInfoState extends State<FavGroupInfo> {
                           padding: const EdgeInsets.symmetric(horizontal: 10.0),
                           child: Text(
                             // '取消',
-                            AppLocalizations.of(context).cmm_cancel,
+                            AppLocalizations.of(context)!.cmm_cancel,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 18.0,

@@ -164,7 +164,7 @@ class _MyFavoriteState extends State<MyFavorite>
                               alignment: Alignment.centerRight,
                               child: Text(
                                 // '分组：',
-                                "${AppLocalizations.of(context).mine_group}(${AppLocalizations.of(context).mine_group_is_def}${(group != null && group.id == 1) ? 'Y' : 'N'}): ",
+                                "${AppLocalizations.of(context)!.mine_group}(${AppLocalizations.of(context)!.mine_group_is_def}${(group != null && group.id == 1) ? 'Y' : 'N'}): ",
                               ),
                             ),
                           ),
@@ -190,7 +190,7 @@ class _MyFavoriteState extends State<MyFavorite>
                                         decoration: InputDecoration(
                                           hintText:
                                               // '分组名称',
-                                              AppLocalizations.of(context)
+                                              AppLocalizations.of(context)!
                                                   .mine_group_hit,
                                           contentPadding:
                                               const EdgeInsets.symmetric(
@@ -313,7 +313,7 @@ class _MyFavoriteState extends State<MyFavorite>
                             alignment: Alignment.centerRight,
                             child: Text(
                               // '创建时间: ',
-                              AppLocalizations.of(context).mine_create_time,
+                              AppLocalizations.of(context)!.mine_create_time,
                             ),
                           ),
                           Text(
@@ -335,7 +335,7 @@ class _MyFavoriteState extends State<MyFavorite>
                             alignment: Alignment.centerRight,
                             child: Text(
                                 // '电台数量: ',
-                                AppLocalizations.of(context)
+                                AppLocalizations.of(context)!
                                     .mine_station_count),
                           ),
                           Text(
@@ -353,7 +353,7 @@ class _MyFavoriteState extends State<MyFavorite>
                             alignment: Alignment.centerRight,
                             child: Text(
                                 // '简介: ',
-                                AppLocalizations.of(context).mine_group_desc),
+                                AppLocalizations.of(context)!.mine_group_desc),
                           ),
                           group != null
                               ? (isGroupDescEditing
@@ -377,7 +377,7 @@ class _MyFavoriteState extends State<MyFavorite>
                                         decoration: InputDecoration(
                                           hintText:
                                               // '分组描述',
-                                              AppLocalizations.of(context)
+                                              AppLocalizations.of(context)!
                                                   .mine_group_desc_hit,
                                           contentPadding:
                                               const EdgeInsets.symmetric(
@@ -470,7 +470,7 @@ class _MyFavoriteState extends State<MyFavorite>
                                 ),
                               )
                             : Text(
-                                AppLocalizations.of(context).cmm_export,
+                                AppLocalizations.of(context)!.cmm_export,
                                 style: const TextStyle(
                                   fontSize: 13.0,
                                 ),
@@ -505,7 +505,7 @@ class _MyFavoriteState extends State<MyFavorite>
                             isExporting = false;
                           });
                           showToast(
-                              '${AppLocalizations.of(context).mine_export_msg}  $outFileName',
+                              '${AppLocalizations.of(context)!.mine_export_msg}  $outFileName',
                               position: const ToastPosition(
                                 align: Alignment.bottomCenter,
                               ),
@@ -542,7 +542,7 @@ class _MyFavoriteState extends State<MyFavorite>
                                 ),
                               )
                             : Text(
-                                AppLocalizations.of(context).cmm_import,
+                                AppLocalizations.of(context)!.cmm_import,
                                 style: const TextStyle(
                                   fontSize: 13.0,
                                 ),
@@ -570,7 +570,7 @@ class _MyFavoriteState extends State<MyFavorite>
                             isImporting = false;
                           });
                           showToast(
-                              AppLocalizations.of(context).mine_import_msg,
+                              AppLocalizations.of(context)!.mine_import_msg,
                               position: const ToastPosition(
                                 align: Alignment.bottomCenter,
                               ),
@@ -597,7 +597,7 @@ class _MyFavoriteState extends State<MyFavorite>
     return Center(
       child: Text(
         // '空空如也',
-        AppLocalizations.of(context).mine_empty,
+        AppLocalizations.of(context)!.mine_empty,
         style: const TextStyle(
           fontSize: 15.0,
         ),
@@ -641,16 +641,16 @@ class _MyFavoriteState extends State<MyFavorite>
         columns: [
           const DataColumn2(label: Text(''), fixedWidth: 24.0),
           DataColumn2(
-            label: Text(AppLocalizations.of(context).cmm_station),
+            label: Text(AppLocalizations.of(context)!.cmm_station),
           ),
-          DataColumn2(label: Text(AppLocalizations.of(context).cmm_tag)),
-          DataColumn2(label: Text(AppLocalizations.of(context).cmm_language)),
-          DataColumn2(label: Text(AppLocalizations.of(context).cmm_district)),
+          DataColumn2(label: Text(AppLocalizations.of(context)!.cmm_tag)),
+          DataColumn2(label: Text(AppLocalizations.of(context)!.cmm_language)),
+          DataColumn2(label: Text(AppLocalizations.of(context)!.cmm_district)),
           DataColumn2(
-              label: Text(AppLocalizations.of(context).cmm_format),
+              label: Text(AppLocalizations.of(context)!.cmm_format),
               fixedWidth: 55.0),
           DataColumn2(
-              label: Text(AppLocalizations.of(context).cmm_bitrate),
+              label: Text(AppLocalizations.of(context)!.cmm_bitrate),
               fixedWidth: 55.0),
         ],
         rows: stations.asMap().entries.map(
@@ -896,10 +896,10 @@ class _MyFavoriteState extends State<MyFavorite>
               text: isPlaying
                   ?
                   // '停止'
-                  AppLocalizations.of(context).cmm_stop
+                  AppLocalizations.of(context)!.cmm_stop
                   :
                   // '播放'
-                  AppLocalizations.of(context).cmm_play),
+                  AppLocalizations.of(context)!.cmm_play),
           _popMenuItem(
               enabled: true,
               onTap: () {
@@ -908,7 +908,7 @@ class _MyFavoriteState extends State<MyFavorite>
                 overlay = createCheckSelectedListOverlay(
                     text:
                         // '选择新分组',
-                        AppLocalizations.of(context).mine_select_new_group,
+                        AppLocalizations.of(context)!.mine_select_new_group,
                     data: data,
                     selected: selected,
                     width: size.width * 0.15,
@@ -935,7 +935,7 @@ class _MyFavoriteState extends State<MyFavorite>
               ),
               text:
                   // '修改分组'
-                  AppLocalizations.of(context).mine_modify_group),
+                  AppLocalizations.of(context)!.mine_modify_group),
           _popMenuItem(
               enabled: station.homepage != null,
               onTap: () async {
@@ -950,7 +950,7 @@ class _MyFavoriteState extends State<MyFavorite>
               ),
               text:
                   // '电台主页'
-                  AppLocalizations.of(context).mine_station_page),
+                  AppLocalizations.of(context)!.mine_station_page),
           _popMenuItem(
               enabled: true,
               onTap: () {
@@ -962,7 +962,7 @@ class _MyFavoriteState extends State<MyFavorite>
               ),
               text:
                   //  '删除'
-                  AppLocalizations.of(context).mine_station_delete),
+                  AppLocalizations.of(context)!.mine_station_delete),
           _popMenuItem(
               enabled: true,
               onTap: () {
@@ -976,7 +976,7 @@ class _MyFavoriteState extends State<MyFavorite>
               ),
               text:
                   // '清空分组'
-                  AppLocalizations.of(context).mine_group_clear),
+                  AppLocalizations.of(context)!.mine_group_clear),
         ],
         elevation: 8.0);
   }
@@ -1088,7 +1088,7 @@ class _PopupContentState extends State<PopupContent> {
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
                 // '选择分组: ',
-                AppLocalizations.of(context).mine_select_group,
+                AppLocalizations.of(context)!.mine_select_group,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 14.0,
@@ -1128,7 +1128,7 @@ class _PopupContentState extends State<PopupContent> {
                               padding: const EdgeInsets.all(4.0),
                               child: Text(
                                 // '确定删除: ${favGroup.name} ',
-                                AppLocalizations.of(context)
+                                AppLocalizations.of(context)!
                                     .mine_delete_group(favGroup.name),
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
@@ -1157,7 +1157,7 @@ class _PopupContentState extends State<PopupContent> {
                             padding: const EdgeInsets.all(4.0),
                             child: Text(
                               // '取消',
-                              AppLocalizations.of(context).cmm_cancel,
+                              AppLocalizations.of(context)!.cmm_cancel,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 14.0,

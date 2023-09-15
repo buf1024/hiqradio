@@ -12,7 +12,6 @@ import 'package:hiqradio/src/models/record.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/repository/repository.dart';
-import 'package:hiqradio/src/utils/check_license.dart';
 import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/utils/my_isolate.dart';
 import 'package:hiqradio/src/utils/pair.dart';
@@ -106,7 +105,6 @@ abstract class AppCubit extends Cubit<AppState> {
     if (tmp != null) {
       autoStop = tmp;
     }
-    String? expireDate = await CheckLicense.instance.checkLicense();
 
     bool? autoCache = sp.getBool(kSpAppAutoCache);
 
@@ -119,9 +117,7 @@ abstract class AppCubit extends Cubit<AppState> {
     }
 
     emit(state.copyWith(
-        expireDate: expireDate ?? '',
         autoCache: autoCache ?? state.autoCache,
-        isTry: expireDate == null,
         isInit: true,
         playingStation: playingStation,
         themeMode: themeMode,
@@ -130,23 +126,14 @@ abstract class AppCubit extends Cubit<AppState> {
         locale: locale,
         isFavStation: isFavStation));
 
-    if (expireDate != null) {
-      if (autoStart && playingStation != null) {
-        play(playingStation);
-      }
-
-      int cacheCount = await repo.loadStationCount();
-      emit(state.copyWith(isCaching: true, cacheCount: cacheCount));
-      cacheCount = await repo.doCacheStations();
-      emit(state.copyWith(isCaching: false, cacheCount: cacheCount));
+    if (autoStart && playingStation != null) {
+      play(playingStation);
     }
-  }
 
-  void activate(String license, String expireDate) async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    sp.setString(kSpAppLicense, license);
-
-    emit(state.copyWith(isTry: false, expireDate: expireDate));
+    int cacheCount = await repo.loadStationCount();
+    emit(state.copyWith(isCaching: true, cacheCount: cacheCount));
+    cacheCount = await repo.doCacheStations();
+    emit(state.copyWith(isCaching: false, cacheCount: cacheCount));
   }
 
   void changeThemeMode(HiqThemeMode themeMode) async {

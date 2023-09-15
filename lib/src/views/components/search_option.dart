@@ -169,7 +169,7 @@ class _MyWidgetState extends State<SearchOption> {
           padding: const EdgeInsets.symmetric(vertical: 10.0),
           child: Text(
             // '区域: ',
-            AppLocalizations.of(context).cmp_search_district,
+            AppLocalizations.of(context)!.cmp_search_district,
 
             style: const TextStyle(
               fontSize: 14.0,
@@ -191,7 +191,7 @@ class _MyWidgetState extends State<SearchOption> {
                 Text(
                   displaySelectedCountry.isEmpty
                       // ? '国家/地区'
-                      ? AppLocalizations.of(context).cmp_search_country
+                      ? AppLocalizations.of(context)!.cmp_search_country
                       : displaySelectedCountry,
                   style: const TextStyle(
                     fontSize: 13.0,
@@ -270,7 +270,7 @@ class _MyWidgetState extends State<SearchOption> {
                 Text(
                   displaySelectedState.isEmpty
                       // ? '省/州'
-                      ? AppLocalizations.of(context).cmp_search_state
+                      ? AppLocalizations.of(context)!.cmp_search_state
                       : displaySelectedState,
                   style: const TextStyle(
                     fontSize: 14.0,
@@ -359,7 +359,7 @@ class _MyWidgetState extends State<SearchOption> {
           padding: const EdgeInsets.symmetric(vertical: 10.0),
           child: Text(
             // '语言: ',
-            AppLocalizations.of(context).cmp_search_language,
+            AppLocalizations.of(context)!.cmp_search_language,
             style: const TextStyle(
               fontSize: 14.0,
             ),
@@ -381,7 +381,7 @@ class _MyWidgetState extends State<SearchOption> {
                   displaySelectedLanguage.isEmpty
                       // ?
                       // '所有'
-                      ? AppLocalizations.of(context).cmp_search_all
+                      ? AppLocalizations.of(context)!.cmp_search_all
                       : displaySelectedLanguage,
                   style: const TextStyle(
                     fontSize: 13.0,
@@ -463,7 +463,7 @@ class _MyWidgetState extends State<SearchOption> {
           padding: const EdgeInsets.symmetric(vertical: 10.0),
           child: Text(
             // '标签: ',
-            AppLocalizations.of(context).cmp_search_tag,
+            AppLocalizations.of(context)!.cmp_search_tag,
             style: const TextStyle(
               fontSize: 14.0,
             ),
@@ -833,7 +833,7 @@ class _DialogContentState extends _OptionDialogState<DialogContent> {
                 },
                 child: Text(
                   // '清空',
-                  AppLocalizations.of(context).cmm_clear,
+                  AppLocalizations.of(context)!.cmm_clear,
                   style: const TextStyle(fontSize: 13.0),
                 ),
               ),
@@ -844,7 +844,7 @@ class _DialogContentState extends _OptionDialogState<DialogContent> {
                 },
                 child: Text(
                     // '确定',
-                    AppLocalizations.of(context).cmm_confirm,
+                    AppLocalizations.of(context)!.cmm_confirm,
                     style: const TextStyle(
                       fontSize: 13.0,
                     )),

@@ -172,7 +172,7 @@ class _MyStationState extends State<MyStation>
                 ),
                 child: Text(
                   // '搜索',
-                  AppLocalizations.of(context).stat_search,
+                  AppLocalizations.of(context)!.stat_search,
                   style: const TextStyle(
                     fontSize: 13.0,
                   ),
@@ -198,9 +198,9 @@ class _MyStationState extends State<MyStation>
                 child: Text(
                   isOptionShow
                       // ? '隐藏选项'
-                      ? AppLocalizations.of(context).stat_hide_option
+                      ? AppLocalizations.of(context)!.stat_hide_option
                       // : '显示选项',
-                      : AppLocalizations.of(context).stat_show_option,
+                      : AppLocalizations.of(context)!.stat_show_option,
                   style: const TextStyle(
                     fontSize: 13.0,
                   ),
@@ -254,7 +254,7 @@ class _MyStationState extends State<MyStation>
           ),
           Text(
             // '电台： 共 ',
-            AppLocalizations.of(context).stat_station_total,
+            AppLocalizations.of(context)!.stat_station_total,
             style: const TextStyle(fontSize: 13.0),
           ),
           Container(
@@ -273,7 +273,7 @@ class _MyStationState extends State<MyStation>
           ),
           Text(
             // ' 个',
-            AppLocalizations.of(context).stat_station_unit,
+            AppLocalizations.of(context)!.stat_station_unit,
             style: const TextStyle(fontSize: 13.0),
           ),
           const Spacer(),
@@ -281,7 +281,7 @@ class _MyStationState extends State<MyStation>
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Text(
               // '每页 ',
-              AppLocalizations.of(context).stat_station_per_page,
+              AppLocalizations.of(context)!.stat_station_per_page,
               style: const TextStyle(fontSize: 13.0),
             ),
           ),
@@ -294,7 +294,7 @@ class _MyStationState extends State<MyStation>
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Text(
               // '个 共 ',
-              AppLocalizations.of(context).stat_station_total_page,
+              AppLocalizations.of(context)!.stat_station_total_page,
               style: const TextStyle(fontSize: 13.0),
             ),
           ),
@@ -318,7 +318,7 @@ class _MyStationState extends State<MyStation>
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Text(
               // ' 页 当前第 ',
-              AppLocalizations.of(context).stat_station_cur_page,
+              AppLocalizations.of(context)!.stat_station_cur_page,
               style: const TextStyle(fontSize: 13.0),
             ),
           ),
@@ -331,7 +331,7 @@ class _MyStationState extends State<MyStation>
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Text(
               // ' 页',
-              AppLocalizations.of(context).stat_station_cur_page_no,
+              AppLocalizations.of(context)!.stat_station_cur_page_no,
               style: const TextStyle(fontSize: 13.0),
             ),
           ),
@@ -348,7 +348,7 @@ class _MyStationState extends State<MyStation>
                 ),
                 child: Text(
                   // '前一页',
-                  AppLocalizations.of(context).stat_station_pre_page,
+                  AppLocalizations.of(context)!.stat_station_pre_page,
                   style: const TextStyle(
                     fontSize: 13.0,
                   ),
@@ -372,7 +372,7 @@ class _MyStationState extends State<MyStation>
                 ),
                 child: Text(
                   // '后一页',
-                  AppLocalizations.of(context).stat_station_next_page,
+                  AppLocalizations.of(context)!.stat_station_next_page,
 
                   style: const TextStyle(
                     fontSize: 13.0,

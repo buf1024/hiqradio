@@ -79,7 +79,7 @@ class _MyPhoneRecordState extends State<MyPhoneRecord>
     return Center(
       child: Text(
         // '暂无录音记录',
-        AppLocalizations.of(context).record_empty,
+        AppLocalizations.of(context)!.record_empty,
 
         style: const TextStyle(
           fontSize: 15.0,
@@ -217,7 +217,7 @@ class _MyPhoneRecordState extends State<MyPhoneRecord>
         Uint8List data = await input.readAsBytes();
         await output.writeAsBytes(data.toList());
         showToast(
-            '${AppLocalizations.of(context).record_export_msg}  $outFileName',
+            '${AppLocalizations.of(context)!.record_export_msg}  $outFileName',
             position: const ToastPosition(
               align: Alignment.bottomCenter,
             ),
@@ -244,11 +244,11 @@ class _MyPhoneRecordState extends State<MyPhoneRecord>
           },
               IconFont.delete,
               // '删除录音'
-              AppLocalizations.of(context).record_delete),
+              AppLocalizations.of(context)!.record_delete),
           if (record.file != null)
             _popMenuItem(() {
               _exportRecord(record);
-            }, IconFont.quit, AppLocalizations.of(context).record_export),
+            }, IconFont.quit, AppLocalizations.of(context)!.record_export),
         ],
         elevation: 8.0);
   }

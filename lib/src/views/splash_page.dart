@@ -7,7 +7,6 @@ import 'package:hiqradio/src/blocs/app_state.dart';
 import 'package:hiqradio/src/utils/utils.dart';
 import 'package:hiqradio/src/views/desktop/components/win_ready.dart';
 import 'package:hiqradio/src/views/desktop/home_page.dart';
-import 'package:hiqradio/src/views/lock_page.dart';
 import 'package:hiqradio/src/views/phone/phone_home_page.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -81,7 +80,7 @@ class _SplashPageState extends State<SplashPage> {
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: Text(
                   // '正在初始化，请稍等片刻……',
-                  AppLocalizations.of(context).splash_loading,
+                  AppLocalizations.of(context)!.splash_loading,
                 ),
               ),
               const Spacer(),
@@ -102,10 +101,8 @@ class _SplashPageState extends State<SplashPage> {
       if (delay > 0) {
         await Future.delayed(Duration(milliseconds: delay));
       }
-      
-      _jump(state.expireDate.isNotEmpty
-          ? (isDesktop() ? const HomePage() : const PhoneHomePage())
-          : const LockPage());
+
+      _jump(isDesktop() ? const HomePage() : const PhoneHomePage());
     }
   }
 

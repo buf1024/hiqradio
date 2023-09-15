@@ -6,10 +6,10 @@ import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
-import 'package:hiqradio/src/views/components/activate.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Config extends StatefulWidget {
   const Config({super.key});
@@ -19,7 +19,6 @@ class Config extends StatefulWidget {
 }
 
 class _ConfigState extends State<Config> {
-  OverlayEntry? activateOverlay;
   OverlayEntry? languageOverlay;
   OverlayEntry? aboutOverlay;
 
@@ -43,27 +42,11 @@ class _ConfigState extends State<Config> {
     );
   }
 
-  String _getExpireText(bool isTry, String expireDate) {
-    String text = AppLocalizations.of(context).cfg_activated;
-    if (isTry) {
-      text = AppLocalizations.of(context).cfg_try_version;
-    }
-    if (expireDate.isEmpty) {
-      text += AppLocalizations.of(context).cfg_activate_expired;
-    } else {
-      text += AppLocalizations.of(context).cfg_activate_expired_at(expireDate);
-    }
-    return text;
-  }
-
   List<Widget> _buildConfigItem() {
     bool autoStart =
         context.select<AppCubit, bool>((value) => value.state.autoStart);
     bool autoCache =
         context.select<AppCubit, bool>((value) => value.state.autoCache);
-    bool isTry = context.select<AppCubit, bool>((value) => value.state.isTry);
-    String expireDate =
-        context.select<AppCubit, String>((value) => value.state.expireDate);
 
     String locale =
         context.select<AppCubit, String>((value) => value.state.locale);
@@ -98,12 +81,12 @@ class _ConfigState extends State<Config> {
           splashColor: Colors.black.withOpacity(0),
           title: Text(
             // '自动播放',
-            AppLocalizations.of(context).cfg_auto_play,
+            AppLocalizations.of(context)!.cfg_auto_play,
             style: const TextStyle(fontSize: 14.0),
           ),
           subtitle: Text(
               // '启动应用时自动播放上次电台'
-              AppLocalizations.of(context).cfg_auto_play_desc),
+              AppLocalizations.of(context)!.cfg_auto_play_desc),
           trailing: Checkbox(
             splashRadius: 0,
             checkColor: Theme.of(context).textTheme.bodyMedium!.color!,
@@ -132,12 +115,12 @@ class _ConfigState extends State<Config> {
           splashColor: Colors.black.withOpacity(0),
           title: Text(
             // '缓存电台',
-            AppLocalizations.of(context).cfg_cache_station,
+            AppLocalizations.of(context)!.cfg_cache_station,
             style: const TextStyle(fontSize: 14.0),
           ),
           subtitle: Text(
             // '使用本地缓存电台(建议打开)',
-            AppLocalizations.of(context).cfg_cache_station_desc,
+            AppLocalizations.of(context)!.cfg_cache_station_desc,
             style: const TextStyle(fontSize: 12.0),
           ),
           trailing: Checkbox(
@@ -167,32 +150,12 @@ class _ConfigState extends State<Config> {
       ListTile(
         splashColor: Colors.black.withOpacity(0),
         title: Text(
-          // '激活码',
-          AppLocalizations.of(context).cfg_activate_code,
-          style: const TextStyle(
-            fontSize: 14.0,
-          ),
-        ),
-        subtitle: Text(
-          _getExpireText(isTry, expireDate),
-          style: const TextStyle(fontSize: 12.0),
-        ),
-        onTap: () {
-          _onShowActivateDlg((license, expireDate) async {
-            context.read<AppCubit>().activate(license, expireDate);
-            _closeActivateOverlay();
-          });
-        },
-      ),
-      ListTile(
-        splashColor: Colors.black.withOpacity(0),
-        title: Text(
           // '关于本应用',
-          AppLocalizations.of(context).cfg_about,
+          AppLocalizations.of(context)!.cfg_about,
           style: const TextStyle(fontSize: 14.0),
         ),
         subtitle: Text(
-          '${ResManager.instance.version} by $kAuthor\n${AppLocalizations.of(context).cfg_cache} $cacheCount ${AppLocalizations.of(context).cmm_stations}',
+          '${ResManager.instance.version} by $kAuthor\n${AppLocalizations.of(context)!.cfg_cache} $cacheCount ${AppLocalizations.of(context)!.cmm_stations}',
           style: const TextStyle(fontSize: 12.0),
         ),
         onTap: () {
@@ -265,7 +228,7 @@ class _ConfigState extends State<Config> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Text(
-                                  AppLocalizations.of(context).cfg_about,
+                                  AppLocalizations.of(context)!.cfg_about,
                                   style: const TextStyle(fontSize: 14.0),
                                 ),
                               ),
@@ -276,7 +239,30 @@ class _ConfigState extends State<Config> {
                         Container(
                           padding: const EdgeInsets.only(top: 10.0, left: 10.0),
                           child: Text(
-                              'HiqRadio: ${AppLocalizations.of(context).hiqradio} by $kAuthor'),
+                              'HiqRadio: ${AppLocalizations.of(context)!.hiqradio} by $kAuthor'),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                          child: InkClick(
+                            child: const Row(
+                              children: [
+                                Text('Github:  '),
+                                Text(
+                                  'https://github.com/buf1024/hiqradio',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onTap: () async {
+                              Uri url = Uri.parse(
+                                  'https://github.com/buf1024/hiqradio');
+                              await launchUrl(url,
+                                  mode: LaunchMode.externalApplication);
+                            },
+                          ),
                         ),
                         Container(
                           padding: const EdgeInsets.only(
@@ -313,7 +299,7 @@ class _ConfigState extends State<Config> {
                                   _closeAboutOverlay();
                                 },
                                 child: Text(
-                                  AppLocalizations.of(context).cmm_confirm,
+                                  AppLocalizations.of(context)!.cmm_confirm,
                                   style: const TextStyle(
                                     fontSize: 14.0,
                                   ),
@@ -339,107 +325,6 @@ class _ConfigState extends State<Config> {
     if (aboutOverlay != null) {
       aboutOverlay!.remove();
       aboutOverlay = null;
-    }
-  }
-
-  void _onShowActivateDlg(Function(String, String) onActivate) {
-    double width = 484.0;
-    Size size = MediaQuery.of(context).size;
-    double height = 200;
-    activateOverlay ??= OverlayEntry(
-      opaque: false,
-      builder: (context) {
-        // 猥琐发育
-        return Stack(
-          children: [
-            Container(
-              padding: const EdgeInsets.only(top: kTitleBarHeight),
-              child: ModalBarrier(
-                onDismiss: () => _closeActivateOverlay(),
-              ),
-            ),
-            Positioned(
-              top: (size.height - height - kTitleBarHeight) / 2 +
-                  kTitleBarHeight,
-              left: (size.width - width) / 2,
-              child: Material(
-                color: Colors.black.withOpacity(0),
-                child: Dialog(
-                  // alignment: Alignment.centerRight,
-                  insetPadding: const EdgeInsets.only(
-                      top: 0, bottom: 0, right: 0, left: 0),
-                  elevation: 2.0,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(8.0),
-                    ),
-                  ),
-                  child: SizedBox(
-                    width: width,
-                    height: height,
-                    child: Column(
-                      children: <Widget>[
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 8.0, horizontal: 8.0),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8.0),
-                                child: InkClick(
-                                  onTap: () {
-                                    _closeActivateOverlay();
-                                  },
-                                  child: const Icon(
-                                    IconFont.close,
-                                    size: 18.0,
-                                  ),
-                                ),
-                              ),
-                              const Spacer(),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8.0),
-                                child: Text(
-                                  // '激活码',
-                                  AppLocalizations.of(context)
-                                      .cfg_activate_code,
-                                  style: const TextStyle(fontSize: 18.0),
-                                ),
-                              ),
-                              const Spacer(),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Center(
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Activate(
-                                onActivate: onActivate,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-    Overlay.of(context).insert(activateOverlay!);
-  }
-
-  void _closeActivateOverlay() {
-    if (activateOverlay != null) {
-      activateOverlay!.remove();
-      activateOverlay = null;
     }
   }
 

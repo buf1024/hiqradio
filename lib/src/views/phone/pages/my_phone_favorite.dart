@@ -339,7 +339,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
               padding: const EdgeInsets.only(left: 8.0),
               child: Text(
                 // '空空如也',
-                '${AppLocalizations.of(context).mine_group}: ',
+                '${AppLocalizations.of(context)!.mine_group}: ',
                 style: const TextStyle(
                   fontSize: 15.0,
                 ),
@@ -383,7 +383,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
         ),
         Text(
           // '空空如也',
-          AppLocalizations.of(context).mine_empty,
+          AppLocalizations.of(context)!.mine_empty,
           style: const TextStyle(
             fontSize: 15.0,
           ),
@@ -424,23 +424,23 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
               text: isPlaying
                   ?
                   // '停止'
-                  AppLocalizations.of(context).cmm_stop
+                  AppLocalizations.of(context)!.cmm_stop
                   :
                   // '播放'
-                  AppLocalizations.of(context).cmm_play),
+                  AppLocalizations.of(context)!.cmm_play),
 
           _popMenuItem(
               enabled: true,
               value: 'imexport',
               onTap: () {},
               icon: IconFont.quit,
-              text: AppLocalizations.of(context).cfg_group_imexport),
+              text: AppLocalizations.of(context)!.cfg_group_imexport),
           _popMenuItem(
               enabled: true,
               value: 'groupSetting',
               onTap: () {},
               icon: IconFont.star,
-              text: AppLocalizations.of(context).cfg_group_setting),
+              text: AppLocalizations.of(context)!.cfg_group_setting),
 
           _popMenuItem(
               enabled: true,
@@ -451,7 +451,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
               icon: IconFont.edit,
               text:
                   // '修改分组'
-                  AppLocalizations.of(context).mine_modify_group),
+                  AppLocalizations.of(context)!.mine_modify_group),
 
           _popMenuItem(
               enabled: station.homepage != null,
@@ -464,7 +464,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
               icon: IconFont.home,
               text:
                   // '电台主页'
-                  AppLocalizations.of(context).mine_station_page),
+                  AppLocalizations.of(context)!.mine_station_page),
           _popMenuItem(
               enabled: true,
               onTap: () {
@@ -473,7 +473,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
               icon: IconFont.delete,
               text:
                   //  '删除'
-                  AppLocalizations.of(context).mine_station_delete),
+                  AppLocalizations.of(context)!.mine_station_delete),
           _popMenuItem(
               enabled: true,
               onTap: () {
@@ -484,7 +484,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
               icon: IconFont.close,
               text:
                   // '清空分组'
-                  AppLocalizations.of(context).mine_group_clear),
+                  AppLocalizations.of(context)!.mine_group_clear),
         ],
         elevation: 8.0);
     return ret;
@@ -547,7 +547,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
                         Navigator.of(context).pop('imexport');
                       },
                       child: Text(
-                        AppLocalizations.of(context).cfg_group_imexport,
+                        AppLocalizations.of(context)!.cfg_group_imexport,
                         style: const TextStyle(
                           fontSize: 18.0,
                         ),
@@ -559,7 +559,7 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
                         Navigator.of(context).pop('groupSetting');
                       },
                       child: Text(
-                        AppLocalizations.of(context).cfg_group_setting,
+                        AppLocalizations.of(context)!.cfg_group_setting,
                         style: const TextStyle(
                           fontSize: 18.0,
                         ),

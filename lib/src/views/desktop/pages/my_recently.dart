@@ -107,7 +107,7 @@ class _MyRecentlyState extends State<MyRecently>
     return Center(
       child: Text(
         // '暂无播放记录',
-        AppLocalizations.of(context).recently_empty,
+        AppLocalizations.of(context)!.recently_empty,
         style: const TextStyle(
           fontSize: 15.0,
         ),
@@ -144,7 +144,7 @@ class _MyRecentlyState extends State<MyRecently>
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Text(
               // '每页 ',
-              AppLocalizations.of(context).stat_station_per_page,
+              AppLocalizations.of(context)!.stat_station_per_page,
               style: const TextStyle(fontSize: 13.0),
             ),
           ),
@@ -157,7 +157,7 @@ class _MyRecentlyState extends State<MyRecently>
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Text(
               // '个 共 ',
-              AppLocalizations.of(context).stat_station_total_page,
+              AppLocalizations.of(context)!.stat_station_total_page,
               style: const TextStyle(fontSize: 13.0),
             ),
           ),
@@ -181,7 +181,7 @@ class _MyRecentlyState extends State<MyRecently>
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Text(
               // ' 页 当前第 ',
-              AppLocalizations.of(context).stat_station_cur_page,
+              AppLocalizations.of(context)!.stat_station_cur_page,
               style: const TextStyle(fontSize: 13.0),
             ),
           ),
@@ -194,7 +194,7 @@ class _MyRecentlyState extends State<MyRecently>
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Text(
               // ' 页',
-              AppLocalizations.of(context).stat_station_cur_page_no,
+              AppLocalizations.of(context)!.stat_station_cur_page_no,
               style: const TextStyle(fontSize: 13.0),
             ),
           ),
@@ -211,7 +211,7 @@ class _MyRecentlyState extends State<MyRecently>
                 ),
                 child: Text(
                   // '前一页',
-                  AppLocalizations.of(context).stat_station_pre_page,
+                  AppLocalizations.of(context)!.stat_station_pre_page,
                   style: const TextStyle(
                     fontSize: 13.0,
                   ),
@@ -235,7 +235,7 @@ class _MyRecentlyState extends State<MyRecently>
                 ),
                 child: Text(
                   // '后一页',
-                  AppLocalizations.of(context).stat_station_next_page,
+                  AppLocalizations.of(context)!.stat_station_next_page,
 
                   style: const TextStyle(
                     fontSize: 13.0,
@@ -342,15 +342,15 @@ class _MyRecentlyState extends State<MyRecently>
         headingRowColor: MaterialStateProperty.resolveWith(
             (states) => Colors.grey.withOpacity(0.1)),
         columns: [
-          DataColumn2(label: Text(AppLocalizations.of(context).cmm_station)),
+          DataColumn2(label: Text(AppLocalizations.of(context)!.cmm_station)),
           DataColumn2(
-              label: Text(AppLocalizations.of(context).cmm_start_time),
+              label: Text(AppLocalizations.of(context)!.cmm_start_time),
               fixedWidth: 170.0),
           DataColumn2(
-              label: Text(AppLocalizations.of(context).cmm_end_time),
+              label: Text(AppLocalizations.of(context)!.cmm_end_time),
               fixedWidth: 170.0),
           DataColumn2(
-              label: Text(AppLocalizations.of(context).cmm_last_time),
+              label: Text(AppLocalizations.of(context)!.cmm_last_time),
               fixedWidth: 70.0),
         ],
         empty: _empty(),
@@ -480,7 +480,7 @@ class _MyRecentlyState extends State<MyRecently>
             },
             IconFont.close,
             // '清空播放记录'
-            AppLocalizations.of(context).recently_clear,
+            AppLocalizations.of(context)!.recently_clear,
           ),
         ],
         elevation: 8.0);

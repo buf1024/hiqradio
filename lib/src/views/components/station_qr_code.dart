@@ -89,7 +89,7 @@ class _StationQrCodeState extends State<StationQrCode> {
                 height: 25.0,
               ),
               Text(
-                AppLocalizations.of(context).cmm_scan_to_play,
+                AppLocalizations.of(context)!.cmm_scan_to_play,
                 style: TextStyle(
                   fontSize: 12.0,
                   color: Theme.of(context)
@@ -105,7 +105,7 @@ class _StationQrCodeState extends State<StationQrCode> {
                 height: 28,
                 child: InkClick(
                   child:  Text(
-                    AppLocalizations.of(context).cmm_save_picture,
+                    AppLocalizations.of(context)!.cmm_save_picture,
                     style: const TextStyle(color: Colors.blue, fontSize: 14),
                   ),
                   onTap: () async {

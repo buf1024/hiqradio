@@ -1,18 +1,19 @@
+# README-zh_CN.md
 
-[简体中文](README-zh_CN.md)
+[English](README.md)
 
-HiqRadio is a simple & power network radio，it is base on [OpenRadio](https://www.radio-browser.info/ "OpenRadio") api，and it is a Flutter application/app. It supports destok platform: Windows/Linux/Mac, and mobile platform: android/ios, and is well tested in Mac and android.
+HiqRadio是一款简洁而功能强大的网络收音机，Api是来源于[OpenRadio](https://www.radio-browser.info/ "OpenRadio")，使用Flutter实现。所以，理论上他应该是跨平台的，同时支持Windows/Linux/Mac，或者android/ios。不过由于手头上只有2015款的丐版mac和android手机，所以只有在此两个平台测试，因此编译的release包也只有这两个平台，如果需要windows版本，之前有打包安装包：[release](https://github.com/buf1024/app-release/releases)。如果需要编译成其他平台，请自行下载代码编译。
 
-### Mainly funciton
+### 主要功能
 
-* stations cache / search
-* play history / timer play
-* record / favorite group / export / import
-* driver mode
-* system tray
-* ……
+* 电台缓存/多功能搜索
+* 播放历史/定时播放
+* 录音/分组收藏/导出/导入
+* 车载模式
+* 智能系统托盘
+* 等等……
 
-### Screen
+### 功能截图
 
 Desktop(Mac)：
 
@@ -37,15 +38,14 @@ Mobile (android)：
      <td><center><img src="images/android3.jpg" width="45%"></center></td>
      <td><center><img src="images/android4.jpg" width="45%"></center></td>
     </tr>
-</table>
-
+</table>​
 
 ‍
 
-### Compile
+### 编译
 
 ```shel
-## flutter version, other version is note grantee success.
+## flutter 版本 其他版本不保证成功
 $ flutter --version 
 Flutter 3.13.0 • channel stable • git@github.com:flutter/flutter.git
 Framework • revision efbf63d9c6 (4 weeks ago) • 2023-08-15 21:05:06 -0500
@@ -56,5 +56,3 @@ $ flutter pub get
 $ flutter gen-l10n 
 $ flutter build macos --release
 ```
-
-Enjoy it.

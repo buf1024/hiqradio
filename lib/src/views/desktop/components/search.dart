@@ -71,7 +71,7 @@ class _SearchState extends State<Search> {
           children: [
             Text(
               // '最近搜索',
-              AppLocalizations.of(context).cmp_search_recently,
+              AppLocalizations.of(context)!.cmp_search_recently,
 
               style: const TextStyle(
                 fontSize: 14.0,
@@ -107,7 +107,7 @@ class _SearchState extends State<Search> {
             InkClick(
               child: Text(
                 // '清空',
-                AppLocalizations.of(context).cmm_clear,
+                AppLocalizations.of(context)!.cmm_clear,
 
                 style: TextStyle(
                   fontSize: 14.0,
@@ -185,7 +185,7 @@ class _SearchState extends State<Search> {
             children: [
               Text(
                 // '搜索结果： 共 ',
-                AppLocalizations.of(context).cmp_search_result_total,
+                AppLocalizations.of(context)!.cmp_search_result_total,
 
                 style: const TextStyle(fontSize: 13.0),
               ),
@@ -205,7 +205,7 @@ class _SearchState extends State<Search> {
               ),
               Text(
                 // ' 个',
-                AppLocalizations.of(context).cmp_search_result_unit,
+                AppLocalizations.of(context)!.cmp_search_result_unit,
                 style: const TextStyle(fontSize: 13.0),
               ),
             ],

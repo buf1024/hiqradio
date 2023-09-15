@@ -43,12 +43,12 @@ class _TitleBarState extends State<TitleBar> {
 
   String _getThemeText(HiqThemeMode themeMode) {
     if (themeMode == HiqThemeMode.dark) {
-      return AppLocalizations.of(context).title_theme_dark;
+      return AppLocalizations.of(context)!.title_theme_dark;
     }
     if (themeMode == HiqThemeMode.light) {
-      return AppLocalizations.of(context).title_theme_light;
+      return AppLocalizations.of(context)!.title_theme_light;
     }
-    return AppLocalizations.of(context).title_theme_system;
+    return AppLocalizations.of(context)!.title_theme_system;
   }
 
   TextEditingController searchEditController = TextEditingController();
@@ -200,7 +200,7 @@ class _TitleBarState extends State<TitleBar> {
             decoration: InputDecoration(
               hintText:
                   // '电台搜索',
-                  AppLocalizations.of(context).title_search_hit,
+                  AppLocalizations.of(context)!.title_search_hit,
               prefixIcon: Icon(Icons.search_outlined,
                   size: 18.0, color: Colors.grey.withOpacity(0.8)),
               suffixIcon: searchEditController.text.isNotEmpty
@@ -305,7 +305,7 @@ class _TitleBarState extends State<TitleBar> {
         widget.onCompactClicked?.call();
       },
           // '精简模式',
-          AppLocalizations.of(context).title_compact_mode,
+          AppLocalizations.of(context)!.title_compact_mode,
           IconFont.compactMode),
       const SizedBox(width: 10.0),
       _funcButton((_) {
@@ -316,7 +316,7 @@ class _TitleBarState extends State<TitleBar> {
         }
       },
           // '系统配置',
-          AppLocalizations.of(context).title_config,
+          AppLocalizations.of(context)!.title_config,
           IconFont.config),
       const SizedBox(width: 10.0),
       _funcButton((details) {
@@ -327,7 +327,7 @@ class _TitleBarState extends State<TitleBar> {
         }
       },
           // '主题: ${themeLabelMap[themeMode]}',
-          '${AppLocalizations.of(context).title_theme}: ${_getThemeText(themeMode)}',
+          '${AppLocalizations.of(context)!.title_theme}: ${_getThemeText(themeMode)}',
           IconFont.theme),
       const SizedBox(
         width: 16.0,
@@ -528,7 +528,7 @@ class _TitleBarState extends State<TitleBar> {
                                     const EdgeInsets.symmetric(vertical: 2.0),
                                 child: Text(
                                   // '搜索选项',
-                                  AppLocalizations.of(context)
+                                  AppLocalizations.of(context)!
                                       .title_search_option,
 
                                   style: const TextStyle(fontSize: 14.0),

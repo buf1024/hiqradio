@@ -317,7 +317,7 @@ class _PlayingPageState extends State<PlayingPage> {
   Widget _funcVolume() {
     return _funcs(
         icon: IconFont.volume,
-        text: AppLocalizations.of(context).cmm_volume,
+        text: AppLocalizations.of(context)!.cmm_volume,
         onTap: () {
           showModalBottomSheet(
               context: context,
@@ -351,7 +351,7 @@ class _PlayingPageState extends State<PlayingPage> {
                               },
                             ),
                             Text(
-                              AppLocalizations.of(context).cmm_volume,
+                              AppLocalizations.of(context)!.cmm_volume,
                               style: const TextStyle(fontSize: 16.0),
                             ),
                             InkClick(
@@ -412,7 +412,7 @@ class _PlayingPageState extends State<PlayingPage> {
     double height = size.height - padding * 4;
     return _funcs(
         icon: IconFont.share,
-        text: AppLocalizations.of(context).cmm_share,
+        text: AppLocalizations.of(context)!.cmm_share,
         onTap: () {
           if (playingStation != null) {
             showDialog(
@@ -452,7 +452,7 @@ class _PlayingPageState extends State<PlayingPage> {
         color: stopTimer > 0
             ? const Color(0XFFEA3E3C)
             : Theme.of(context).textTheme.bodyMedium!.color!,
-        text: AppLocalizations.of(context).cfg_timer,
+        text: AppLocalizations.of(context)!.cfg_timer,
         onTap: () {
           showModalBottomSheet(
               context: context,
@@ -478,7 +478,7 @@ class _PlayingPageState extends State<PlayingPage> {
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 10.0, horizontal: 5.0),
                                 child: Text(
-                                  AppLocalizations.of(context)
+                                  AppLocalizations.of(context)!
                                       .cmm_stop_time_confirm,
                                   style: const TextStyle(fontSize: 18.0),
                                 ),
@@ -508,7 +508,7 @@ class _PlayingPageState extends State<PlayingPage> {
                                 },
                                 child: Text(
                                   // '取消',
-                                  AppLocalizations.of(context).cmm_cancel,
+                                  AppLocalizations.of(context)!.cmm_cancel,
                                   style: const TextStyle(
                                     fontSize: 18.0,
                                   ),
@@ -525,7 +525,7 @@ class _PlayingPageState extends State<PlayingPage> {
                                   tmpSleepTime = null;
                                   context.read<AppCubit>().cancelStopTimer();
                                   showToast(
-                                    AppLocalizations.of(context)
+                                    AppLocalizations.of(context)!
                                         .cmm_stop_time_cancel_msg,
                                     position: const ToastPosition(
                                       align: Alignment.bottomCenter,
@@ -533,7 +533,7 @@ class _PlayingPageState extends State<PlayingPage> {
                                   );
                                 },
                                 child: Text(
-                                  AppLocalizations.of(context).cmm_confirm,
+                                  AppLocalizations.of(context)!.cmm_confirm,
                                   style: const TextStyle(
                                     fontSize: 18.0,
                                   ),
@@ -576,7 +576,7 @@ class _PlayingPageState extends State<PlayingPage> {
                                   },
                                 ),
                                 Text(
-                                  AppLocalizations.of(context).cmm_stop_time,
+                                  AppLocalizations.of(context)!.cmm_stop_time,
                                   style: const TextStyle(fontSize: 16.0),
                                 ),
                                 InkClick(
@@ -605,7 +605,7 @@ class _PlayingPageState extends State<PlayingPage> {
                                           .restartStopTimer(setMs);
 
                                       showToast(
-                                        '${AppLocalizations.of(context).cmm_stop_time_tips}  ${DateFormat("HH:mm:ss").format(DateTime.fromMillisecondsSinceEpoch(setMs))}',
+                                        '${AppLocalizations.of(context)!.cmm_stop_time_tips}  ${DateFormat("HH:mm:ss").format(DateTime.fromMillisecondsSinceEpoch(setMs))}',
                                         position: const ToastPosition(
                                           align: Alignment.bottomCenter,
                                         ),
@@ -654,7 +654,7 @@ class _PlayingPageState extends State<PlayingPage> {
         color: isFavStation
             ? const Color(0XFFEA3E3C)
             : Theme.of(context).textTheme.bodyMedium!.color!,
-        text: AppLocalizations.of(context).cmm_favorite,
+        text: AppLocalizations.of(context)!.cmm_favorite,
         onTap: () {
           if (playingStation != null) {
             if (!isFavStation) {
@@ -673,7 +673,7 @@ class _PlayingPageState extends State<PlayingPage> {
         color: isRecording && tick.isEven
             ? const Color(0XFFEA3E3C)
             : Theme.of(context).textTheme.bodyMedium!.color!,
-        text: AppLocalizations.of(context).mod_record,
+        text: AppLocalizations.of(context)!.mod_record,
         onTap: () async {
           if (playingStation != null) {
             String? path =
@@ -773,7 +773,7 @@ class _PlayingPageState extends State<PlayingPage> {
               IconFont.car,
               size: 18.0,
             ),
-            text: AppLocalizations.of(context).cfg_drive_mode,
+            text: AppLocalizations.of(context)!.cfg_drive_mode,
           ),
           // _popMenuItem(
           //     enabled: true,
