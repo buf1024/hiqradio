@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
@@ -45,14 +43,12 @@ class _ConfigState extends State<Config> {
   List<Widget> _buildConfigItem() {
     bool autoStart =
         context.select<AppCubit, bool>((value) => value.state.autoStart);
-    bool autoCache =
-        context.select<AppCubit, bool>((value) => value.state.autoCache);
+    // bool autoCache =
+    //     context.select<AppCubit, bool>((value) => value.state.autoCache);
 
     String locale =
         context.select<AppCubit, String>((value) => value.state.locale);
-    if (locale.isEmpty) {
-      locale = Platform.localeName.substring(0, 2);
-    }
+
     Map<String, String> localeMap = ResManager.instance.localeMap;
 
     int cacheCount =
@@ -111,42 +107,42 @@ class _ConfigState extends State<Config> {
           ),
           onTap: () {},
           mouseCursor: SystemMouseCursors.click),
-      ListTile(
-          splashColor: Colors.black.withOpacity(0),
-          title: Text(
-            // '缓存电台',
-            AppLocalizations.of(context)!.cfg_cache_station,
-            style: const TextStyle(fontSize: 14.0),
-          ),
-          subtitle: Text(
-            // '使用本地缓存电台(建议打开)',
-            AppLocalizations.of(context)!.cfg_cache_station_desc,
-            style: const TextStyle(fontSize: 12.0),
-          ),
-          trailing: Checkbox(
-            splashRadius: 0,
-            checkColor: Theme.of(context).textTheme.bodyMedium!.color!,
-            focusColor: Colors.black.withOpacity(0),
-            hoverColor: Colors.black.withOpacity(0),
-            activeColor: Colors.black.withOpacity(0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(3.0),
-            ),
-            side: MaterialStateBorderSide.resolveWith(
-              (states) => BorderSide(
-                width: 1.0,
-                color: Theme.of(context).textTheme.bodyMedium!.color!,
-              ),
-            ),
-            value: autoCache,
-            onChanged: (value) {
-              if (value != null && value != autoCache) {
-                context.read<AppCubit>().setAutoCache(value);
-              }
-            },
-          ),
-          onTap: () {},
-          mouseCursor: SystemMouseCursors.click),
+      // ListTile(
+      //     splashColor: Colors.black.withOpacity(0),
+      //     title: Text(
+      //       // '缓存电台',
+      //       AppLocalizations.of(context)!.cfg_cache_station,
+      //       style: const TextStyle(fontSize: 14.0),
+      //     ),
+      //     subtitle: Text(
+      //       // '使用本地缓存电台(建议打开)',
+      //       AppLocalizations.of(context)!.cfg_cache_station_desc,
+      //       style: const TextStyle(fontSize: 12.0),
+      //     ),
+      //     trailing: Checkbox(
+      //       splashRadius: 0,
+      //       checkColor: Theme.of(context).textTheme.bodyMedium!.color!,
+      //       focusColor: Colors.black.withOpacity(0),
+      //       hoverColor: Colors.black.withOpacity(0),
+      //       activeColor: Colors.black.withOpacity(0),
+      //       shape: RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.circular(3.0),
+      //       ),
+      //       side: MaterialStateBorderSide.resolveWith(
+      //         (states) => BorderSide(
+      //           width: 1.0,
+      //           color: Theme.of(context).textTheme.bodyMedium!.color!,
+      //         ),
+      //       ),
+      //       value: autoCache,
+      //       onChanged: (value) {
+      //         if (value != null && value != autoCache) {
+      //           context.read<AppCubit>().setAutoCache(value);
+      //         }
+      //       },
+      //     ),
+      //     onTap: () {},
+      //     mouseCursor: SystemMouseCursors.click),
       ListTile(
         splashColor: Colors.black.withOpacity(0),
         title: Text(

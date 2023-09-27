@@ -4,11 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/app_state.dart';
-import 'package:hiqradio/src/utils/utils.dart';
-import 'package:hiqradio/src/views/desktop/components/win_ready.dart';
 import 'package:hiqradio/src/views/desktop/home_page.dart';
-import 'package:hiqradio/src/views/phone/phone_home_page.dart';
-import 'package:window_manager/window_manager.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SplashPage extends StatefulWidget {
@@ -102,28 +98,14 @@ class _SplashPageState extends State<SplashPage> {
         await Future.delayed(Duration(milliseconds: delay));
       }
 
-      _jump(isDesktop() ? const HomePage() : const PhoneHomePage());
+      _jump(const HomePage());
     }
   }
 
   void _jump(Widget child) {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => isDesktop()
-            ? WinReady(
-                child: child,
-                onReady: () async {
-                  await windowManager.setTitleBarStyle(TitleBarStyle.hidden,
-                      windowButtonVisibility: true);
-                  await windowManager.setFullScreen(false);
-                  await windowManager.setResizable(false);
-                  await windowManager.setOpacity(1);
-                  await windowManager.setSize(const Size(810, 540));
-                  await windowManager.center();
-                  await windowManager.setPreventClose(true);
-                },
-              )
-            : child,
+        builder: (_) => child,
       ),
     );
   }

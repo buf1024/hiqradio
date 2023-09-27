@@ -1,18 +1,9 @@
 import 'dart:async';
-import 'dart:ffi';
-import 'dart:io';
 import 'package:hiqradio/src/repository/database/radiodao.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
-// ignore: unnecessary_import
-import 'package:sqflite/sqflite.dart';
-// ignore: depend_on_referenced_packages
-import 'package:sqlite3/open.dart';
-// ignore: depend_on_referenced_packages
-import 'package:sqlite3/sqlite3.dart' hide Database;
+
 // ignore: depend_on_referenced_packages, unnecessary_import
-import 'package:sqflite_common/sqlite_api.dart' show Database;
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common/sqlite_api.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 part 'radiodb.g.dart';
 
@@ -22,7 +13,6 @@ class RadioDB {
   late RadioDao radioDao;
 
   static final RadioDB _instance = RadioDB._();
-
 
   static Future<RadioDB> create() async {
     RadioDB db = RadioDB._instance;
@@ -34,70 +24,22 @@ class RadioDB {
 
   RadioDB._();
 
-  Future<String> getDbDirPath() async {
-    Directory appDir = await getApplicationSupportDirectory();
-    String dirPath = join(appDir.path, 'hiqradio');
-
-    Directory result = Directory(dirPath);
-    if (!result.existsSync()) {
-      result.createSync(recursive: true);
-    }
-    return dirPath;
-  }
-
-  void setupDatabase() {
-    if (Platform.isWindows) {
-      String location = Directory.current.path;
-      _windowsInit(join(location, 'sqlite3.dll'));
-    }
-  }
-
-  void _windowsInit(String path) {
-    open.overrideFor(OperatingSystem.windows, () {
-      try {
-        return DynamicLibrary.open(path);
-      } catch (e) {
-        stderr.writeln('Failed to load sqlite3.dll at $path');
-        rethrow;
-      }
-    });
-    sqlite3.openInMemory().dispose();
-  }
-
   Future<void> initDb() async {
     if (!isInit) {
-      setupDatabase();
-      String databasesPath = await getDbDirPath();
-      String dbPath = join(databasesPath, 'hiqradio.db');
-
-      print('数据库目录: $dbPath');
-
       OpenDatabaseOptions options = OpenDatabaseOptions(
           version: 1,
           onCreate: _onCreate,
           onUpgrade: _onUpgrade,
           onOpen: _onOpen);
 
-      if (Platform.isWindows || Platform.isLinux) {
-        DatabaseFactory databaseFactory = databaseFactoryFfi;
-        database = await databaseFactory.openDatabase(
-          dbPath,
-          options: options,
-        );
-        radioDao = RadioDao(db: database);
-        isInit = true;
-        return;
-      }
-      database = await openDatabase(
-        dbPath,
-        version: options.version,
-        onCreate: options.onCreate,
-        onUpgrade: options.onUpgrade,
-        onOpen: options.onOpen,
+      DatabaseFactory databaseFactory = databaseFactoryFfiWeb;
+      database = await databaseFactory.openDatabase(
+        'hiqradio.db',
+        options: options,
       );
-
       radioDao = RadioDao(db: database);
       isInit = true;
+      return;
     }
   }
 

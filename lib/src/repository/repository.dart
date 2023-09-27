@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:hiqradio/src/models/cache.dart';
 import 'package:hiqradio/src/models/country.dart';
 import 'package:hiqradio/src/models/country_state.dart';
 import 'package:hiqradio/src/models/fav_group.dart';
@@ -12,10 +9,8 @@ import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/repository/database/radiodao.dart';
 import 'package:hiqradio/src/repository/database/radiodb.dart';
 import 'package:hiqradio/src/repository/radioapi/radioapi.dart';
-import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/utils/pair.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class RadioRepository {
   static final RadioRepository instance = RadioRepository._();
@@ -23,7 +18,7 @@ class RadioRepository {
   late RadioApi api;
   late RadioDao dao;
 
-  bool isApiUseCache = true;
+  bool isApiUseCache = false;
   bool isCaching = false;
 
   RadioRepository._();
@@ -332,7 +327,6 @@ class RadioRepository {
     if (groupName == null) {
       FavGroup? group = await dao.queryDefGroup();
       if (group == null) {
-        stderr.writeln('default group is unexpected null');
         throw 'default group is unexpected null';
       }
       return group;
@@ -467,35 +461,35 @@ class RadioRepository {
     await dao.insertFavImport(data);
   }
 
-  Future<int> doCacheStations() async {
-    Cache? cache = await dao.queryCache();
-    bool needUpdate = false;
-    if (cache == null) {
-      needUpdate = true;
-    } else {
-      SharedPreferences sp = await SharedPreferences.getInstance();
-      int interval =
-          sp.getInt(kSpAppCheckCacheInterval) ?? kDefCheckCacheInterval;
-      int now = DateTime.now().millisecondsSinceEpoch;
-      if (now - cache.checkTime > interval) {
-        needUpdate = true;
-      }
-    }
-    if (needUpdate) {
-      isCaching = true;
-      List<Station> stations = await search('', skipCache: true);
-      print('update cache stations size=${stations.length}');
-      await dao.insertStations(stations);
+  // Future<int> doCacheStations() async {
+  //   Cache? cache = await dao.queryCache();
+  //   bool needUpdate = false;
+  //   if (cache == null) {
+  //     needUpdate = true;
+  //   } else {
+  //     SharedPreferences sp = await SharedPreferences.getInstance();
+  //     int interval =
+  //         sp.getInt(kSpAppCheckCacheInterval) ?? kDefCheckCacheInterval;
+  //     int now = DateTime.now().millisecondsSinceEpoch;
+  //     if (now - cache.checkTime > interval) {
+  //       needUpdate = true;
+  //     }
+  //   }
+  //   if (needUpdate) {
+  //     isCaching = true;
+  //     List<Station> stations = await search('', skipCache: true);
+  //     print('update cache stations size=${stations.length}');
+  //     await dao.insertStations(stations);
 
-      await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
+  //     await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
 
-      isCaching = false;
-    } else {
-      print('no need cache');
-    }
-    print('done update cache');
-    return await dao.queryStationCount();
-  }
+  //     isCaching = false;
+  //   } else {
+  //     print('no need cache');
+  //   }
+  //   print('done update cache');
+  //   return await dao.queryStationCount();
+  // }
 
   Future<Station?> loadStationByUuid(String uuid) async {
     Station? station = await dao.queryStation(uuid);

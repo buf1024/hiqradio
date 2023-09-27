@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:hiqradio/src/utils/nav.dart';
-import 'package:window_manager/window_manager.dart';
 
 class NavBar extends StatefulWidget {
   final List<NavItem>? topNavTabs;
@@ -44,12 +43,6 @@ class _NavBarState extends State<NavBar> {
       width: kNaviBarWidth,
       child: Stack(
         children: [
-          GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onPanStart: (details) {
-              windowManager.startDragging();
-            },
-          ),
           Column(
             children: [
               ..._buildWidget(NavPos.top, widget.topNavTabs),

@@ -1,29 +1,17 @@
-import 'dart:io';
-
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/models/record.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:just_audio_background/just_audio_background.dart';
 
 class AppJACubit extends AppCubit {
   AppJACubit() : super();
   @override
   Future<void> audioPlay(
       {required String uri, required bool isRecord, Station? station}) async {
-    dynamic tag;
-    if (!Platform.isMacOS) {
-      tag = MediaItem(
-          id: uri,
-          title: station == null ? uri : station.name,
-          artUri: station != null && station.favicon != null
-              ? Uri.parse(station.favicon!)
-              : null);
-    }
     await player.setAudioSource(
       AudioSource.uri(
         !isRecord ? Uri.parse(uri) : Uri.file(uri),
-        tag: tag,
+        tag: null,
       ),
     );
     await player.play();

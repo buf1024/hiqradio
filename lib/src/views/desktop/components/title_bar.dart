@@ -9,8 +9,6 @@ import 'package:hiqradio/src/views/desktop/components/search.dart';
 import 'package:hiqradio/src/views/components/search_option.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
-import 'package:window_manager/window_manager.dart';
-import 'dart:io';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TitleBar extends StatefulWidget {
@@ -95,13 +93,6 @@ class _TitleBarState extends State<TitleBar> {
           height: kTitleBarHeight,
           child: Stack(
             children: [
-              GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onPanStart: (details) {
-                  windowManager.startDragging();
-                },
-                onTap: () => _closeSearchOverlay(),
-              ),
               Center(child: widget.child ?? Container()),
               if (widget.withFuncs) _funcButtons()
             ],
@@ -112,31 +103,6 @@ class _TitleBarState extends State<TitleBar> {
           thickness: 1,
           color: dividerColor,
         )
-      ],
-    );
-  }
-
-  Widget _windowsButtons() {
-    Brightness brightness = Theme.of(context).brightness;
-    return Row(
-      children: [
-        WindowCaptionButton.close(
-          brightness: brightness,
-          onPressed: () {
-            windowManager.close();
-          },
-        ),
-        WindowCaptionButton.minimize(
-          brightness: brightness,
-          onPressed: () async {
-            bool isMinimized = await windowManager.isMinimized();
-            if (isMinimized) {
-              windowManager.restore();
-            } else {
-              windowManager.minimize();
-            }
-          },
-        ),
       ],
     );
   }
@@ -246,7 +212,7 @@ class _TitleBarState extends State<TitleBar> {
                   isMouseInSearchOverlay = false;
                 });
 
-                Size size = await windowManager.getSize();
+                Size size = MediaQuery.of(context).size;
                 _showSearchDlg(
                     size.height - kTitleBarHeight - kPlayBarHeight, 365.0);
                 widget.onSearchClicked?.call();
@@ -297,7 +263,7 @@ class _TitleBarState extends State<TitleBar> {
         .select<AppCubit, HiqThemeMode>((value) => value.state.themeMode);
 
     return Row(children: [
-      Platform.isLinux || Platform.isWindows ? _windowsButtons() : Container(),
+      Container(),
       const Spacer(),
       _searchTextField(),
       const SizedBox(width: 10.0),

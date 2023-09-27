@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
-import 'package:hiqradio/src/utils/utils.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/station_placeholder.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,8 +20,8 @@ class StationInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double h1 = isDesktop() ? 12 : 15;
-    double h2 = isDesktop() ? 11 : 13;
+    double h1 = 12;
+    double h2 = 11;
 
     return SizedBox(
       height: height,
@@ -68,14 +67,13 @@ class StationInfo extends StatelessWidget {
             children: [
               const Spacer(),
               InkClick(
-                onTap: isDesktop()
-                    ? () async {
+                onTap: () async {
                         if (station.homepage != null) {
                           Uri url = Uri.parse(station.homepage!);
-                          await launchUrl(url, mode: LaunchMode.externalApplication);
+                          await launchUrl(url,
+                              mode: LaunchMode.externalApplication);
                         }
-                      }
-                    : null,
+                      },
                 child: SizedBox(
                   width: width - height - 8.0,
                   child: Text(

@@ -1,16 +1,7 @@
-import 'dart:io';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:hiqradio/src/models/station.dart';
-import 'package:hiqradio/src/utils/utils.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/station_info.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:oktoast/oktoast.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -104,18 +95,11 @@ class _StationQrCodeState extends State<StationQrCode> {
                 alignment: Alignment.centerRight,
                 height: 28,
                 child: InkClick(
-                  child:  Text(
+                  child: Text(
                     AppLocalizations.of(context)!.cmm_save_picture,
                     style: const TextStyle(color: Colors.blue, fontSize: 14),
                   ),
-                  onTap: () async {
-                    if (!isSaving) {
-                      isSaving = true;
-                      await _saveImage();
-                      isSaving = false;
-                      widget.onTap?.call();
-                    }
-                  },
+                  onTap: () async {},
                 ),
               )
             ],
@@ -123,33 +107,5 @@ class _StationQrCodeState extends State<StationQrCode> {
         ),
       ),
     );
-  }
-
-  Future<void> _saveImage() async {
-    RenderRepaintBoundary? boundary =
-        pngKey.currentContext!.findRenderObject() as RenderRepaintBoundary?;
-
-    if (boundary != null) {
-      var image = await boundary.toImage(pixelRatio: 5.0);
-      var byteData = await image.toByteData(format: ImageByteFormat.png);
-      var pngBytes = byteData!.buffer.asUint8List();
-
-      String toastMsg = '图片已保存';
-      if (isDesktop()) {
-        var directory = await getDownloadsDirectory();
-        var p = join(directory!.path, '${widget.station.name}.png');
-        toastMsg = '$toastMsg : $p';
-        var file = File(p);
-        file.writeAsBytes(pngBytes);
-      } else {
-        await ImageGallerySaver.saveImage(pngBytes, name: widget.station.name);
-        toastMsg = '$toastMsg : Storage/Pictures/${widget.station.name}.png';
-      }
-      showToast(toastMsg,
-          position: const ToastPosition(
-            align: Alignment.bottomCenter,
-          ),
-          duration: const Duration(seconds: 5));
-    }
   }
 }

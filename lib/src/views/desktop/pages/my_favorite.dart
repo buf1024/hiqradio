@@ -1,9 +1,5 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,7 +15,6 @@ import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/station_placeholder.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:intl/intl.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -436,150 +431,6 @@ class _MyFavoriteState extends State<MyFavorite>
                 ),
               ),
             ),
-            Container(
-                padding: const EdgeInsets.only(left: 20.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    InkClick(
-                      child: Container(
-                        height: 28.0,
-                        width: 48.0,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0, vertical: 4.0),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color:
-                                Theme.of(context).textTheme.bodyMedium!.color!,
-                          ),
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                        child: isExporting
-                            ? Center(
-                                child: Container(
-                                  height: 20.0,
-                                  width: 20.0,
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 1.0,
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .color,
-                                  ),
-                                ),
-                              )
-                            : Text(
-                                AppLocalizations.of(context)!.cmm_export,
-                                style: const TextStyle(
-                                  fontSize: 13.0,
-                                ),
-                              ),
-                      ),
-                      onTap: () async {
-                        if (isExporting) {
-                          return;
-                        }
-                        setState(() {
-                          isExporting = true;
-                        });
-                        String? selectedDirectory =
-                            await FilePicker.platform.getDirectoryPath();
-
-                        if (selectedDirectory != null) {
-                          String fileName =
-                              'Export-${DateFormat("yyyyMMddHHmmss").format(DateTime.now())}.json';
-                          String outFileName =
-                              '$selectedDirectory${Platform.pathSeparator}$fileName';
-
-                          String jsStr = await context
-                              .read<FavoriteCubit>()
-                              .exportFavJson();
-                          File output = File(outFileName);
-                          if (!await output.exists()) {
-                            await output.create(recursive: true);
-                          }
-
-                          await output.writeAsString(jsStr);
-                          setState(() {
-                            isExporting = false;
-                          });
-                          showToast(
-                              '${AppLocalizations.of(context)!.mine_export_msg}  $outFileName',
-                              position: const ToastPosition(
-                                align: Alignment.bottomCenter,
-                              ),
-                              duration: const Duration(seconds: 5));
-                        }
-                      },
-                    ),
-                    InkClick(
-                      child: Container(
-                        height: 28.0,
-                        width: 48.0,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0, vertical: 4.0),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color:
-                                Theme.of(context).textTheme.bodyMedium!.color!,
-                          ),
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                        child: isImporting
-                            ? Center(
-                                child: Container(
-                                  height: 20.0,
-                                  width: 20.0,
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 1.0,
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .color,
-                                  ),
-                                ),
-                              )
-                            : Text(
-                                AppLocalizations.of(context)!.cmm_import,
-                                style: const TextStyle(
-                                  fontSize: 13.0,
-                                ),
-                              ),
-                      ),
-                      onTap: () async {
-                        if (isImporting) {
-                          return;
-                        }
-                        setState(() {
-                          isImporting = true;
-                        });
-                        FilePickerResult? result =
-                            await FilePicker.platform.pickFiles();
-
-                        if (result != null) {
-                          File file = File(result.files.single.path!);
-                          String jsStr = await file.readAsString();
-                          List<dynamic> jsObj = jsonDecode(jsStr);
-                          await context
-                              .read<FavoriteCubit>()
-                              .importFavJson(jsObj);
-
-                          setState(() {
-                            isImporting = false;
-                          });
-                          showToast(
-                              AppLocalizations.of(context)!.mine_import_msg,
-                              position: const ToastPosition(
-                                align: Alignment.bottomCenter,
-                              ),
-                              duration: const Duration(seconds: 5));
-                        }
-                      },
-                    ),
-                  ],
-                )),
           ],
         ));
   }

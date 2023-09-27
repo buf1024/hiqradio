@@ -8,7 +8,6 @@ import 'package:hiqradio/src/models/country_state.dart';
 import 'package:hiqradio/src/models/language.dart';
 import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
-import 'package:hiqradio/src/utils/utils.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -888,8 +887,8 @@ abstract class _OptionDialogState<T extends StatefulWidget> extends State<T> {
 
   Widget searchField(
       TextEditingController controller, ValueChanged valueChanged) {
-    double wHeight = isDesktop() ? 30 : 45;
-    double fSize = isDesktop() ? 13 : 16;
+    double wHeight = 30;
+    double fSize = 13;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
       height: wHeight,

@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
@@ -22,16 +21,21 @@ class RadioApi {
   RadioApi._();
 
   Future<void> initDio() async {
-    List<String> hosts = [];
-    String hostName = 'all.api.radio-browser.info';
+    // List<String> hosts = [];
+    // String hostName = 'all.api.radio-browser.info';
 
-    List<InternetAddress> addresses = await InternetAddress.lookup(hostName);
-    for (InternetAddress addr in addresses) {
-      InternetAddress revAddr = await addr.reverse();
-      hosts.add(revAddr.host);
-    }
+    // 这个web没有lookup
+    List<String> hosts = [
+      'at1.api.radio-browser.info',
+      'de1.api.radio-browser.info',
+      'nl1.api.radio-browser.info',
+      'nl1.api.radio-browser.info',
+      'at1.api.radio-browser.info',
+      'de1.api.radio-browser.info'
+    ];
     var baseUrl = 'https://${hosts[Random().nextInt(hosts.length)]}';
 
+    print('baseUrl: $baseUrl');
     dio.options.baseUrl = baseUrl;
     Map<String, dynamic> headers = HashMap();
     headers['User-Agent'] = userAgent;
@@ -143,6 +147,7 @@ class RadioApi {
     Response response = await dio.get(url);
     return response.data;
   }
+
   Future<dynamic> stationsByUuid({required String uuid}) async {
     // [{'changeuuid': 'abbf72c1-6ff9-4408-8402-3de417d3b52c',
     // 'stationuuid': '4a018de7-b452-4412-b86f-86254c5d53be',
@@ -379,6 +384,7 @@ class RadioApi {
     if (hidebroken != null) {
       queryParameters['hidebroken'] = hidebroken ? 'true' : 'false';
     }
+    
     Response response = await dio.get(url, queryParameters: queryParameters);
     return response.data;
   }

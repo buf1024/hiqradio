@@ -458,32 +458,32 @@ class RadioDao {
     });
   }
 
-  Future<void> insertStations(List<Station> stations) async {
-    var batch = db.batch();
-    int count = 0;
-    for (var station in stations) {
-      List<Map<String, Object?>> list = await db.query('station',
-          where: 'stationuuid = ?', whereArgs: [station.stationuuid], limit: 1);
-      var jsValues = station.toJson();
-      if (list.isEmpty) {
-        batch.insert('station', jsValues);
-      } else {
-        var jsValues = station.toJson();
-        jsValues.remove('id');
-        batch.update('station', jsValues,
-            where: 'id = ?', whereArgs: [list[0]['id']]);
-      }
-      count += 1;
-      if (count >= kBatchSize) {
-        print('commit batch: $count');
-        await batch.apply(noResult: true, continueOnError: true);
-        batch = db.batch();
-        count = 0;
-      }
-    }
+  // Future<void> insertStations(List<Station> stations) async {
+  //   var batch = db.batch();
+  //   int count = 0;
+  //   for (var station in stations) {
+  //     List<Map<String, Object?>> list = await db.query('station',
+  //         where: 'stationuuid = ?', whereArgs: [station.stationuuid], limit: 1);
+  //     var jsValues = station.toJson();
+  //     if (list.isEmpty) {
+  //       batch.insert('station', jsValues);
+  //     } else {
+  //       var jsValues = station.toJson();
+  //       jsValues.remove('id');
+  //       batch.update('station', jsValues,
+  //           where: 'id = ?', whereArgs: [list[0]['id']]);
+  //     }
+  //     count += 1;
+  //     if (count >= kBatchSize) {
+  //       print('commit batch: $count');
+  //       await batch.apply(noResult: true, continueOnError: true);
+  //       batch = db.batch();
+  //       count = 0;
+  //     }
+  //   }
 
-    await batch.apply(noResult: true, continueOnError: true);
-  }
+  //   await batch.apply(noResult: true, continueOnError: true);
+  // }
 
   Future<void> insertStation(Station station) async {
     return await db.transaction((txn) async {

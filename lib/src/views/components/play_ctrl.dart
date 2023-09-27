@@ -6,7 +6,6 @@ import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/favorite_cubit.dart';
 import 'package:hiqradio/src/blocs/recently_cubit.dart';
-import 'package:hiqradio/src/blocs/record_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 
@@ -70,19 +69,6 @@ class _PlayCtrlState extends State<PlayCtrl> {
 
     bool isFavStation =
         context.select<AppCubit, bool>((value) => value.state.isFavStation);
-
-    bool isRecording =
-        context.select<AppCubit, bool>((value) => value.state.isRecording);
-
-    if (isRecording &&
-        playingStation != null &&
-        recordStation != null &&
-        playingStation.stationuuid != recordStation!.stationuuid) {
-      _doStopRecording();
-    }
-
-    // int? recordingId =
-    //     context.select<AppCubit, int?>((value) => value.state.recordingId);
 
     return Container(
       width: 280.0,
@@ -238,38 +224,16 @@ class _PlayCtrlState extends State<PlayCtrl> {
               child: Icon(
                 IconFont.record,
                 size: 20.0,
-                color: isRecording && tick.isEven
+                color: tick.isEven
                     ? const Color(0XFFEA3E3C)
                     : Theme.of(context).textTheme.bodyMedium!.color!,
               ),
-              onTap: () async {
-                if (playingStation != null) {
-                  String? path =
-                      await context.read<AppCubit>().getStationRecordingPath();
-                  if (path != null && !isRecording) {
-                    _doStartRecording(playingStation, path);
-                  } else {
-                    _doStopRecording();
-                  }
-                }
-              },
+              onTap: () async {},
             ),
           ),
           const Spacer(),
         ],
       ),
     );
-  }
-
-  void _doStopRecording() {
-    context.read<AppCubit>().stopRecording();
-    _stopRecordingTimer();
-    context.read<RecordCubit>().updateRecord();
-  }
-
-  void _doStartRecording(Station station, String dest) {
-    context.read<AppCubit>().startRecording(dest);
-    _startRecordingTimer();
-    context.read<RecordCubit>().addRecord(station, dest);
   }
 }

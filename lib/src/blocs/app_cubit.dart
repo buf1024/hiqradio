@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/app_state.dart';
@@ -13,11 +12,8 @@ import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/repository/repository.dart';
 import 'package:hiqradio/src/utils/constant.dart';
-import 'package:hiqradio/src/utils/my_isolate.dart';
 import 'package:hiqradio/src/utils/pair.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class AppCubit extends Cubit<AppState> {
@@ -57,21 +53,9 @@ abstract class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<String> getRecordingPath() async {
-    Directory appDir = await getApplicationDocumentsDirectory();
-    String dirPath = join(appDir.path, 'hiqradio', 'recording');
-
-    Directory result = Directory(dirPath);
-    if (!result.existsSync()) {
-      result.createSync(recursive: true);
-    }
-    return dirPath;
-  }
-
   void initApp() async {
     await ResManager.instance.initRes();
     await repo.initRepo();
-    await MyIsolate.create();
 
     SharedPreferences sp = await SharedPreferences.getInstance();
 
@@ -113,7 +97,7 @@ abstract class AppCubit extends Cubit<AppState> {
     if (localeTmp != null) {
       locale = localeTmp;
     } else {
-      locale = Platform.localeName.substring(0, 2);
+      locale = 'zh';
     }
 
     emit(state.copyWith(
@@ -132,7 +116,7 @@ abstract class AppCubit extends Cubit<AppState> {
 
     int cacheCount = await repo.loadStationCount();
     emit(state.copyWith(isCaching: true, cacheCount: cacheCount));
-    cacheCount = await repo.doCacheStations();
+    // cacheCount = await repo.doCacheStations();
     emit(state.copyWith(isCaching: false, cacheCount: cacheCount));
   }
 
@@ -279,67 +263,6 @@ abstract class AppCubit extends Cubit<AppState> {
     if (state.playingStation != null) {
       // await player.stop();
       _platformStop(isRecord: false);
-    }
-  }
-
-  Future<String?> getStationRecordingPath() async {
-    if (state.playingStation != null && !state.isRecording) {
-      String ext = '';
-      String url = state.playingStation!.urlResolved;
-
-      int index = url.lastIndexOf('/');
-      if (index != url.length - 1) {
-        String file = url.substring(index + 1);
-        index = file.indexOf('?');
-        if (index > 0) {
-          file = file.substring(0, index);
-        }
-        index = file.indexOf('.');
-        if (index >= 0) {
-          ext = file.substring(index);
-          if (ext.contains('.m3u')) {
-            ext = '.ts';
-          }
-        }
-      }
-      if (ext.isEmpty) {
-        String? codec = state.playingStation!.codec;
-        if (codec != null) {
-          ext = '.${codec.toLowerCase()}';
-        }
-      }
-      if (ext.isEmpty) {
-        ext = '.ts';
-      }
-
-      String dest =
-          '${DateTime.now().millisecondsSinceEpoch}-${state.playingStation!.name}$ext';
-      String basePath = await getRecordingPath();
-      dest = '$basePath/$dest';
-
-      return dest;
-    }
-    return null;
-  }
-
-  void startRecording(String dest) async {
-    if (state.playingStation != null && !state.isRecording) {
-      String url = state.playingStation!.urlResolved;
-
-      print('recording: url=$url, desc=$dest');
-
-      MyIsolate r = await MyIsolate.create();
-      r.startRecording(url, dest);
-
-      emit(state.copyWith(isRecording: true));
-    }
-  }
-
-  Future<void> stopRecording() async {
-    if (state.isRecording) {
-      MyIsolate r = await MyIsolate.create();
-      r.stopRecording();
-      emit(state.copyWith(isRecording: false));
     }
   }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-enum NavType { discovery, station, customized, recently, record, mine }
+enum NavType { discovery, station, customized, recently, mine }
 
 enum NavPos { top, bottom }
 
@@ -26,8 +26,6 @@ class NavItem {
       return AppLocalizations.of(context)!.mod_customized;
     } else if (type == NavType.recently) {
       return AppLocalizations.of(context)!.mod_recently;
-    } else if (type == NavType.record) {
-      return AppLocalizations.of(context)!.mod_record;
     } else if (type == NavType.mine) {
       return AppLocalizations.of(context)!.mod_mine;
     }
