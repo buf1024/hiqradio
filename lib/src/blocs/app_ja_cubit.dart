@@ -44,9 +44,13 @@ class AppJACubit extends AppCubit {
         playingRecord = null;
       }
       if (playingRecord == null) {
-        if (ProcessingState.buffering == processingState ||
-            ProcessingState.loading == processingState) {
+        if (ProcessingState.loading == processingState) {
           isBuffering = true;
+        }
+        if (ProcessingState.buffering == processingState) {
+          // isBuffering = true;
+          // web版没用
+          isBuffering = false;
         }
       } else {
         isPlaying = false;
