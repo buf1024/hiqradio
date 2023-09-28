@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
@@ -17,7 +15,6 @@ class PlayCtrl extends StatefulWidget {
 }
 
 class _PlayCtrlState extends State<PlayCtrl> {
-  Timer? recordingTimer;
   int tick = 0;
 
   Station? recordStation;
@@ -30,30 +27,6 @@ class _PlayCtrlState extends State<PlayCtrl> {
   @override
   void dispose() {
     super.dispose();
-    if (recordingTimer != null) {
-      recordingTimer!.cancel();
-      recordingTimer = null;
-    }
-  }
-
-  void _startRecordingTimer() {
-    if (recordingTimer == null) {
-      tick = 0;
-      recordingTimer =
-          Timer.periodic(const Duration(milliseconds: 800), (timer) {
-        setState(() {
-          tick += 1;
-        });
-      });
-    }
-  }
-
-  void _stopRecordingTimer() {
-    if (recordingTimer != null) {
-      tick = 0;
-      recordingTimer!.cancel();
-      recordingTimer = null;
-    }
   }
 
   @override
