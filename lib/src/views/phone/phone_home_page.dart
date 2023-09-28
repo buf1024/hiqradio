@@ -18,6 +18,7 @@ import 'package:hiqradio/src/views/phone/carplaying_page.dart';
 import 'package:hiqradio/src/views/phone/components/play_funcs.dart';
 import 'package:hiqradio/src/views/phone/pages/my_phone_favorite.dart';
 import 'package:hiqradio/src/views/phone/pages/my_phone_recently.dart';
+import 'package:hiqradio/src/views/phone/pages/my_phone_record.dart';
 import 'package:hiqradio/src/views/phone/pages/my_phone_station.dart';
 import 'package:hiqradio/src/views/phone/playing_page.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -51,11 +52,11 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
         pos: NavPos.top,
         // label: '电台',
         iconData: IconFont.station),
-    // NavItem(
-    //     type: NavType.record,
-    //     pos: NavPos.top,
-    //     // label: '录音',
-    //     iconData: IconFont.record),
+    NavItem(
+        type: NavType.record,
+        pos: NavPos.top,
+        // label: '录音',
+        iconData: IconFont.record),
   ];
 
   List<NavItem> rightNavTabs = [
@@ -343,7 +344,6 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
         context.select<AppCubit, int>((value) => value.state.cacheCount);
 
     return [
-      
       ListTile(
         title: const Text(
           'Language',
@@ -724,7 +724,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
               });
         },
       ),
-     
+
       // if (actNavItem.type == NavType.mine)
       //   ListTile(
       //     title: Text(
@@ -931,7 +931,9 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
           Center(
             child: MyPhoneStation(),
           ),
-          
+          Center(
+            child: MyPhoneRecord(),
+          ),
           Center(
             child: MyPhoneRecently(),
           ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-enum NavType { discovery, station, customized, recently, mine }
+enum NavType { discovery, station, record, customized, recently, mine }
 
 enum NavPos { top, bottom }
 

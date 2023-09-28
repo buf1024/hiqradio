@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/views/components/play_ctrl.dart';
+import 'package:hiqradio/src/views/desktop/pages/my_record.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:hiqradio/src/utils/nav.dart';
 import 'package:hiqradio/src/views/desktop/components/nav_bar.dart';
@@ -37,6 +38,11 @@ class _HomePageState extends State<HomePage> {
         pos: NavPos.top,
         // label: '最近',
         iconData: IconFont.recently),
+    NavItem(
+        type: NavType.record,
+        pos: NavPos.top,
+        // label: '最近',
+        iconData: IconFont.record),
     NavItem(
         type: NavType.mine,
         pos: NavPos.top,
@@ -126,6 +132,7 @@ class _HomePageState extends State<HomePage> {
           // MyCustomized(),
           // MyDiscovery(),
           MyRecently(),
+          MyRecord(),
           MyFavorite(),
         ]);
   }
