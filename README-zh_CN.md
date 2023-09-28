@@ -4,8 +4,8 @@
 
 HiqRadio是一款简洁而功能强大的网络收音机，Api是来源于[OpenRadio](https://www.radio-browser.info/ "OpenRadio")，使用Flutter实现。所以，理论上他应该是跨平台的，同时支持Windows/Linux/Mac，或者android/ios。不过由于手头上只有2015款的丐版mac和android手机，所以只有在此两个平台测试，因此编译的release包也只有这两个平台，如果需要windows版本，之前有打包安装包：[release](https://github.com/buf1024/app-release/releases)。如果需要编译成其他平台，请自行下载代码编译。
 
-Web也是支持的，不过Web版仅仅是为了完整性.在上面版本上做删改，很难做到一份代码同时编译到Web中, 所以Web版本在web分支之中，当然功能是相对简单很多的。体验: [Github Page](https://luoguochun.cn/hiqradio/) 或
-[Vercel](https://buf1024-github-io.vercel.app/hiqradio)。
+Web也是支持的，不过Web版仅仅是为了完整性.在上面版本上做删改，很难做到一份代码同时编译到Web中, 所以Web版本在web分支之中，当然功能是相对简单很多的。体验: [https://luoguochun.cn/hiqradio/](https://luoguochun.cn/hiqradio/) 或
+[https://buf1024.vercel.app/hiqradio](https://buf1024.vercel.app/hiqradio)。
 
 ### 主要功能
 
