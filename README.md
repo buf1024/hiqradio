@@ -3,8 +3,8 @@
 
 HiqRadio is a simple & power network radio，it is base on [OpenRadio](https://www.radio-browser.info/ "OpenRadio") api，and it is a Flutter application/app. It supports desktop platform: Windows/Linux/Mac, and mobile platform: android/ios, and is well tested in Mac and android.
 
-Web is support too, but only for platform integrity. Is hard to use only one code to compile to web, so I checkout a new branch 'web' to separate the code. It is not as so much functionality as other platforms. visit it: [Github Page](https://luoguochun.cn/hiqradio/) or
-[Vercel](https://buf1024-github-io.vercel.app/hiqradio)。
+Web is support too, but only for platform integrity. Is hard to use only one code to compile to web, so I checkout a new branch 'web' to separate the code. It is not as so much functionality as other platforms. visit it: [https://luoguochun.cn/hiqradio/](https://luoguochun.cn/hiqradio/) or
+[https://buf1024.vercel.app/hiqradio](https://buf1024.vercel.app/hiqradio)。
 
 ### Mainly function
 
