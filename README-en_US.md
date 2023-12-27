@@ -1,5 +1,5 @@
 
-[简体中文](README-zh_CN.md)
+[简体中文](README.md)
 
 HiqRadio is a simple & power network radio，it is base on [OpenRadio](https://www.radio-browser.info/ "OpenRadio") api，and it is a Flutter application/app. It supports desktop platform: Windows/Linux/Mac, and mobile platform: android/ios, and is well tested in Mac and android.
 
