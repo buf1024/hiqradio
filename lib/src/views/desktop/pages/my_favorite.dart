@@ -627,7 +627,7 @@ class _MyFavoriteState extends State<MyFavorite>
       child: DataTable2(
         columnSpacing: 12,
         horizontalMargin: 12,
-        dividerThickness: 1,
+        dividerThickness: 0,
         bottomMargin: 10,
         sortColumnIndex: 4,
         sortAscending: true,

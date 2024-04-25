@@ -371,35 +371,51 @@ class _TitleBarState extends State<TitleBar> {
                       bottomRight: Radius.circular(8.0),
                     ),
                   ),
-                  child: Column(
-                    children: themeLabelList.map((e) {
-                      return InkClick(
-                        onTap: () {
-                          context.read<AppCubit>().changeThemeMode(e);
-                          _closeThemeOverlay();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              themeMode == e
-                                  ? Container(
-                                      width: 30.0,
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: const Icon(
-                                        IconFont.check,
-                                        size: 11.0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .navigationRailTheme
+                            .backgroundColor!,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(5.0))),
+                    child: Column(
+                      children: themeLabelList.map((e) {
+                        return InkClick(
+                          onTap: () {
+                            context.read<AppCubit>().changeThemeMode(e);
+                            _closeThemeOverlay();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                themeMode == e
+                                    ? Container(
+                                        width: 30.0,
+                                        padding: const EdgeInsets.all(2.0),
+                                        child: const Icon(
+                                          IconFont.check,
+                                          size: 11.0,
+                                        ),
+                                      )
+                                    : const SizedBox(
+                                        width: 30.0,
                                       ),
-                                    )
-                                  : const SizedBox(
-                                      width: 30.0,
-                                    ),
-                              Text(_getThemeText(e))
-                            ],
+                                Text(
+                                  _getThemeText(e),
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .color!,
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    }).toList(),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
               ),

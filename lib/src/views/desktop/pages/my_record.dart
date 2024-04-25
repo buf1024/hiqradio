@@ -92,8 +92,7 @@ class _MyRecordState extends State<MyRecord>
       child: DataTable2(
         columnSpacing: 12,
         horizontalMargin: 12,
-        dividerThickness:
-            1, // this one will be ignored if [border] is set above
+        dividerThickness: 0, // this one will be ignored if [border] is set above
         bottomMargin: 10,
         // minWidth: 900,
         sortColumnIndex: 4,

@@ -12,6 +12,7 @@ import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/repository/database/radiodao.dart';
 import 'package:hiqradio/src/repository/database/radiodb.dart';
 import 'package:hiqradio/src/repository/radioapi/radioapi.dart';
+import 'package:hiqradio/src/repository/userapi/userapi.dart';
 import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/utils/pair.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
@@ -22,6 +23,7 @@ class RadioRepository {
 
   late RadioApi api;
   late RadioDao dao;
+  late UserApi userApi;
 
   bool isApiUseCache = true;
   bool isCaching = false;
@@ -37,6 +39,7 @@ class RadioRepository {
   Future<void> initRepo() async {
     api = await RadioApi.create();
     dao = (await RadioDB.create()).dao;
+    userApi = await UserApi.create();
   }
 
   Future<List<Language>> loadLanguage() async {

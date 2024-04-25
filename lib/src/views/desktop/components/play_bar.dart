@@ -9,6 +9,7 @@ import 'package:hiqradio/src/views/components/station_info.dart';
 import 'package:hiqradio/src/views/components/play_ctrl.dart';
 import 'package:hiqradio/src/views/components/station_qr_code.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
+import 'package:window_manager/window_manager.dart';
 
 class PlayBar extends StatefulWidget {
   const PlayBar({super.key});
@@ -34,36 +35,47 @@ class _PlayBarState extends State<PlayBar> {
 
     return SizedBox(
       height: kPlayBarHeight,
-      child: Column(
+      child: Stack(
         children: [
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: dividerColor,
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onPanStart: (details) {
+              windowManager.startDragging();
+            },
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
-            child: Stack(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            children: [
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: dividerColor,
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+                child: Stack(
                   children: [
-                    playingStation == null
-                        ? Container()
-                        : StationInfo(
-                            onClicked: () => {},
-                            width: 200,
-                            height: 54,
-                            station: playingStation,
-                          ),
-                    _buildFuncs(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        playingStation == null
+                            ? Container()
+                            : StationInfo(
+                                onClicked: () => {},
+                                width: 200,
+                                height: 54,
+                                station: playingStation,
+                              ),
+                        _buildFuncs(),
+                      ],
+                    ),
+                    const Center(
+                      child: PlayCtrl(),
+                    )
                   ],
                 ),
-                const Center(
-                  child: PlayCtrl(),
-                )
-              ],
-            ),
+              )
+            ],
           )
         ],
       ),
@@ -139,23 +151,24 @@ class _PlayBarState extends State<PlayBar> {
               child: Material(
                 color: Colors.black.withOpacity(0),
                 child: Dialog(
-                    alignment: Alignment.center,
-                    insetPadding: const EdgeInsets.only(
-                        top: 0, bottom: 0, right: 0, left: 0),
-                    elevation: 2.0,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(8.0),
-                      ),
+                  alignment: Alignment.center,
+                  insetPadding: const EdgeInsets.only(
+                      top: 0, bottom: 0, right: 0, left: 0),
+                  elevation: 2.0,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(8.0),
                     ),
-                    child: StationQrCode(
-                      station: playingStation,
-                      width: width,
-                      height: height,
-                      onTap: () {
-                        _closeShareOverlay();
-                      },
-                    ),),
+                  ),
+                  child: StationQrCode(
+                    station: playingStation,
+                    width: width,
+                    height: height,
+                    onTap: () {
+                      _closeShareOverlay();
+                    },
+                  ),
+                ),
               ),
             ),
           ],

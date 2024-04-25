@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiqradio/src/views/desktop/components/user_info.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:hiqradio/src/utils/nav.dart';
 import 'package:window_manager/window_manager.dart';
@@ -40,6 +41,7 @@ class _NavBarState extends State<NavBar> {
 
   @override
   Widget build(BuildContext context) {
+    Color dividerColor = Theme.of(context).dividerColor;
     return SizedBox(
       width: kNaviBarWidth,
       child: Stack(
@@ -52,6 +54,12 @@ class _NavBarState extends State<NavBar> {
           ),
           Column(
             children: [
+              const UserInfo(),
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: dividerColor,
+              ),
               ..._buildWidget(NavPos.top, widget.topNavTabs),
               const Spacer(),
               ..._buildWidget(NavPos.bottom, widget.bottomNavTabs),

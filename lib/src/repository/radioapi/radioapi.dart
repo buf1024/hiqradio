@@ -5,7 +5,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 
 class RadioApi {
-  String userAgent = 'hiqradio/1.0.0';
+  String userAgent = 'hiqradio/1.0';
   Dio dio = Dio();
   bool isInit = false;
 
