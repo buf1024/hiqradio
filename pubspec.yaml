@@ -67,7 +67,7 @@ dependencies:
   qr_flutter: ^4.1.0
   image_gallery_saver: ^2.0.3
   mobile_scanner: ^3.3.0
-  image_picker: ^1.0.1
+  image_picker: ^1.1.0
 
 dev_dependencies:
   flutter_test:

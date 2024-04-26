@@ -12,7 +12,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Config extends StatefulWidget {
-  const Config({super.key});
+  final VoidCallback? onClose;
+  const Config({super.key, this.onClose});
 
   @override
   State<Config> createState() => _ConfigState();
@@ -61,8 +62,10 @@ class _ConfigState extends State<Config> {
     return [
       GestureDetector(
         onTapDown: (details) {
-          Offset offset = details.globalPosition;
+          Offset offset = Offset(details.globalPosition.dx,
+              details.globalPosition.dy - kTitleBarHeight);
           _onShowLanguageMenu(offset, locale);
+          widget.onClose!();
         },
         child: ListTile(
             splashColor: Colors.black.withOpacity(0),
@@ -160,6 +163,7 @@ class _ConfigState extends State<Config> {
         ),
         onTap: () {
           _onShowAboutDlg(locale);
+          widget.onClose!();
         },
       ),
     ];
@@ -178,7 +182,8 @@ class _ConfigState extends State<Config> {
         return Stack(
           children: [
             Container(
-              padding: const EdgeInsets.only(top: kTitleBarHeight),
+              padding: const EdgeInsets.only(top: 0),
+              // padding: const EdgeInsets.only(top: kTitleBarHeight),
               child: ModalBarrier(
                 onDismiss: () => _closeAboutOverlay(),
               ),
@@ -332,7 +337,7 @@ class _ConfigState extends State<Config> {
     Map<String, String> localeMap = ResManager.instance.localeMap;
 
     double width = 120.0;
-    double height = 35.0 * localeMap.length;
+    double height = 38.0 * localeMap.length;
     languageOverlay ??= OverlayEntry(
       opaque: false,
       builder: (context) {
@@ -340,7 +345,8 @@ class _ConfigState extends State<Config> {
         return Stack(
           children: [
             Container(
-              padding: const EdgeInsets.only(top: kTitleBarHeight),
+              padding: const EdgeInsets.only(top: 0),
+              // padding: const EdgeInsets.only(top: kTitleBarHeight),
               child: ModalBarrier(
                 onDismiss: () => _closeLanguageOverlay(),
               ),

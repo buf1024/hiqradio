@@ -347,7 +347,8 @@ class _TitleBarState extends State<TitleBar> {
           fit: StackFit.loose,
           children: [
             Container(
-              padding: const EdgeInsets.only(top: kTitleBarHeight),
+              padding: const EdgeInsets.only(top: 0),
+              // padding: const EdgeInsets.only(top: kTitleBarHeight),
               child: ModalBarrier(
                 onDismiss: () => _closeThemeOverlay(),
               ),
@@ -442,7 +443,8 @@ class _TitleBarState extends State<TitleBar> {
           return Stack(
             children: [
               Container(
-                padding: const EdgeInsets.only(top: kTitleBarHeight),
+                padding: const EdgeInsets.only(top: 0),
+              // padding: const EdgeInsets.only(top: kTitleBarHeight),
                 child: ModalBarrier(
                   onDismiss: () => _closeSearchOverlay(),
                 ),
@@ -499,7 +501,8 @@ class _TitleBarState extends State<TitleBar> {
           return Stack(
             children: [
               Container(
-                padding: const EdgeInsets.only(top: kTitleBarHeight),
+                padding: const EdgeInsets.only(top: 0),
+              // padding: const EdgeInsets.only(top: kTitleBarHeight),
                 child: ModalBarrier(
                   onDismiss: () => _closeSearchOptOverlay(),
                 ),
@@ -595,7 +598,8 @@ class _TitleBarState extends State<TitleBar> {
         return Stack(
           children: [
             Container(
-              padding: const EdgeInsets.only(top: kTitleBarHeight),
+              padding: const EdgeInsets.only(top: 0),
+              // padding: const EdgeInsets.only(top: kTitleBarHeight),
               child: ModalBarrier(
                 onDismiss: () => _closeConfigOverlay(),
               ),
@@ -619,9 +623,13 @@ class _TitleBarState extends State<TitleBar> {
                   child: SizedBox(
                     width: width,
                     height: height,
-                    child: const Column(
+                    child: Column(
                       children: <Widget>[
-                        Expanded(child: Config()),
+                        Expanded(
+                          child: Config(
+                            onClose: () => _closeConfigOverlay(),
+                          ),
+                        ),
                       ],
                     ),
                   ),

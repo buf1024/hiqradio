@@ -814,7 +814,8 @@ class _MyFavoriteState extends State<MyFavorite>
             alignment: Alignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.only(top: kTitleBarHeight),
+                padding: const EdgeInsets.only(top: 0),
+                //padding: const EdgeInsets.only(top: kTitleBarHeight),
                 child: ModalBarrier(
                   onDismiss: () {
                     _popOverlay();
