@@ -50,40 +50,38 @@ class _SplashPageState extends State<SplashPage> {
     return BlocListener<AppCubit, AppState>(
       listener: _listenInitApp,
       child: Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: [
-              const Spacer(),
-              Center(
-                child: Stack(
-                  children: [
-                    const SizedBox(
-                      width: 150.0,
-                      height: 30.0,
-                    ),
-                    Positioned.fill(
-                      child: AnimatedAlign(
-                        alignment: alignment,
-                        duration: animateTime,
-                        child: const Icon(
-                          IconFont.station,
-                          size: 28.0,
-                        ),
+        body: Column(
+          children: [
+            const Spacer(),
+            Center(
+              child: Stack(
+                children: [
+                  const SizedBox(
+                    width: 150.0,
+                    height: 30.0,
+                  ),
+                  Positioned.fill(
+                    child: AnimatedAlign(
+                      alignment: alignment,
+                      duration: animateTime,
+                      child: const Icon(
+                        IconFont.station,
+                        size: 28.0,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: Text(
-                  // '正在初始化，请稍等片刻……',
-                  AppLocalizations.of(context)!.splash_loading,
-                ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Text(
+                // '正在初始化，请稍等片刻……',
+                AppLocalizations.of(context)!.splash_loading,
               ),
-              const Spacer(),
-            ],
-          ),
+            ),
+            const Spacer(),
+          ],
         ),
       ),
     );
@@ -124,15 +122,19 @@ class MyHomePage extends StatelessWidget {
 
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth >= 768) {
-        return const HomePage();
+        var width = constraints.maxWidth * 0.8;
+        var height = constraints.maxHeight * 0.8;
+        return Container(
+          margin: EdgeInsets.symmetric(
+              horizontal: width * 0.09, vertical: height * 0.07),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: const HomePage(),
+          ),
+        );
       }
-      const padding = 0.0;
-      var width = (constraints.maxHeight - 2 * padding) / 2.0;
-      var height = constraints.maxHeight;
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: padding),
-        height: height,
-        width: width,
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8.0),
         child: const PhoneHomePage(),
       );
     });
