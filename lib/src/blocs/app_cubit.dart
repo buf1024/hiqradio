@@ -68,6 +68,39 @@ abstract class AppCubit extends Cubit<AppState> {
     return dirPath;
   }
 
+  Future<String?> getUserAvatar() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    String? s = sp.getString(kSpAppUserAvatar);
+    return s;
+  }
+
+  void setAvatar(String avatar) async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    await sp.setString(kSpAppUserAvatar, avatar);
+    emit(state.copyWith(avatarChgTag: state.avatarChgTag + 1));
+  }
+
+  void setUserLogin(bool isLogin,
+      {String? token, String? email, String? userName}) async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+
+    String sEmail = '', sUserName = '';
+
+    if (token != null) {
+      await sp.setString(kSpAppUserToken, token);
+    }
+    if (email != null) {
+      sEmail = email;
+      await sp.setString(kSpAppUserEmail, sEmail);
+    }
+    if (userName != null) {
+      sUserName = userName;
+    }
+
+    emit(state.copyWith(
+        isLogin: isLogin, userEmail: email, userName: sUserName));
+  }
+
   void initApp() async {
     await ResManager.instance.initRes();
     await repo.initRepo();
@@ -116,7 +149,21 @@ abstract class AppCubit extends Cubit<AppState> {
       locale = Platform.localeName.substring(0, 2);
     }
 
+    String? token = sp.getString(kSpAppUserToken);
+
+    if (token != null) {
+      repo.userApi.setAuthToken(token);
+    }
+
+    String userEmail = '';
+    String? userEmailTmp = sp.getString(kSpAppUserEmail);
+
+    if (userEmailTmp != null) {
+      userEmail = userEmailTmp;
+    }
+
     emit(state.copyWith(
+        userEmail: userEmail,
         autoCache: autoCache ?? state.autoCache,
         isInit: true,
         playingStation: playingStation,

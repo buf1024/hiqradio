@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 
 class IconFont {
   IconFont._();
+  static const IconData notsignin = IconData(0xe613, fontFamily: "IconFont");
   static const IconData rotateVertical = IconData(0xe66c, fontFamily: "IconFont");
   static const IconData rotateHorizontal = IconData(0xe66b, fontFamily: "IconFont");
   static const IconData car = IconData(0xec6d, fontFamily: "IconFont");

@@ -54,9 +54,7 @@ class _NavBarState extends State<NavBar> {
           ),
           Column(
             children: [
-              const UserInfo(
-                showType: ShowType.userinfo,
-              ),
+              const UserInfo(),
               Divider(
                 height: 1,
                 thickness: 1,

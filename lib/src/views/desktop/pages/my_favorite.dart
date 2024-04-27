@@ -17,7 +17,6 @@ import 'package:hiqradio/src/utils/res_manager.dart';
 import 'package:hiqradio/src/views/desktop/components/check_list_overlay.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/components/station_placeholder.dart';
-import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 import 'package:intl/intl.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:url_launcher/url_launcher.dart';

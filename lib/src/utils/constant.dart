@@ -44,3 +44,8 @@ const kSpRCLastPageSize = 'RCLastPageSize';
 const kSpAppCheckCacheInterval = 'AppCheckCacheInterval';
 
 const kSpAppLocale = 'AppLocale';
+
+// user
+const kSpAppUserAvatar = 'AppUserAvatar';
+const kSpAppUserToken = 'AppUserToken';
+const kSpAppUserEmail = 'AppUserEmail';

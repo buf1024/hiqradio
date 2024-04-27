@@ -5,8 +5,11 @@ HiqRadio是一款简洁而功能强大的网络收音机，Api是来源于[OpenR
 Web也是支持的，不过Web版仅仅是为了完整性.在上面版本上做删改，很难做到一份代码同时编译到Web中, 所以Web版本在web分支之中，当然功能是相对简单很多的。体验: [https://luoguochun.cn/hiqradio/](https://luoguochun.cn/hiqradio/) 或
 [https://buf1024.vercel.app/hiqradio](https://buf1024.vercel.app/hiqradio)。
 
+同时为了各个平台同步播放列表和收藏夹，增加了同步功能。
+
 ### 主要功能
 
+* 多平台同步
 * 电台缓存/多功能搜索
 * 播放历史/定时播放
 * 录音/分组收藏/导出/导入
@@ -25,10 +28,7 @@ Desktop(Mac)：
     </tr>
 </table>
 
-
-
 Mobile (android)：
-
 
 <table>
     <tr>
@@ -56,10 +56,12 @@ Tools • Dart 3.1.0 • DevTools 2.25.
 $ flutter pub get 
 $ flutter gen-l10n 
 $ flutter build macos --release
+
 ```
 
+同时注意如果设置了<https://pub.flutter-io.cn获取库，偶尔会抽风，需要去掉并加梯子。>
 
-生活不易，如果你喜欢[hiqradio](https://github.com/buf1024/hiqradio), 谢谢老板的赞赏!
+生活不易，同时服务同步也需要成本，如果你喜欢[hiqradio](https://github.com/buf1024/hiqradio), 谢谢老板的赞赏!
 
 <div align=center>
     <img src="images/reward_qrcode.png" width=50%; height=50%>

@@ -13,6 +13,12 @@ class AppState extends Equatable {
   final String expireDate;
   final bool isTry;
 
+  // user
+  final bool isLogin;
+  final String userEmail;
+  final String userName;
+  final int avatarChgTag;
+
   // playing
   final bool isPlaying;
   final bool isBuffering;
@@ -50,65 +56,71 @@ class AppState extends Equatable {
   final bool isCaching;
   final int cacheCount;
 
-  const AppState({
-    this.isTry = true,
-    this.expireDate = '',
-    this.isInit = false,
-    this.isPlaying = false,
-    this.isBuffering = false,
-    this.playingStation,
-    this.isFavStation = false,
-    this.isEditing = false,
-    this.languages = const [],
-    this.states = const {},
-    this.countries = const [],
-    this.tags = const [],
-    this.isLangLoading = false,
-    this.isStateLoading = false,
-    this.isCountriesLoading = false,
-    this.isTagLoading = false,
-    this.themeMode = HiqThemeMode.dark,
-    this.isRecording = false,
-    this.playingRecord,
-    this.playHis = const [],
-    this.playHisIndex = 0,
-    this.autoStart = false,
-    this.autoStop = true,
-    this.autoCache = true,
-    this.locale = '',
-    this.stopTimer = -1,
-    this.isCaching = false,
-    this.cacheCount = 0
-  });
+  const AppState(
+      {this.isTry = true,
+      this.expireDate = '',
+      this.isInit = false,
+      this.isPlaying = false,
+      this.isBuffering = false,
+      this.playingStation,
+      this.isFavStation = false,
+      this.isEditing = false,
+      this.languages = const [],
+      this.states = const {},
+      this.countries = const [],
+      this.tags = const [],
+      this.isLangLoading = false,
+      this.isStateLoading = false,
+      this.isCountriesLoading = false,
+      this.isTagLoading = false,
+      this.themeMode = HiqThemeMode.dark,
+      this.isRecording = false,
+      this.playingRecord,
+      this.playHis = const [],
+      this.playHisIndex = 0,
+      this.autoStart = false,
+      this.autoStop = true,
+      this.autoCache = true,
+      this.locale = '',
+      this.stopTimer = -1,
+      this.isCaching = false,
+      this.cacheCount = 0,
+      this.isLogin = false,
+      this.userEmail = '',
+      this.userName = '',
+      this.avatarChgTag = 0});
 
-  AppState copyWith({
-    bool? isInit,
-    bool? isPlaying,
-    bool? isBuffering,
-    Station? playingStation,
-    bool? isFavStation,
-    bool? isEditing,
-    List<Language>? languages,
-    Map<String, List<CountryState>>? states,
-    List<Country>? countries,
-    List<Tag>? tags,
-    bool? isLangLoading,
-    bool? isStateLoading,
-    bool? isCountriesLoading,
-    bool? isTagLoading,
-    HiqThemeMode? themeMode,
-    bool? isRecording,
-    Record? playingRecord,
-    List<Station>? playHis,
-    int? playHisIndex,
-    bool? autoStart,
-    bool? autoStop,
-    bool? autoCache,
-    String? locale,
-    int? stopTimer,
-    bool? isCaching,
-    int? cacheCount
-  }) {
+  AppState copyWith(
+      {bool? isInit,
+      bool? isPlaying,
+      bool? isBuffering,
+      Station? playingStation,
+      bool? isFavStation,
+      bool? isEditing,
+      List<Language>? languages,
+      Map<String, List<CountryState>>? states,
+      List<Country>? countries,
+      List<Tag>? tags,
+      bool? isLangLoading,
+      bool? isStateLoading,
+      bool? isCountriesLoading,
+      bool? isTagLoading,
+      HiqThemeMode? themeMode,
+      bool? isRecording,
+      Record? playingRecord,
+      List<Station>? playHis,
+      int? playHisIndex,
+      bool? autoStart,
+      bool? autoStop,
+      bool? autoCache,
+      String? locale,
+      int? stopTimer,
+      bool? isCaching,
+      int? cacheCount,
+      bool? isLogin,
+      String? userEmail,
+      String? userName,
+      int? avatarChgTag}) {
     return AppState(
       isInit: isInit ?? this.isInit,
       isPlaying: isPlaying ?? this.isPlaying,
@@ -136,6 +148,10 @@ class AppState extends Equatable {
       stopTimer: stopTimer ?? this.stopTimer,
       isCaching: isCaching ?? this.isCaching,
       cacheCount: cacheCount ?? this.cacheCount,
+      isLogin: isLogin ?? this.isLogin,
+      userEmail: userEmail ?? this.userEmail,
+      userName: userName ?? this.userName,
+      avatarChgTag: avatarChgTag ?? this.avatarChgTag,
     );
   }
 
@@ -169,5 +185,9 @@ class AppState extends Equatable {
         stopTimer,
         isCaching,
         cacheCount,
+        isLogin,
+        userEmail,
+        userName,
+        avatarChgTag
       ];
 }
