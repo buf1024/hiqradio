@@ -1,13 +1,11 @@
-import 'dart:collection';
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:data_table_2/data_table_2.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
@@ -19,7 +17,7 @@ import 'package:intl/intl.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:window_manager/window_manager.dart';
 
-enum ShowType { login, reward, register, userinfo, none }
+enum ShowType { login, reward, register, userinfo, resetPass, none }
 
 class UserInfo extends StatefulWidget {
   const UserInfo({super.key});
@@ -50,8 +48,11 @@ class _UserInfoState extends State<UserInfo> {
     if (chgTag != avatarChg) {
       String? avatar = await context.read<AppCubit>().getUserAvatar();
       setState(() {
-        if (avatar != null) {
+        if (avatar != null && avatar.isNotEmpty) {
+          debugPrint('avatar not empty');
           avatarData = base64Decode(avatar);
+        } else {
+          avatarData = Uint8List(0);
         }
         avatarChg = chgTag;
       });
@@ -149,6 +150,13 @@ class _UserInfoState extends State<UserInfo> {
           from: from,
           onClose: (from, next) => _onCloseContent(from, next),
         );
+
+      case ShowType.resetPass:
+        return _UserPasswdReset(
+          from: from,
+          onClose: (from, next) => _onCloseContent(from, next),
+        );
+
       case ShowType.none:
         return null;
     }
@@ -338,7 +346,7 @@ class _UserLoginState extends State<_UserLogin> {
           .read<AppCubit>()
           .setUserLogin(true, token: token, email: email, userName: userName);
 
-      widget.onClose(widget.from, ShowType.none);
+      widget.onClose(ShowType.login, ShowType.none);
     } else {
       requestCaptcha();
       toastMsg = '登录失败: ${data['message']}';
@@ -497,9 +505,23 @@ class _UserLoginState extends State<_UserLogin> {
         ),
         Row(
           children: [
-            const SizedBox(
+            Container(
               height: 26,
               width: 130,
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 12.0),
+              child: InkClick(
+                onTap: () {
+                  widget.onClose(ShowType.register, ShowType.resetPass);
+                },
+                child: Text(
+                  "忘记密码",
+                  style: TextStyle(
+                      fontSize: 12.0,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.blueAccent),
+                ),
+              ),
             ),
             Container(
               height: 26,
@@ -527,15 +549,12 @@ class _UserLoginState extends State<_UserLogin> {
                   String toastMsg = '';
                   if (emailController.text.isEmpty) {
                     toastMsg += 'email 为空\n';
-                  }
-                  if (emailController.text.isNotEmpty &&
+                  } else if (emailController.text.isNotEmpty &&
                       !_isEmailValid(emailController.text)) {
                     toastMsg += 'email 格式不正确\n';
-                  }
-                  if (passwdController.text.isEmpty) {
+                  } else if (passwdController.text.isEmpty) {
                     toastMsg += '密码为空\n';
-                  }
-                  if (codeController.text.isEmpty) {
+                  } else if (codeController.text.isEmpty) {
                     toastMsg += '验证码为空\n';
                   }
                   if (toastMsg.isNotEmpty) {
@@ -573,9 +592,14 @@ bool _isEmailValid(String email) {
 
 Widget _textField(
     BuildContext context, TextEditingController controller, String hintText,
-    {bool obscureText = false, bool readOnly = false}) {
+    {bool obscureText = false,
+    bool readOnly = false,
+    FocusNode? focusNode,
+    Widget? suffix,
+    void Function(String)? onSubmitted}) {
   return TextField(
     controller: controller,
+    focusNode: focusNode,
     readOnly: readOnly,
     autocorrect: false,
     obscuringCharacter: '*',
@@ -585,6 +609,7 @@ Widget _textField(
     cursorColor: Theme.of(context).textTheme.bodyMedium!.color!,
     style: const TextStyle(fontSize: 14.0),
     decoration: InputDecoration(
+      suffix: suffix,
       hintText: hintText,
       hintStyle: const TextStyle(fontSize: 12.0, fontStyle: FontStyle.italic),
       contentPadding:
@@ -599,9 +624,10 @@ Widget _textField(
           borderRadius: BorderRadius.circular(5.0)),
     ),
     onSubmitted: (value) {
-      // context
-      //     .read<FavoriteCubit>()
-      //     .updateGroup(value, group.desc == null ? '' : group.desc!);
+      debugPrint('onSubmitted');
+      if (onSubmitted != null) {
+        onSubmitted(value);
+      }
     },
     onTap: () async {},
   );
@@ -654,7 +680,7 @@ class _UserRewardState extends State<_UserReward> {
                   if (ShowType.none != widget.from) {
                     next = widget.from;
                   }
-                  widget.onClose(widget.from, next);
+                  widget.onClose(ShowType.reward, next);
                 },
                 child: const Text(
                   '跳过',
@@ -777,13 +803,15 @@ class _UserRegisterState extends State<_UserRegister> {
       signinLoading = false;
     });
     if (data['error'] == 0) {
+      context.read<AppCubit>().setUserLogin(false, email: email);
+      context.read<AppCubit>().setAvatar('');
       String toastMsg = '用户注册成功，请登录！';
       showToast(toastMsg,
           position: const ToastPosition(
             align: Alignment.bottomCenter,
           ),
           duration: const Duration(seconds: 5));
-      widget.onClose(widget.from, ShowType.login);
+      widget.onClose(ShowType.register, ShowType.login);
     } else {
       String toastMsg = '用户注册失败: ${data['error']}, ${data['message']}';
       showToast(toastMsg,
@@ -1008,22 +1036,17 @@ class _UserRegisterState extends State<_UserRegister> {
                               if (emailController.text.isEmpty ||
                                   !_isEmailValid(emailController.text)) {
                                 toastMsg += '邮箱地址为空或者无效\n';
-                              }
-                              if (codeController.text.isEmpty) {
+                              } else if (codeController.text.isEmpty) {
                                 toastMsg += '验证码为空\n';
-                              }
-                              if (verifyCodeController.text.isEmpty) {
+                              } else if (verifyCodeController.text.isEmpty) {
                                 toastMsg += '邮箱校验码为空\n';
-                              }
-                              if (passwdController.text.isEmpty ||
+                              } else if (passwdController.text.isEmpty ||
                                   passwd2Controller.text.isEmpty) {
                                 toastMsg += '密码或重输密码框为空\n';
-                              }
-                              if (passwdController.text !=
+                              } else if (passwdController.text !=
                                   passwd2Controller.text) {
                                 toastMsg += '两次输入的密码不一致\n';
-                              }
-                              if (passwdController.text.length < 6) {
+                              } else if (passwdController.text.length < 6) {
                                 toastMsg += '密码长度必须大于等于6\n';
                               }
 
@@ -1074,38 +1097,32 @@ class _UserRegisterState extends State<_UserRegister> {
   }
 }
 
-class _UserDetail extends StatefulWidget {
+class _UserPasswdReset extends StatefulWidget {
   final Function(ShowType, ShowType) onClose;
   final ShowType from;
-  const _UserDetail({required this.onClose, required this.from});
+  const _UserPasswdReset({required this.onClose, required this.from});
 
   @override
-  State<_UserDetail> createState() => _UserDetailState();
+  State<_UserPasswdReset> createState() => _UserPasswdResetState();
 }
 
-class _UserDetailState extends State<_UserDetail> {
+class _UserPasswdResetState extends State<_UserPasswdReset> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwdController = TextEditingController();
-  TextEditingController passwd2Controller = TextEditingController();
-  TextEditingController userNameController = TextEditingController();
+  TextEditingController codeController = TextEditingController();
+  TextEditingController verifyCodeController = TextEditingController();
 
   UserApi userApi = RadioRepository.instance.userApi;
 
+  bool captchaLoading = false;
   Uint8List captcha = Uint8List(0);
 
-  List<Map<String, dynamic>> products = [];
-  List<Map<String, dynamic>> userProducts = [];
+  bool verifyCodeSending = false;
+  bool verifyCodeSended = false;
 
-  bool isModifying = false;
-  bool isRequestModifying = false;
-  bool isRequestSignouting = false;
-  bool isRequestAvatarModifying = false;
-
-  Uint8List avatarData = Uint8List(0);
+  bool resetLoading = false;
 
   bool isInit = false;
-
-  int avatarChg = -1;
 
   @override
   void initState() {
@@ -1117,8 +1134,399 @@ class _UserDetailState extends State<_UserDetail> {
     super.dispose();
     emailController.dispose();
     passwdController.dispose();
+    codeController.dispose();
+    verifyCodeController.dispose();
+  }
+
+  void initReset() async {
+    if (mounted && !isInit) {
+      isInit = true;
+      emailController.text =
+          context.select<AppCubit, String>((value) => value.state.userEmail);
+      requestCaptcha();
+    }
+  }
+
+  void requestCaptcha() async {
+    if (captchaLoading) {
+      return;
+    }
+    setState(() {
+      captchaLoading = true;
+      captcha = Uint8List(0);
+    });
+
+    var data = await userApi.captcha();
+
+    setState(() {
+      captchaLoading = false;
+      if (data['error'] == 0) {
+        captcha = base64Decode(data["captcha"]);
+      }
+    });
+  }
+
+  void requestSendEmailCode(String email, String captcha) async {
+    if (verifyCodeSending) {
+      return;
+    }
+    setState(() {
+      verifyCodeSending = true;
+    });
+
+    var data = await userApi.sendEmailCode(email: email, captcha: captcha);
+    setState(() {
+      verifyCodeSending = false;
+    });
+    if (data['error'] == 0) {
+      setState(() {
+        verifyCodeSended = true;
+      });
+    } else {
+      String toastMsg = '邮箱验证码请求失败: ${data['error']}, ${data['message']}';
+      showToast(toastMsg,
+          position: const ToastPosition(
+            align: Alignment.bottomCenter,
+          ),
+          duration: const Duration(seconds: 5));
+    }
+  }
+
+  void requestResetPasswd(
+      String email, String passwd, String captcha, String verifyCode) async {
+    if (resetLoading) {
+      return;
+    }
+    setState(() {
+      resetLoading = true;
+    });
+
+    var data = await userApi.userResetPasswd(
+        email: email, passwd: passwd, captcha: captcha, verifyCode: verifyCode);
+    setState(() {
+      resetLoading = false;
+    });
+    if (data['error'] == 0) {
+      context.read<AppCubit>().setUserLogin(false, email: email);
+      context.read<AppCubit>().setAvatar('');
+      String toastMsg = '密码重置成功，请登录！';
+      showToast(toastMsg,
+          position: const ToastPosition(
+            align: Alignment.bottomCenter,
+          ),
+          duration: const Duration(seconds: 5));
+      widget.onClose(ShowType.resetPass, ShowType.login);
+    } else {
+      String toastMsg = '密码重置失败: ${data['error']}, ${data['message']}';
+      showToast(toastMsg,
+          position: const ToastPosition(
+            align: Alignment.bottomCenter,
+          ),
+          duration: const Duration(seconds: 5));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    initReset();
+    return Column(
+      children: [
+        const Spacer(),
+        Row(
+          children: [
+            Container(
+              height: 26,
+              width: 80,
+              padding: const EdgeInsets.only(right: 10.0),
+              alignment: Alignment.centerRight,
+              child: Text("邮箱:"),
+            ),
+            Container(
+              height: 26,
+              width: 180.0,
+              child: _textField(context, emailController, "注册的邮箱"),
+            )
+          ],
+        ),
+        const SizedBox(
+          height: 6.0,
+        ),
+        Row(
+          children: [
+            Container(
+              height: 26,
+              width: 80,
+              padding: const EdgeInsets.only(right: 8.0),
+              alignment: Alignment.centerRight,
+              child: Text("验证码:"),
+            ),
+            Container(
+              height: 26,
+              width: 112.0,
+              margin: const EdgeInsets.only(right: 8.0),
+              child: _textField(context, codeController, "验证码"),
+            ),
+            InkClick(
+              onTap: () => requestCaptcha(),
+              child: Container(
+                height: 26,
+                width: 60.0,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Theme.of(context).textTheme.bodyMedium!.color!,
+                  ),
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+                child: Center(
+                  child: captchaLoading
+                      ? Container(
+                          height: 26.0,
+                          width: 26.0,
+                          padding: const EdgeInsets.all(4.0),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 1.0,
+                            color:
+                                Theme.of(context).textTheme.bodyMedium!.color!,
+                          ),
+                        )
+                      : (captcha.isEmpty
+                          ? const Text(
+                              '刷新',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 13.0, fontStyle: FontStyle.italic),
+                            )
+                          : Image.memory(captcha)),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 6.0,
+        ),
+        Row(
+          children: [
+            Container(
+              height: 26,
+              width: 180,
+              padding: const EdgeInsets.only(right: 8.0),
+            ),
+            Container(
+              height: 26,
+              width: 80.0,
+              child: MaterialButton(
+                color: Colors.redAccent,
+                onPressed: () {
+                  // widget.onClose!(ShowType.none);
+                  if (!verifyCodeSending) {
+                    String email = emailController.text;
+                    if (email.isNotEmpty && _isEmailValid(email)) {
+                      requestSendEmailCode(email, codeController.text);
+                    } else {
+                      String toastMsg = '邮箱不合法';
+                      showToast(toastMsg,
+                          position: const ToastPosition(
+                            align: Alignment.bottomCenter,
+                          ),
+                          duration: const Duration(seconds: 5));
+                    }
+                  }
+                },
+                child: verifyCodeSending
+                    ? Container(
+                        height: 26.0,
+                        width: 26.0,
+                        padding: const EdgeInsets.all(4.0),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1.0,
+                          color: Theme.of(context).textTheme.bodyMedium!.color!,
+                        ),
+                      )
+                    : Text(
+                        '发送校验码',
+                        style: const TextStyle(
+                          fontSize: 12.0,
+                        ),
+                      ),
+              ),
+            )
+          ],
+        ),
+        verifyCodeSended
+            ? Column(
+                children: [
+                  const SizedBox(
+                    height: 6.0,
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        height: 26,
+                        width: 80,
+                        padding: const EdgeInsets.only(right: 8.0),
+                        alignment: Alignment.centerRight,
+                        child: Text("校验码:"),
+                      ),
+                      Container(
+                        height: 26,
+                        width: 180.0,
+                        child: _textField(
+                          context,
+                          verifyCodeController,
+                          "邮箱校验码",
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 6.0,
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        height: 26,
+                        width: 80,
+                        padding: const EdgeInsets.only(right: 8.0),
+                        alignment: Alignment.centerRight,
+                        child: Text("密码:"),
+                      ),
+                      Container(
+                        height: 26,
+                        width: 180.0,
+                        child: _textField(context, passwdController, "登录密码",
+                            obscureText: true),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 6.0,
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        height: 26,
+                        width: 180,
+                        padding: const EdgeInsets.only(right: 8.0),
+                      ),
+                      Container(
+                        height: 26,
+                        width: 80.0,
+                        margin: const EdgeInsets.only(right: 8.0),
+                        child: MaterialButton(
+                          color: Colors.deepPurpleAccent,
+                          onPressed: () {
+                            if (!resetLoading) {
+                              String toastMsg = '';
+                              if (emailController.text.isEmpty ||
+                                  !_isEmailValid(emailController.text)) {
+                                toastMsg += '邮箱地址为空或者无效\n';
+                              } else if (codeController.text.isEmpty) {
+                                toastMsg += '验证码为空\n';
+                              } else if (verifyCodeController.text.isEmpty) {
+                                toastMsg += '邮箱校验码为空\n';
+                              } else if (passwdController.text.length < 6) {
+                                toastMsg += '密码长度必须大于等于6\n';
+                              }
+
+                              if (toastMsg.isNotEmpty) {
+                                showToast(toastMsg,
+                                    position: const ToastPosition(
+                                      align: Alignment.bottomCenter,
+                                    ),
+                                    duration: const Duration(seconds: 5));
+                              } else {
+                                requestResetPasswd(
+                                    emailController.text,
+                                    passwdController.text,
+                                    codeController.text,
+                                    verifyCodeController.text);
+                              }
+                            }
+                          },
+                          child: resetLoading
+                              ? Container(
+                                  height: 26.0,
+                                  width: 26.0,
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1.0,
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .color!,
+                                  ),
+                                )
+                              : Text(
+                                  '重置密码',
+                                  style: const TextStyle(
+                                    fontSize: 12.0,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )
+            : Container(),
+        const Spacer(),
+      ],
+    );
+  }
+}
+
+class _UserDetail extends StatefulWidget {
+  final Function(ShowType, ShowType) onClose;
+  final ShowType from;
+  const _UserDetail({required this.onClose, required this.from});
+
+  @override
+  State<_UserDetail> createState() => _UserDetailState();
+}
+
+class _UserDetailState extends State<_UserDetail> {
+  TextEditingController oldPasswdController = TextEditingController();
+  TextEditingController passwdController = TextEditingController();
+  TextEditingController passwd2Controller = TextEditingController();
+  TextEditingController userNameController = TextEditingController();
+  FocusNode userNameFocusNode = FocusNode();
+
+  UserApi userApi = RadioRepository.instance.userApi;
+
+  Uint8List captcha = Uint8List(0);
+
+  List<Map<String, dynamic>> products = [];
+  List<Map<String, dynamic>> userProducts = [];
+
+  bool isPasswdModifying = false;
+  bool isRequestPasswdModifying = false;
+  bool isRequestSignouting = false;
+  bool isRequestAvatarModifying = false;
+  bool isRequestUserNameModifying = false;
+  List<String> isRequestOpenProducting = List.empty(growable: true);
+
+  Uint8List avatarData = Uint8List(0);
+
+  bool isInit = false;
+
+  int avatarChg = -1;
+
+  String userOldName = '';
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    oldPasswdController.dispose();
+    passwdController.dispose();
     passwd2Controller.dispose();
     userNameController.dispose();
+    userNameFocusNode.dispose();
   }
 
   void initDetail() async {
@@ -1127,73 +1535,144 @@ class _UserDetailState extends State<_UserDetail> {
 
       userNameController.text =
           context.select<AppCubit, String>((value) => value.state.userName);
-      emailController.text =
-          context.select<AppCubit, String>((value) => value.state.userEmail);
 
-      var data = await userApi.userProducts();
-      if (data['error'] == 0) {
-        for (var element in (data['products'] as List)) {
-          products.add(element);
+      reloadProducts();
+
+      userNameFocusNode.addListener(() {
+        if (!userNameFocusNode.hasFocus) {
+          context.read<AppCubit>().setEditing(false);
+          requestUserNameModify();
+        } else {
+          context.read<AppCubit>().setEditing(true);
         }
-
-        data = await userApi.userOpenProducts();
-        if (data['error'] == 0) {
-          for (var element in (data['products'] as List)) {
-            userProducts.add(element);
-          }
-        }
-        setState(() {});
-      }
-      // Map<String, dynamic> aa = HashMap();
-
-      // products.add(aa);
+      });
     }
   }
 
-  void requestModify() async {
-    setState(() {
-      isRequestModifying = true;
-    });
-
-    var data = await userApi.userModify(
-        userName: userNameController.text, passwd: passwdController.text);
-
-    setState(() {
-      isRequestModifying = false;
-    });
-
+  void reloadProducts() async {
+    var data = await userApi.userProducts();
     if (data['error'] == 0) {
-      context.read<AppCubit>().setUserLogin(true,
-          email: emailController.text, userName: userNameController.text);
+      products.clear();
+      for (var element in (data['products'] as List)) {
+        products.add(element);
+      }
 
-      showToast('修改用户信息成功',
-          position: const ToastPosition(
-            align: Alignment.bottomCenter,
-          ),
-          duration: const Duration(seconds: 5));
-    } else {
-      showToast('修改用户信息失败: ${data['error']}',
-          position: const ToastPosition(
-            align: Alignment.bottomCenter,
-          ),
-          duration: const Duration(seconds: 5));
+      data = await userApi.userOpenProducts();
+      userProducts.clear();
+      if (data['error'] == 0) {
+        for (var element in (data['products'] as List)) {
+          userProducts.add(element);
+        }
+      }
+      setState(() {});
+    }
+  }
+
+  void requestUserNameModify() async {
+    if (userNameController.text != userOldName && !isRequestUserNameModifying) {
+      setState(() {
+        isRequestUserNameModifying = true;
+      });
+
+      var data = await userApi.userModify(userName: userNameController.text);
+
+      setState(() {
+        isRequestUserNameModifying = false;
+      });
+
+      if (data['error'] == 0) {
+        context
+            .read<AppCubit>()
+            .setUserLogin(true, userName: userNameController.text);
+      } else {
+        userNameController.text = userOldName;
+      }
+    }
+  }
+
+  void requestModifyPasswd() async {
+    if (!isRequestPasswdModifying) {
+      setState(() {
+        isRequestPasswdModifying = true;
+      });
+
+      var data = await userApi.userModify(
+          passwd: oldPasswdController.text, newPassword: passwdController.text);
+
+      setState(() {
+        isRequestPasswdModifying = false;
+      });
+
+      if (data['error'] == 0) {
+        context
+            .read<AppCubit>()
+            .setUserLogin(true, userName: userNameController.text);
+
+        showToast('修改密码成功',
+            position: const ToastPosition(
+              align: Alignment.bottomCenter,
+            ),
+            duration: const Duration(seconds: 5));
+      } else {
+        showToast('修改用户密码失败: ${data['error']}',
+            position: const ToastPosition(
+              align: Alignment.bottomCenter,
+            ),
+            duration: const Duration(seconds: 5));
+      }
     }
   }
 
   void requestSignout() async {
-    setState(() {
-      isRequestSignouting = true;
-    });
+    if (!isRequestSignouting) {
+      setState(() {
+        isRequestSignouting = true;
+      });
 
-    var data = await userApi.userSignout();
+      await userApi.userSignout();
 
-    setState(() {
-      isRequestSignouting = false;
-    });
+      setState(() {
+        isRequestSignouting = false;
+      });
 
-    widget.onClose(widget.from, ShowType.none);
-    context.read<AppCubit>().setUserLogin(false,
-        email: emailController.text, userName: userNameController.text);
+      widget.onClose(ShowType.userinfo, ShowType.none);
+      context
+          .read<AppCubit>()
+          .setUserLogin(false, userName: userNameController.text);
+    }
+  }
+
+  void requestOpenProduct(String product) async {
+    var statusProduct = isRequestOpenProducting.firstWhere(
+      (element) => element == product,
+      orElse: () => '',
+    );
+
+    bool requesting = false;
+    if (statusProduct.isNotEmpty) {
+      requesting = true;
+    }
+
+    if (!requesting) {
+      setState(() {
+        isRequestOpenProducting.add(product);
+      });
+
+      var data = await userApi.userOpenProduct(product: product);
+      if (data['error'] != 0) {
+        showToast('注册产品失败: ${data['error']}',
+            position: const ToastPosition(
+              align: Alignment.bottomCenter,
+            ),
+            duration: const Duration(seconds: 5));
+      } else {
+        reloadProducts();
+      }
+
+      setState(() {
+        isRequestOpenProducting.remove(product);
+      });
+    }
   }
 
   void requestModifyAvatar(final File file) async {
@@ -1234,8 +1713,10 @@ class _UserDetailState extends State<_UserDetail> {
     if (chgTag != avatarChg) {
       String? avatar = await context.read<AppCubit>().getUserAvatar();
       setState(() {
-        if (avatar != null) {
+        if (avatar != null && avatar.isNotEmpty) {
           avatarData = base64Decode(avatar);
+        } else {
+          avatarData = Uint8List(0);
         }
         avatarChg = chgTag;
       });
@@ -1247,6 +1728,13 @@ class _UserDetailState extends State<_UserDetail> {
     int avatarChgTag =
         context.select<AppCubit, int>((value) => value.state.avatarChgTag);
     getUserAvatar(avatarChgTag);
+
+    String userEmail =
+        context.select<AppCubit, String>((value) => value.state.userEmail);
+
+    userOldName =
+        context.select<AppCubit, String>((value) => value.state.userName);
+
     initDetail();
 
     return Column(
@@ -1299,8 +1787,8 @@ class _UserDetailState extends State<_UserDetail> {
             Container(
               height: 26,
               width: 180.0,
-              child:
-                  _textField(context, emailController, "注册的邮箱", readOnly: true),
+              alignment: Alignment.centerLeft,
+              child: Text(userEmail),
             ),
             Container(
               height: 26,
@@ -1313,48 +1801,22 @@ class _UserDetailState extends State<_UserDetail> {
               height: 26,
               width: 180.0,
               child: _textField(context, userNameController, "用户名",
-                  readOnly: !isModifying),
+                  readOnly: isRequestUserNameModifying,
+                  focusNode: userNameFocusNode,
+                  suffix: isRequestUserNameModifying
+                      ? SizedBox(
+                          height: 14,
+                          width: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 1.0,
+                            color:
+                                Theme.of(context).textTheme.bodyMedium!.color!,
+                          ),
+                        )
+                      : null,
+                  onSubmitted: (_) => requestUserNameModify()),
             ),
             const Spacer(),
-          ],
-        ),
-        Column(
-          children: [
-            SizedBox(
-              height: 6.0,
-            ),
-            Row(
-              children: [
-                const Spacer(),
-                Container(
-                  height: 26,
-                  width: 80,
-                  padding: const EdgeInsets.only(right: 8.0),
-                  alignment: Alignment.centerRight,
-                  child: Text("密码:"),
-                ),
-                Container(
-                  height: 26,
-                  width: 180.0,
-                  child: _textField(context, passwdController, "登录密码",
-                      obscureText: true, readOnly: !isModifying),
-                ),
-                Container(
-                  height: 26,
-                  width: 80,
-                  padding: const EdgeInsets.only(right: 8.0),
-                  alignment: Alignment.centerRight,
-                  child: Text("重输密码:"),
-                ),
-                Container(
-                  height: 26,
-                  width: 180.0,
-                  child: _textField(context, passwd2Controller, "重输登录密码",
-                      obscureText: true, readOnly: !isModifying),
-                ),
-                const Spacer(),
-              ],
-            )
           ],
         ),
         const SizedBox(
@@ -1369,22 +1831,23 @@ class _UserDetailState extends State<_UserDetail> {
             Container(
               height: 26,
               child: MaterialButton(
-                color: !isModifying ? Colors.blueAccent : Colors.redAccent,
+                color:
+                    !isPasswdModifying ? Colors.blueAccent : Colors.redAccent,
                 onPressed: () {
-                  if (isModifying) {
+                  if (isPasswdModifying) {
                     String toastMsg = '';
-                    if (userNameController.text.isEmpty) {
-                      toastMsg += '用户名为空\n';
-                    }
                     if (passwdController.text.isEmpty ||
-                        passwd2Controller.text.isEmpty) {
-                      toastMsg += '密码或重输密码框为空\n';
-                    }
-                    if (passwdController.text != passwd2Controller.text) {
+                        passwd2Controller.text.isEmpty ||
+                        oldPasswdController.text.isEmpty) {
+                      toastMsg += '密码框为空\n';
+                    } else if (passwdController.text !=
+                        passwd2Controller.text) {
                       toastMsg += '两次输入的密码不一致\n';
-                    }
-                    if (passwdController.text.length < 6) {
+                    } else if (passwdController.text.length < 6) {
                       toastMsg += '密码长度必须大于等于6\n';
+                    } else if (oldPasswdController.text !=
+                        passwd2Controller.text) {
+                      toastMsg += '新密码和旧密码一致\n';
                     }
 
                     if (toastMsg.isNotEmpty) {
@@ -1394,23 +1857,35 @@ class _UserDetailState extends State<_UserDetail> {
                           ),
                           duration: const Duration(seconds: 5));
                     } else {
-                      requestModify();
+                      requestModifyPasswd();
                     }
                   } else {
                     setState(() {
-                      isModifying = true;
+                      passwdController.text = '';
+                      passwd2Controller.text = '';
+                      oldPasswdController.text = '';
+                      isPasswdModifying = true;
                     });
                   }
                 },
-                child: Text(
-                  !isModifying ? '信息修改' : '修改',
-                  style: const TextStyle(
-                    fontSize: 12.0,
-                  ),
-                ),
+                child: isRequestPasswdModifying
+                    ? SizedBox(
+                        height: 14,
+                        width: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1.0,
+                          color: Theme.of(context).textTheme.bodyMedium!.color!,
+                        ),
+                      )
+                    : Text(
+                        !isPasswdModifying ? '修改密码' : '提交',
+                        style: const TextStyle(
+                          fontSize: 12.0,
+                        ),
+                      ),
               ),
             ),
-            isModifying
+            isPasswdModifying && !isRequestPasswdModifying
                 ? Container(
                     height: 26,
                     margin: const EdgeInsets.only(left: 10.0, right: 190),
@@ -1418,11 +1893,11 @@ class _UserDetailState extends State<_UserDetail> {
                       color: Colors.blueAccent,
                       onPressed: () {
                         setState(() {
-                          isModifying = !isModifying;
+                          isPasswdModifying = !isPasswdModifying;
                         });
                       },
                       child: Text(
-                        '取消修改',
+                        '取消',
                         style: const TextStyle(
                           fontSize: 12.0,
                         ),
@@ -1460,6 +1935,72 @@ class _UserDetailState extends State<_UserDetail> {
             const Spacer(),
           ],
         ),
+        isPasswdModifying
+            ? Column(
+                children: [
+                  const SizedBox(
+                    height: 12.0,
+                  ),
+                  Row(
+                    children: [
+                      const Spacer(),
+                      Container(
+                        height: 26,
+                        width: 80,
+                        padding: const EdgeInsets.only(right: 8.0),
+                        alignment: Alignment.centerRight,
+                        child: Text("旧密码:"),
+                      ),
+                      Container(
+                        height: 26,
+                        width: 180.0,
+                        child: _textField(context, oldPasswdController, "旧密码",
+                            obscureText: true),
+                      ),
+                      const SizedBox(
+                        width: 260,
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 6.0,
+                  ),
+                  Row(
+                    children: [
+                      const Spacer(),
+                      Container(
+                        height: 26,
+                        width: 80,
+                        padding: const EdgeInsets.only(right: 8.0),
+                        alignment: Alignment.centerRight,
+                        child: Text("密码:"),
+                      ),
+                      Container(
+                        height: 26,
+                        width: 180.0,
+                        child: _textField(context, passwdController, "登录密码",
+                            obscureText: true),
+                      ),
+                      Container(
+                        height: 26,
+                        width: 80,
+                        padding: const EdgeInsets.only(right: 8.0),
+                        alignment: Alignment.centerRight,
+                        child: Text("重输密码:"),
+                      ),
+                      Container(
+                        height: 26,
+                        width: 180.0,
+                        child: _textField(context, passwd2Controller, "重输登录密码",
+                            obscureText: true),
+                      ),
+                      const Spacer(),
+                    ],
+                  )
+                ],
+              )
+            : Container(),
         const SizedBox(
           height: 24.0,
         ),
@@ -1511,16 +2052,6 @@ class _UserDetailState extends State<_UserDetail> {
   }
 
   Widget _table() {
-    // List<Pair<Station, Recently>> recentlys =
-    //     context.select<RecentlyCubit, List<Pair<Station, Recently>>>(
-    //         (value) => value.state.pagedRecently);
-
-    // Station? playingStation = context.select<AppCubit, Station?>(
-    //   (value) => value.state.playingStation,
-    // );
-    // bool isPlaying = context.select<AppCubit, bool>(
-    //   (value) => value.state.isPlaying,
-    // );
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
       child: DataTable2(
@@ -1554,7 +2085,7 @@ class _UserDetailState extends State<_UserDetail> {
             String product = map['product'];
             String desc = map['desc'];
             String time = DateFormat("yyyy-MM-dd HH:mm:ss").format(
-                DateTime.fromMillisecondsSinceEpoch(map['update_time']));
+                DateTime.fromMillisecondsSinceEpoch(map['update_time'] * 1000));
 
             bool isOpen = isOpenProduct(product);
 
@@ -1581,25 +2112,42 @@ class _UserDetailState extends State<_UserDetail> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                DataCell(Container(
-                  padding: const EdgeInsets.all(6.0),
-                  decoration: BoxDecoration(
-                      color: isOpen ? Colors.black45 : Colors.redAccent,
-                      borderRadius: BorderRadius.circular(4.0)),
-                  child: InkClick(
-                    onTap: () {
-                      if (!isOpen) {
-                        widget.onClose(ShowType.userinfo, ShowType.reward);
-                      }
-                    },
-                    child: Text(
-                      isOpen ? '已注册' : '注册',
-                      style: const TextStyle(
-                        fontSize: 10.0,
-                      ),
+                DataCell(
+                  Container(
+                    height: 26,
+                    width: 50,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.all(6.0),
+                    decoration: BoxDecoration(
+                        color: isOpen ? Colors.black45 : Colors.redAccent,
+                        borderRadius: BorderRadius.circular(4.0)),
+                    child: InkClick(
+                      onTap: () {
+                        if (!isOpen) {
+                          requestOpenProduct(product);
+                        }
+                      },
+                      child: !isRequestOpenProducting.contains(product)
+                          ? Text(
+                              isOpen ? '已注册' : '注册',
+                              style: const TextStyle(
+                                fontSize: 10.0,
+                              ),
+                            )
+                          : SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.0,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .color!,
+                              ),
+                            ),
                     ),
                   ),
-                )),
+                ),
               ],
             );
           },

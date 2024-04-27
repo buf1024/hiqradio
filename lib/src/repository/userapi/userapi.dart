@@ -173,18 +173,24 @@ class UserApi {
   }
 
   Future<Map<String, dynamic>> userModify(
-      {String? avatar, String? passwd, String? userName}) async {
+      {String? avatar,
+      String? passwd,
+      String? newPassword,
+      String? userName}) async {
     String url = '/user/modify';
 
     Map<String, dynamic> param = HashMap();
     if (userName != null) {
-      param['user_name'] = 'userName';
+      param['user_name'] = userName;
     }
     if (avatar != null) {
       param['avatar_path'] = avatar;
     }
     if (passwd != null) {
       param['password'] = passwd;
+    }
+    if (newPassword != null) {
+      param['new_password'] = newPassword;
     }
 
     Response response = await dio.post(url, data: jsonEncode(param));
@@ -206,6 +212,36 @@ class UserApi {
     String url = '/user/products';
 
     Map<String, dynamic> param = HashMap();
+
+    Response response = await dio.post(url, data: jsonEncode(param));
+
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> userOpenProduct(
+      {required String product}) async {
+    String url = '/user/open_product';
+
+    Map<String, dynamic> param = HashMap();
+    param['product'] = product;
+
+    Response response = await dio.post(url, data: jsonEncode(param));
+
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> userResetPasswd(
+      {required String email,
+      required String passwd,
+      required String captcha,
+      required String verifyCode}) async {
+    String url = '/user/reset_passwd';
+
+    Map<String, dynamic> param = HashMap();
+    param['email'] = email;
+    param['passwd'] = passwd;
+    param['captcha'] = captcha;
+    param['code'] = verifyCode;
 
     Response response = await dio.post(url, data: jsonEncode(param));
 

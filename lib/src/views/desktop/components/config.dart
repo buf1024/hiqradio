@@ -172,9 +172,11 @@ class _ConfigState extends State<Config> {
   void _onShowAboutDlg(String locale) {
     String chgLog = ResManager.instance.getChgLog(locale);
 
-    double width = 484.0;
+    double width = 600.0;
+    // double width = 484.0;
     Size size = MediaQuery.of(context).size;
-    double height = 300;
+    double height = 400;
+    // double height = 300;
     aboutOverlay ??= OverlayEntry(
       opaque: false,
       builder: (context) {
@@ -189,8 +191,7 @@ class _ConfigState extends State<Config> {
               ),
             ),
             Positioned(
-              top: (size.height - height - kTitleBarHeight) / 2 +
-                  kTitleBarHeight,
+              top: (size.height - height - kTitleBarHeight) / 2,
               left: (size.width - width) / 2,
               child: Material(
                 color: Colors.black.withOpacity(0),
@@ -204,117 +205,141 @@ class _ConfigState extends State<Config> {
                       Radius.circular(8.0),
                     ),
                   ),
-                  child: SizedBox(
-                    width: width,
-                    height: height,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 8.0, horizontal: 8.0),
-                                child: InkClick(
-                                  onTap: () {
-                                    _closeAboutOverlay();
-                                  },
-                                  child: const Icon(
-                                    IconFont.close,
-                                    size: 18.0,
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: width / 2,
+                            height: height,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8.0, horizontal: 8.0),
+                                        child: InkClick(
+                                          onTap: () {
+                                            _closeAboutOverlay();
+                                          },
+                                          child: const Icon(
+                                            IconFont.close,
+                                            size: 18.0,
+                                          ),
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8.0),
+                                        child: Text(
+                                          AppLocalizations.of(context)!
+                                              .cfg_about,
+                                          style:
+                                              const TextStyle(fontSize: 14.0),
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                    ],
                                   ),
                                 ),
-                              ),
-                              const Spacer(),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8.0),
-                                child: Text(
-                                  AppLocalizations.of(context)!.cfg_about,
-                                  style: const TextStyle(fontSize: 14.0),
+                                Container(
+                                  padding: const EdgeInsets.only(
+                                      top: 10.0, left: 10.0),
+                                  child: Text(
+                                      'HiqRadio: ${AppLocalizations.of(context)!.hiqradio} by $kAuthor'),
                                 ),
-                              ),
-                              const Spacer(),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                          child: Text(
-                              'HiqRadio: ${AppLocalizations.of(context)!.hiqradio} by $kAuthor'),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                          child: InkClick(
-                            child: const Row(
-                              children: [
-                                Text('Github:  '),
-                                Text(
-                                  'https://github.com/buf1024/hiqradio',
-                                  style: TextStyle(
-                                    color: Colors.blue,
-                                    decoration: TextDecoration.underline,
+                                Container(
+                                  padding: const EdgeInsets.only(
+                                      top: 10.0, left: 10.0),
+                                  child: InkClick(
+                                    child: const Row(
+                                      children: [
+                                        Text('Github:  '),
+                                        Text(
+                                          'https://github.com/buf1024/hiqradio',
+                                          style: TextStyle(
+                                            color: Colors.blue,
+                                            decoration:
+                                                TextDecoration.underline,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    onTap: () async {
+                                      Uri url = Uri.parse(
+                                          'https://github.com/buf1024/hiqradio');
+                                      await launchUrl(url,
+                                          mode: LaunchMode.externalApplication);
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.only(
+                                      top: 5.0, left: 10.0, bottom: 10.0),
+                                  child: Text(ResManager.instance.version),
+                                ),
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.vertical,
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Container(
+                                        width: width,
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 5.0, horizontal: 15.0),
+                                        child: Text(
+                                          chgLog,
+                                          style: TextStyle(
+                                              fontSize: 12.0,
+                                              color:
+                                                  Colors.grey.withOpacity(0.8)),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                            onTap: () async {
-                              Uri url = Uri.parse(
-                                  'https://github.com/buf1024/hiqradio');
-                              await launchUrl(url,
-                                  mode: LaunchMode.externalApplication);
-                            },
                           ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.only(
-                              top: 5.0, left: 10.0, bottom: 10.0),
-                          child: Text(ResManager.instance.version),
-                        ),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Container(
-                                width: width,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 5.0, horizontal: 15.0),
-                                child: Text(
-                                  chgLog,
-                                  style: TextStyle(
-                                      fontSize: 12.0,
-                                      color: Colors.grey.withOpacity(0.8)),
+                          Container(
+                            width: width / 2,
+                            padding: const EdgeInsets.all(12.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10.0),
+                              child: Image.asset(
+                                  'assets/images/reward_qrcode.png'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10.0),
+                            child: MaterialButton(
+                              color: Colors.red.withOpacity(0.8),
+                              onPressed: () {
+                                _closeAboutOverlay();
+                              },
+                              child: Text(
+                                AppLocalizations.of(context)!.cmm_confirm,
+                                style: const TextStyle(
+                                  fontSize: 14.0,
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10.0),
-                              child: MaterialButton(
-                                color: Colors.red.withOpacity(0.8),
-                                onPressed: () {
-                                  _closeAboutOverlay();
-                                },
-                                child: Text(
-                                  AppLocalizations.of(context)!.cmm_confirm,
-                                  style: const TextStyle(
-                                    fontSize: 14.0,
-                                  ),
-                                ),
-                              ),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
+                          )
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),

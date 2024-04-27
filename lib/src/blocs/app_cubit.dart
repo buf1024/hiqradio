@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hiqradio/src/blocs/app_state.dart';
 import 'package:hiqradio/src/models/country.dart';
@@ -76,7 +77,12 @@ abstract class AppCubit extends Cubit<AppState> {
 
   void setAvatar(String avatar) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    await sp.setString(kSpAppUserAvatar, avatar);
+    if (avatar.isEmpty) {
+      debugPrint('remove avatar');
+      await sp.remove(kSpAppUserAvatar);
+    } else {
+      await sp.setString(kSpAppUserAvatar, avatar);
+    }
     emit(state.copyWith(avatarChgTag: state.avatarChgTag + 1));
   }
 
@@ -84,19 +90,23 @@ abstract class AppCubit extends Cubit<AppState> {
       {String? token, String? email, String? userName}) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
 
-    String sEmail = '', sUserName = '';
+    String sEmail = state.userEmail, sUserName = '';
 
     if (token != null) {
       await sp.setString(kSpAppUserToken, token);
     }
-    if (email != null) {
+    if (email != null && email.isNotEmpty) {
       sEmail = email;
       await sp.setString(kSpAppUserEmail, sEmail);
     }
     if (userName != null) {
       sUserName = userName;
+      token = '';
     }
 
+    if (!isLogin) {
+      setAvatar('');
+    }
     emit(state.copyWith(
         isLogin: isLogin, userEmail: email, userName: sUserName));
   }
