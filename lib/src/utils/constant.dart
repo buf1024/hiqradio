@@ -24,7 +24,7 @@ const kDefListSize = 50;
 const kMaxRecentSearch = 10;
 const kMaxPlayHis = 50;
 
-const kDefCheckCacheInterval = 30*24*60*60*1000;
+const kDefCheckCacheInterval = 30 * 24 * 60 * 60 * 1000;
 
 const kDefSearchText = 'kids';
 
@@ -49,3 +49,4 @@ const kSpAppLocale = 'AppLocale';
 const kSpAppUserAvatar = 'AppUserAvatar';
 const kSpAppUserToken = 'AppUserToken';
 const kSpAppUserEmail = 'AppUserEmail';
+const kSpAppRadioSyncStartTime = 'AppRadioSyncStartTime';

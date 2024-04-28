@@ -456,8 +456,8 @@ class _MyFavoriteState extends State<MyFavorite>
                         child: isExporting
                             ? Center(
                                 child: Container(
-                                  height: 20.0,
-                                  width: 20.0,
+                                  height: 15.0,
+                                  width: 15.0,
                                   padding: const EdgeInsets.all(2.0),
                                   child: CircularProgressIndicator(
                                     strokeWidth: 1.0,
@@ -509,6 +509,10 @@ class _MyFavoriteState extends State<MyFavorite>
                                 align: Alignment.bottomCenter,
                               ),
                               duration: const Duration(seconds: 5));
+                        } else {
+                          setState(() {
+                            isExporting = false;
+                          });
                         }
                       },
                     ),
@@ -528,8 +532,8 @@ class _MyFavoriteState extends State<MyFavorite>
                         child: isImporting
                             ? Center(
                                 child: Container(
-                                  height: 20.0,
-                                  width: 20.0,
+                                  height: 15.0,
+                                  width: 15.0,
                                   padding: const EdgeInsets.all(2.0),
                                   child: CircularProgressIndicator(
                                     strokeWidth: 1.0,
@@ -574,6 +578,10 @@ class _MyFavoriteState extends State<MyFavorite>
                                 align: Alignment.bottomCenter,
                               ),
                               duration: const Duration(seconds: 5));
+                        } else {
+                          setState(() {
+                            isImporting = false;
+                          });
                         }
                       },
                     ),

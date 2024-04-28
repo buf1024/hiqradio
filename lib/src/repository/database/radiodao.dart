@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:hiqradio/src/models/cache.dart';
@@ -113,7 +114,8 @@ class RadioDao {
           if (list.isEmpty) {
             Map<String, Object?> values = {
               'stationuuid': stationuuid,
-              'group_id': newGroupId
+              'group_id': newGroupId,
+              'create_time': DateTime.now().millisecondsSinceEpoch
             };
             await txn.insert('favorite', values);
           }
@@ -161,7 +163,7 @@ class RadioDao {
         String groupName = group['name'] as String;
 
         List<Map<String, Object?>> stations = await db.rawQuery(
-            'select a.* from station a, favorite b, fav_group c where a.stationuuid = b.stationuuid and b.group_id = c.id and c.name = ? order by id',
+            'select a.*, b.create_time from station a, favorite b, fav_group c where a.stationuuid = b.stationuuid and b.group_id = c.id and c.name = ? order by id',
             [groupName]);
 
         jsObj.add({'group': group, 'stations': stations});
@@ -196,7 +198,8 @@ class RadioDao {
       }
       Map<String, Object?> values = {
         'stationuuid': station.stationuuid,
-        'group_id': groupId
+        'group_id': groupId,
+        'create_time': DateTime.now().millisecondsSinceEpoch
       };
       await txn.insert('favorite', values);
     });
@@ -401,11 +404,11 @@ class RadioDao {
     });
   }
 
-  Future<void> insertFavImport(List<Pair<FavGroup, List<Station>>> data) async {
+  Future<void> insertFavImport(
+      List<Pair<FavGroup, List<Pair<Station, int>>>> data) async {
     await db.transaction((txn) async {
-      for (Pair<FavGroup, List<Station>> gs in data) {
+      for (Pair<FavGroup, List<Pair<Station, int>>> gs in data) {
         FavGroup group = gs.p1;
-        List<Station> stations = gs.p2;
 
         List<Map<String, Object?>> data;
         if (group.id != 1) {
@@ -435,14 +438,19 @@ class RadioDao {
           }
         }
 
-        for (Station s in stations) {
+        List<Pair<Station, int>> stationsTimes = gs.p2;
+        for (Pair<Station, int> st in stationsTimes) {
+          Station s = st.p1;
+          int createTime = st.p2;
+
           data = await txn.rawQuery(
               'select a.* from favorite a where a.group_id = ? and a.stationuuid = ?',
               [group.id, s.stationuuid]);
           if (data.isEmpty) {
             Map<String, Object?> values = {
               'stationuuid': s.stationuuid,
-              'group_id': group.id
+              'group_id': group.id,
+              'create_time': createTime
             };
             await txn.insert('favorite', values);
           }
@@ -494,5 +502,145 @@ class RadioDao {
         txn.insert('station', jsValues);
       }
     });
+  }
+
+  Future<Map<String, dynamic>> insertRemoteSync(List<FavGroup> groups,
+      List<Recently> recently, List<Map<String, dynamic>> favorites) async {
+    List<FavGroup> restGroups = List.empty(growable: true);
+    List<FavGroup> newGroups = List.empty(growable: true);
+    List<Recently> restRecently = List.empty(growable: true);
+    List<Recently> newRecently = List.empty(growable: true);
+    List<Map<String, dynamic>> restFavorites = List.empty(growable: true);
+    List<Map<String, dynamic>> newFavorites = List.empty(growable: true);
+
+    List<FavGroup>? dbFavGroups = await queryGroups();
+    if (groups.isNotEmpty) {
+      if (dbFavGroups != null) {
+        for (var group in groups) {
+          var index =
+              dbFavGroups.indexWhere((element) => element.name == group.name);
+          if (index == -1) {
+            newGroups.add(group);
+          }
+        }
+        for (var group in dbFavGroups) {
+          var index =
+              groups.indexWhere((element) => element.name == group.name);
+          if (index == -1) {
+            restGroups.add(group);
+          }
+        }
+      } else {
+        newGroups = groups;
+      }
+    } else {
+      if (dbFavGroups != null) {
+        restGroups = dbFavGroups;
+      }
+    }
+
+    List<Map<String, Object?>> dbRecently =
+        await db.query('recently', orderBy: 'start_time desc', limit: 1);
+
+    int dbRecentlyTime = 0;
+    if (dbRecently.isNotEmpty) {
+      dbRecentlyTime = dbRecently[0]['start_time']! as int;
+    }
+    int recentlyTime = 0;
+    if (recently.isNotEmpty) {
+      recentlyTime = recently[0].startTime;
+    }
+    if (dbRecentlyTime != 0 && recentlyTime != 0) {
+      if (dbRecentlyTime > recentlyTime) {
+        dbRecently = await db.query('recently',
+            where: 'start_time > ?',
+            whereArgs: [recentlyTime],
+            orderBy: 'start_time desc',
+            limit: 1);
+        restRecently = dbRecently.map((e) => Recently.fromJson(e)).toList();
+      } else {
+        newRecently = recently
+            .where((element) => element.startTime < dbRecentlyTime)
+            .toList();
+      }
+    } else if (dbRecentlyTime == 0 && recentlyTime != 0) {
+      newRecently = recently;
+    } else if (dbRecentlyTime != 0 && recentlyTime == 0) {
+      restRecently = await queryRecently();
+    }
+
+    List<Map<String, Object?>> dbFavorites = await db.rawQuery(
+      'select a.name as group_name, b.stationuuid, b.create_time from fav_group a, favorite b where b.group_id = a.id ',
+    );
+
+    if (favorites.isNotEmpty) {
+      if (dbFavorites.isNotEmpty) {
+        for (var fv in favorites) {
+          var index = dbFavorites.indexWhere(
+              (element) => element['group_name'] == fv['group_name']);
+          if (index == -1) {
+            newFavorites.add(fv);
+          }
+        }
+        for (var fv in dbFavorites) {
+          var index = favorites.indexWhere(
+              (element) => element['group_name'] == fv['group_name']);
+          if (index == -1) {
+            restFavorites.add(fv);
+          }
+        }
+      } else {
+        newFavorites = favorites;
+      }
+    } else {
+      if (dbFavorites.isNotEmpty) {
+        restFavorites = dbFavorites;
+      }
+    }
+
+    await db.transaction((txn) async {
+      for (var group in newGroups) {
+        if (group.isDef == 1) {
+          var defGroupList = await txn.query('fav_group',
+              where: 'is_def = ?', whereArgs: [1], limit: 1);
+          if (defGroupList.isNotEmpty) {
+            FavGroup defGroup = FavGroup.fromJson(defGroupList[0]);
+            Map<String, dynamic> map = HashMap();
+            if (defGroup.createTime < group.createTime) {
+              map['name'] = group.name;
+              map['create_time'] = group.createTime;
+
+              await txn.update('fav_group', where: 'is_def = 1', map);
+            } else {
+              continue;
+            }
+          }
+        }
+        txn.insert('fav_group', group.toJson());
+      }
+      for (var recently in newRecently) {
+        txn.insert('recently', recently.toJson());
+      }
+      for (var favorite in newFavorites) {
+        var defFavGroupList = await txn.query('fav_group',
+            where: 'name = ?', whereArgs: [favorite['group_name']]);
+        if (defFavGroupList.isNotEmpty) {
+          var defFavGroup = defFavGroupList[0];
+          Map<String, Object?> values = {
+            'stationuuid': favorite['stationuuid'],
+            'group_id': defFavGroup['id'],
+            'create_time': favorite['create_time']
+          };
+          await txn.insert('favorite', values);
+        }
+      }
+    });
+
+    Map<String, dynamic> map = HashMap();
+    map['groups'] = restGroups;
+    map['recently'] = restRecently;
+    map['favorites'] = restFavorites;
+
+    return map;
   }
 }

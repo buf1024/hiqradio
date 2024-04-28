@@ -73,7 +73,8 @@ create index `record_idx` on `record`(start_time, end_time, file);
 CREATE TABLE `favorite` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `stationuuid` VARCHAR(40) NOT NULL,
-    `group_id` INTEGER
+    `group_id` INTEGER,
+    `create_time` INTEGER
 );
 
 CREATE TABLE `fav_group` (

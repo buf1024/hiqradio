@@ -57,7 +57,8 @@ Future<void> createTables(Database db) async {
   await db.execute("""CREATE TABLE `favorite` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `stationuuid` VARCHAR(40) NOT NULL,
-    `group_id` INTEGER
+    `group_id` INTEGER,
+    `create_time` INTEGER
 )
 """);
   await db.execute("""CREATE TABLE `fav_group` (
@@ -73,7 +74,7 @@ Future<void> createTables(Database db) async {
   await db.execute("""insert into
     `fav_group`(create_time, name, desc, is_def)
 values
-    (1683950470085, '默认', '默认的Favorite分组', 1);""");
+    (1714278075318, '默认', '默认的Favorite分组', 1);""");
   await db.execute("""insert into
     `cache`(check_time,tab)
 values

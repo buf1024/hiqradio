@@ -9,6 +9,7 @@ import 'package:hiqradio/src/models/country.dart';
 import 'package:hiqradio/src/models/country_state.dart';
 import 'package:hiqradio/src/models/fav_group.dart';
 import 'package:hiqradio/src/models/language.dart';
+import 'package:hiqradio/src/models/recently.dart';
 import 'package:hiqradio/src/models/record.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/models/tag.dart';
@@ -109,6 +110,52 @@ abstract class AppCubit extends Cubit<AppState> {
     }
     emit(state.copyWith(
         isLogin: isLogin, userEmail: email, userName: sUserName));
+  }
+
+  void startSync() async {
+    debugPrint('startSync');
+    SharedPreferences sp = await SharedPreferences.getInstance();
+
+    int startTime = 0;
+    int? startTimeTmp = await sp.getInt(kSpAppRadioSyncStartTime);
+    if (startTimeTmp != null) {
+      startTime = startTimeTmp;
+    }
+
+    var data = await repo.userApi.radioSync(startTime);
+    if (data['error'] == 0) {
+      List<FavGroup> groups =
+          (data['groups'] as List).map((e) => FavGroup.fromJson(e)).toList();
+      List<Recently> recently =
+          (data['recently'] as List).map((e) => Recently.fromJson(e)).toList();
+      List<Map<String, dynamic>> favorites = List.empty(growable: true);
+      for (var element in (data['favorites'] as List)) {
+        favorites.add(element);
+      }
+
+      data['favorites'];
+
+      var rest = await repo.dao.insertRemoteSync(groups, recently, favorites);
+
+      groups = rest['groups'];
+      recently = rest['recently'];
+      favorites = rest['favorites'];
+
+      if (groups.isNotEmpty) {
+        await repo.userApi.radioGroupNew(groups);
+      }
+
+      if (recently.isNotEmpty) {
+        await repo.userApi.radioRecentlyNew(recently);
+      }
+
+      if (favorites.isNotEmpty) {
+        await repo.userApi.radioFavoriteNew(favorites);
+      }
+
+      await sp.setInt(
+          kSpAppRadioSyncStartTime, DateTime.now().millisecondsSinceEpoch);
+    }
   }
 
   void initApp() async {

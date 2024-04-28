@@ -68,6 +68,8 @@ class _UserInfoState extends State<UserInfo> {
       if (data['error'] == 0) {
         context.read<AppCubit>().setUserLogin(true,
             email: data['email'], userName: data['user_name']);
+
+        context.read<AppCubit>().startSync();
       }
     }
   }
@@ -345,6 +347,8 @@ class _UserLoginState extends State<_UserLogin> {
       context
           .read<AppCubit>()
           .setUserLogin(true, token: token, email: email, userName: userName);
+
+      context.read<AppCubit>().startSync();
 
       widget.onClose(ShowType.login, ShowType.none);
     } else {

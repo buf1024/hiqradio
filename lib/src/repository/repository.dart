@@ -455,15 +455,15 @@ class RadioRepository {
   }
 
   Future<void> saveImportJson(List<dynamic> jsObj) async {
-    List<Pair<FavGroup, List<Station>>> data = [];
+    List<Pair<FavGroup, List<Pair<Station, int>>>> data = [];
     for (var map in jsObj) {
       var groupOjb = map['group'];
       FavGroup g = FavGroup.fromJson(groupOjb);
 
-      List<Station> s = [];
+      List<Pair<Station, int>> s = [];
       var stations = map['stations'];
       for (var station in stations) {
-        s.add(Station.fromJson(station));
+        s.add(Pair(Station.fromJson(station), station['create_time'] ?? (DateTime.now().millisecondsSinceEpoch / 1000) as int));
       }
       data.add(Pair(g, s));
     }
