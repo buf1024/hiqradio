@@ -15,6 +15,7 @@ import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/models/tag.dart';
 import 'package:hiqradio/src/repository/repository.dart';
 import 'package:hiqradio/src/utils/constant.dart';
+import 'package:hiqradio/src/utils/err_manager.dart';
 import 'package:hiqradio/src/utils/my_isolate.dart';
 import 'package:hiqradio/src/utils/pair.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
@@ -24,6 +25,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class AppCubit extends Cubit<AppState> {
   Timer? stopTimer;
+
+  Timer? userSyncTimer;
 
   late dynamic player;
 
@@ -110,14 +113,28 @@ abstract class AppCubit extends Cubit<AppState> {
     }
     emit(state.copyWith(
         isLogin: isLogin, userEmail: email, userName: sUserName));
+
+    if (isLogin) {
+      userSyncTimer = Timer.periodic(
+        const Duration(milliseconds: 1000 * 15),
+        (timer) {
+          startSync();
+        },
+      );
+    } else {
+      if (userSyncTimer != null) {
+        userSyncTimer!.cancel();
+        userSyncTimer = null;
+      }
+    }
   }
 
   void startSync() async {
-    debugPrint('startSync');
+    debugPrint('startSync...');
     SharedPreferences sp = await SharedPreferences.getInstance();
 
     int startTime = 0;
-    int? startTimeTmp = await sp.getInt(kSpAppRadioSyncStartTime);
+    int? startTimeTmp = sp.getInt(kSpAppRadioSyncStartTime);
     if (startTimeTmp != null) {
       startTime = startTimeTmp;
     }
@@ -158,10 +175,15 @@ abstract class AppCubit extends Cubit<AppState> {
     }
   }
 
+  String errorText(int code) {
+    return ErrorManager.instance.error(code, state.locale);
+  }
+
   void initApp() async {
     await ResManager.instance.initRes();
     await repo.initRepo();
     await MyIsolate.create();
+    ErrorManager.instance.initError();
 
     SharedPreferences sp = await SharedPreferences.getInstance();
 
@@ -239,6 +261,7 @@ abstract class AppCubit extends Cubit<AppState> {
     cacheCount = await repo.doCacheStations();
     emit(state.copyWith(isCaching: false, cacheCount: cacheCount));
   }
+
 
   void changeThemeMode(HiqThemeMode themeMode) async {
     if (themeMode != state.themeMode) {

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,40 +32,45 @@ class _CarPlayingPageState extends State<CarPlayingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          body: isVertical
-              ? Column(
-                  children: [
-                    _playHead(),
-                    _playInfo(),
-                    _playCtrl(),
-                    const Spacer(),
-                    _playMemo()
-                  ],
-                )
-              : Row(
-                  children: [
-                    _playHeadHorizontal(),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          _playInfo(),
-                          Expanded(child: _playCtrl()),
-                        ],
-                      ),
-                    ),
-                    _playMemoHorizontal()
-                  ],
-                ),
-        ),
-        onWillPop: () {
-          SystemChrome.setPreferredOrientations(
-              [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) {
+          return;
+        }
+        SystemChrome.setPreferredOrientations(
+            [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
-          return Future(() => true);
-        });
+        Navigator.of(context).pop();
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: isVertical
+            ? Column(
+                children: [
+                  _playHead(),
+                  _playInfo(),
+                  _playCtrl(),
+                  const Spacer(),
+                  _playMemo()
+                ],
+              )
+            : Row(
+                children: [
+                  _playHeadHorizontal(),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        _playInfo(),
+                        Expanded(child: _playCtrl()),
+                      ],
+                    ),
+                  ),
+                  _playMemoHorizontal()
+                ],
+              ),
+      ),
+    );
   }
 
   Widget _playHead() {

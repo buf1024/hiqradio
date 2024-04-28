@@ -13,6 +13,9 @@ class RecentlyState extends Equatable {
   final int totalPage;
   final int page;
 
+  // 多余
+  final bool isLogin;
+
   const RecentlyState({
     this.isLoading = true,
     this.recentlys = const [],
@@ -20,6 +23,7 @@ class RecentlyState extends Equatable {
     this.pageSize = kDefPageSize,
     this.totalPage = 0,
     this.page = 0,
+    this.isLogin = false
   });
 
   RecentlyState copyWith({
@@ -29,6 +33,7 @@ class RecentlyState extends Equatable {
     int? pageSize,
     int? totalPage,
     int? page,
+    bool? isLogin,
   }) {
     return RecentlyState(
       isLoading: isLoading ?? this.isLoading,
@@ -37,6 +42,7 @@ class RecentlyState extends Equatable {
       pageSize: pageSize ?? this.pageSize,
       totalPage: totalPage ?? this.totalPage,
       page: page ?? this.page,
+      isLogin: isLogin ?? this.isLogin,
     );
   }
 
@@ -62,5 +68,6 @@ class RecentlyState extends Equatable {
         pageSize,
         totalPage,
         page,
+        isLogin,
       ];
 }

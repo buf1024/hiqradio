@@ -14,6 +14,10 @@ class FavoriteCubit extends Cubit<FavoriteState> {
     return null;
   }
 
+  void setUserLogin(bool isLogin) {
+    emit(state.copyWith(isLogin: isLogin));
+  }
+
   void updateGroup(String name, String desc) async {
     if (state.group != null) {
       bool isUpdated = false;
@@ -27,6 +31,10 @@ class FavoriteCubit extends Cubit<FavoriteState> {
       }
       if (isUpdated) {
         await repo.updateGroup(state.group!.id!, name: name, desc: desc);
+        if (state.isLogin) {
+          await repo.userApi.radioGroupModify(state.group!.name, name, desc);
+        }
+
         FavGroup? group = await repo.loadGroup(groupName: name);
         List<FavGroup> groups = await repo.loadGroups();
         emit(state.copyWith(group: group, groups: groups));
@@ -38,11 +46,21 @@ class FavoriteCubit extends Cubit<FavoriteState> {
     FavGroup group = await repo.addNewGroup();
     List<FavGroup> groups = await repo.loadGroups();
     emit(state.copyWith(group: group, groups: groups, stations: []));
+
+    if (state.isLogin) {
+      List<FavGroup> favGroups = List.filled(1, group);
+      await repo.userApi.radioGroupNew(favGroups);
+    }
+
     return group;
   }
 
   void deleteGroup(FavGroup group) async {
     await repo.delGroup(group.name);
+    if (state.isLogin) {
+      List<FavGroup> param = List.filled(1, group);
+      await repo.userApi.radioGroupDelete(param);
+    }
     List<FavGroup> groups = await repo.loadGroups();
     if (state.group != null && state.group!.name == group.name) {
       FavGroup? group = await repo.loadGroup();
@@ -73,8 +91,21 @@ class FavoriteCubit extends Cubit<FavoriteState> {
   void changeGroup(
       Station station, String oldGroup, List<String> newGroups) async {
     await repo.changeGroup(station.stationuuid, oldGroup, newGroups);
-    await loadFavorite(
-        groupName: state.group != null ? state.group!.name : null);
+    await loadFavorite(groupName: state.group?.name);
+
+    if (state.isLogin) {
+      await repo.userApi.radioFavoriteDelete([], [oldGroup]);
+      List<Map<String, dynamic>> param = List.empty(growable: true);
+      for (var group in newGroups) {
+        Map<String, dynamic> map = {
+          "group_name": group,
+          "stationuuid": station.stationuuid,
+          "create_time": DateTime.now().millisecondsSinceEpoch
+        };
+        param.add(map);
+      }
+      await repo.userApi.radioFavoriteNew(param);
+    }
   }
 
   Future<void> loadFavorite({String? groupName}) async {
@@ -102,12 +133,25 @@ class FavoriteCubit extends Cubit<FavoriteState> {
           stations.add(station);
           emit(state.copyWith(stations: stations));
         }
+        if (state.isLogin) {
+          Map<String, Object> values = {
+            'stationuuid': station.stationuuid,
+            'group_name': group.name,
+            'create_time': DateTime.now().millisecondsSinceEpoch
+          };
+          List<Map<String, Object>> param = List.filled(1, values);
+
+          await repo.userApi.radioFavoriteNew(param);
+        }
       }
     }
   }
 
   void delFavorite(Station station) async {
     await repo.delFavorite(station.stationuuid);
+    if (state.isLogin) {
+      await repo.userApi.radioFavoriteDelete([station.stationuuid], []);
+    }
     List<Station> stations = [];
     for (var s in state.stations) {
       if (s.stationuuid == station.stationuuid) {
@@ -124,6 +168,12 @@ class FavoriteCubit extends Cubit<FavoriteState> {
     await repo.clearFavorites(groupId);
 
     emit(state.copyWith(stations: []));
+    if (state.isLogin) {
+      FavGroup? group = await repo.dao.queryGroupById(groupId);
+      if (group != null) {
+        await repo.userApi.radioFavoriteDelete([], [group.name]);
+      }
+    }
   }
 
   Future<String> exportFavJson() async {

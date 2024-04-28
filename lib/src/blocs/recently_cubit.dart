@@ -8,7 +8,13 @@ import 'package:hiqradio/src/utils/pair.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RecentlyCubit extends Cubit<RecentlyState> {
+  final RadioRepository repo = RadioRepository.instance;
+
   RecentlyCubit() : super(const RecentlyState());
+
+  void setUserLogin(bool isLogin) {
+    emit(state.copyWith(isLogin: isLogin));
+  }
 
   Future<List<Pair<Station, Recently>>> loadRecently() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -17,9 +23,8 @@ class RecentlyCubit extends Cubit<RecentlyState> {
     pageSize ??= kDefPageSize;
 
     emit(state.copyWith(isLoading: true, pageSize: pageSize));
-    var recentlys = await RadioRepository.instance.loadRecently();
+    var recentlys = await repo.loadRecently();
 
-    
     emit(state.copyWith(
       isLoading: false,
       recentlys: recentlys,
@@ -31,7 +36,7 @@ class RecentlyCubit extends Cubit<RecentlyState> {
   }
 
   void calcPage(List<Pair<Station, Recently>> recentlys, int pageSize) {
-     int totalSize = recentlys.length;
+    int totalSize = recentlys.length;
     int page = state.page;
     int totalPage = state.totalPage;
     if (pageSize > 0) {
@@ -58,8 +63,6 @@ class RecentlyCubit extends Cubit<RecentlyState> {
 
       sp.setInt(kSpRCLastPageSize, pageSize);
 
-
-
       int totalPage = (state.totalSize / pageSize).truncate();
       if (state.totalSize % pageSize > 0) {
         totalPage += 1;
@@ -80,12 +83,17 @@ class RecentlyCubit extends Cubit<RecentlyState> {
   }
 
   void addRecently(Station station) async {
-    await RadioRepository.instance.addRecently(station);
-    var recentlys = await RadioRepository.instance.loadRecently();
+    await repo.addRecently(station);
+    var recentlys = await repo.loadRecently();
     emit(state.copyWith(
       recentlys: recentlys,
     ));
     calcPage(recentlys, state.pageSize);
+
+    if (recentlys.isNotEmpty && state.isLogin) {
+      List<Recently> recently = List.filled(1, state.recentlys[0].p2);
+      await repo.userApi.radioRecentlyNew(recently);
+    }
   }
 
   void updateRecently(Station station) async {
@@ -94,20 +102,29 @@ class RecentlyCubit extends Cubit<RecentlyState> {
       Station pStation = state.recentlys[0].p1;
       if (station.urlResolved == pStation.urlResolved &&
           recently.endTime == null) {
-        await RadioRepository.instance.updateRecently(recently.id!);
-        var recentlys = await RadioRepository.instance.loadRecently();
+        await repo.updateRecently(recently.id!);
+        var recentlys = await repo.loadRecently();
         emit(state.copyWith(
           recentlys: recentlys,
         ));
+
+        if (recentlys.isNotEmpty && state.isLogin) {
+          Recently recently = state.recentlys[0].p2;
+          await repo.userApi.radioRecentlyModify(recently);
+        }
       }
     }
   }
 
   void clearRecently() async {
-    await RadioRepository.instance.clearRecently();
+    await repo.clearRecently();
     emit(state.copyWith(
       recentlys: const [],
     ));
     calcPage(const [], state.pageSize);
+
+    if (state.isLogin) {
+      await repo.userApi.radioRecentlyClear();
+    }
   }
 }

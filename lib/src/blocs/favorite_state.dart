@@ -9,30 +9,36 @@ class FavoriteState extends Equatable {
   final List<Station> stations;
   final bool isLoading;
 
+  final bool isLogin;
+
   const FavoriteState({
     this.group,
     this.groups = const [],
     this.isGroupsLoading = false,
     this.stations = const [],
     this.isLoading = false,
+    this.isLogin = false,
   });
 
-  FavoriteState copyWith(
-      {FavGroup? group,
-      List<FavGroup>? groups,
-      bool? isGroupsLoading,
-      List<Station>? stations,
-      bool? isLoading}) {
+  FavoriteState copyWith({
+    FavGroup? group,
+    List<FavGroup>? groups,
+    bool? isGroupsLoading,
+    List<Station>? stations,
+    bool? isLoading,
+    bool? isLogin,
+  }) {
     return FavoriteState(
       group: group ?? this.group,
       groups: groups ?? this.groups,
       isGroupsLoading: isGroupsLoading ?? this.isGroupsLoading,
       stations: stations ?? this.stations,
       isLoading: isLoading ?? this.isLoading,
+      isLogin: isLogin ?? this.isLogin,
     );
   }
 
   @override
   List<Object?> get props =>
-      [group, groups, isGroupsLoading, stations, isLoading];
+      [group, groups, isGroupsLoading, stations, isLoading, isLogin];
 }

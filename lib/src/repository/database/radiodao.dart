@@ -22,6 +22,14 @@ class RadioDao {
     }
     return null;
   }
+  Future<FavGroup?> queryGroupById(int groupId) async {
+    List<Map<String, Object?>> data = await db.query('fav_group',
+        where: 'id = ?', whereArgs: [groupId], limit: 1);
+    if (data.isNotEmpty) {
+      return FavGroup.fromJson(data[0]);
+    }
+    return null;
+  }
 
   Future<FavGroup?> queryDefGroup() async {
     List<Map<String, Object?>> data = await db.query('fav_group',

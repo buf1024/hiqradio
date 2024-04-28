@@ -16,6 +16,7 @@ import 'package:hiqradio/src/utils/nav.dart';
 import 'package:hiqradio/src/views/components/station_info.dart';
 import 'package:hiqradio/src/views/phone/carplaying_page.dart';
 import 'package:hiqradio/src/views/phone/components/fav_group_imexport.dart';
+import 'package:hiqradio/src/views/phone/components/phone_user_info.dart';
 import 'package:hiqradio/src/views/phone/components/play_funcs.dart';
 import 'package:hiqradio/src/views/phone/pages/my_phone_favorite.dart';
 import 'package:hiqradio/src/views/phone/pages/my_phone_recently.dart';
@@ -234,17 +235,19 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                 // padding:  EdgeInsets.fromLTRB(4.0, 4.0, 4.0, 2.0),
                 child: Row(
                   children: [
-                    SizedBox(
-                      height: 60,
-                      width: 60,
-                      child: Icon(
-                        IconFont.station,
-                        color: Theme.of(context).textTheme.bodyMedium!.color!,
-                        shadows: const [
-                          Shadow(blurRadius: 50.0, offset: Offset(0, 5)),
-                        ],
-                      ),
-                    ),
+                    // SizedBox(
+                    //   height: 60,
+                    //   width: 60,
+                    //   child: Icon(
+                    //     IconFont.station,
+                    //     color: Theme.of(context).textTheme.bodyMedium!.color!,
+                    //     shadows: const [
+                    //       Shadow(blurRadius: 50.0, offset: Offset(0, 5)),
+                    //     ],
+                    //   ),
+                    // ),
+                    const PhoneUserInfo(),
+                    Text('data'),
                     Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,

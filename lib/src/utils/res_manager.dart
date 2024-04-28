@@ -199,3 +199,4 @@ class ResManager {
   get localeMap => _localeMap;
   get version => _version;
 }
+

@@ -14,7 +14,6 @@ import 'package:hiqradio/src/repository/repository.dart';
 import 'package:hiqradio/src/repository/userapi/userapi.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
-import 'package:hiqradio/src/utils/err_manager.dart';
 
 import 'package:intl/intl.dart';
 import 'package:oktoast/oktoast.dart';
@@ -22,14 +21,14 @@ import 'package:window_manager/window_manager.dart';
 
 enum ShowType { login, reward, register, userinfo, resetPass, none }
 
-class UserInfo extends StatefulWidget {
-  const UserInfo({super.key});
+class UserInfoPage extends StatefulWidget {
+  const UserInfoPage({super.key});
 
   @override
-  State<UserInfo> createState() => _UserInfoState();
+  State<UserInfoPage> createState() => _UserInfoState();
 }
 
-class _UserInfoState extends State<UserInfo> {
+class _UserInfoState extends State<UserInfoPage> {
   OverlayEntry? userOverlay;
 
   bool isInit = false;
@@ -62,21 +61,19 @@ class _UserInfoState extends State<UserInfo> {
     }
   }
 
-  void initUserInfo(bool isLogin) async {
+  void initUserInfo() async {
     if (mounted && !isInit) {
       isInit = true;
 
-      if (isLogin) {
-        var data = await userApi.userInfo();
+      var data = await userApi.userInfo();
 
-        if (data['error'] == 0) {
-          context.read<AppCubit>().setUserLogin(true,
-              email: data['email'], userName: data['user_name']);
-          context.read<RecentlyCubit>().setUserLogin(true);
-          context.read<FavoriteCubit>().setUserLogin(true);
+      if (data['error'] == 0) {
+        context.read<AppCubit>().setUserLogin(true,
+            email: data['email'], userName: data['user_name']);
+        context.read<RecentlyCubit>().setUserLogin(true);
+        context.read<FavoriteCubit>().setUserLogin(true);
 
-          context.read<AppCubit>().startSync();
-        }
+        context.read<AppCubit>().startSync();
       }
     }
   }
@@ -94,9 +91,11 @@ class _UserInfoState extends State<UserInfo> {
         context.select<AppCubit, int>((value) => value.state.avatarChgTag);
 
     getUserAvatar(avatarChgTag);
-    initUserInfo(isLogin);
+    initUserInfo();
 
-    return InkClick(
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: InkClick(
         onTap: () => _onShowUser(ShowType.none, type),
         child: isLogin
             ? Container(
@@ -127,7 +126,9 @@ class _UserInfoState extends State<UserInfo> {
                   IconFont.notsignin,
                   size: 26.0,
                 ),
-              ));
+              ),
+      ),
+    );
   }
 
   void _onCloseContent(ShowType from, ShowType next) {

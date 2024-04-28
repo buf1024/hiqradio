@@ -109,7 +109,6 @@ class UserApi {
     param['captcha'] = captcha;
     param['code'] = verifyCode;
 
-    print('data=${jsonEncode(param)}');
 
     Response response = await dio.post(url, data: jsonEncode(param));
 
@@ -285,6 +284,39 @@ class UserApi {
     return response.data;
   }
 
+  Future<Map<String, dynamic>> radioGroupModify(
+      String oldName, String name, String desc) async {
+    String url = '/hiqradio/group_modify';
+
+    Map<String, dynamic> param = HashMap();
+
+    param['old_name'] = oldName;
+    param['name'] = name;
+    param['desc'] = desc;
+
+    Response response = await dio.post(url, data: jsonEncode(param));
+
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> radioGroupDelete(
+      List<FavGroup> favGroups) async {
+    String url = '/hiqradio/group_delete';
+
+    List<String> groupsParam = List.empty(growable: true);
+    for (var group in favGroups) {
+      groupsParam.add(group.name);
+    }
+
+    Map<String, dynamic> param = HashMap();
+
+    param['groups'] = groupsParam;
+
+    Response response = await dio.post(url, data: jsonEncode(param));
+
+    return response.data;
+  }
+
   Future<Map<String, dynamic>> radioRecentlyNew(List<Recently> recently) async {
     String url = '/hiqradio/recently_new';
 
@@ -308,6 +340,30 @@ class UserApi {
     return response.data;
   }
 
+  Future<Map<String, dynamic>> radioRecentlyModify(Recently recently) async {
+    String url = '/hiqradio/recently_modify';
+
+    Map<String, dynamic> param = HashMap();
+
+    param['stationuuid'] = recently.stationuuid;
+    param['start_time'] = recently.startTime;
+    param['end_time'] = recently.endTime;
+
+    Response response = await dio.post(url, data: jsonEncode(param));
+
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> radioRecentlyClear() async {
+    String url = '/hiqradio/recently_clear';
+
+    Map<String, dynamic> param = HashMap();
+
+    Response response = await dio.post(url, data: jsonEncode(param));
+
+    return response.data;
+  }
+
   Future<Map<String, dynamic>> radioFavoriteNew(
       List<Map<String, dynamic>> favorites) async {
     String url = '/hiqradio/favorite_new';
@@ -320,6 +376,20 @@ class UserApi {
     Map<String, dynamic> param = HashMap();
 
     param['new_favorite'] = favoriteParam;
+
+    Response response = await dio.post(url, data: jsonEncode(param));
+
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> radioFavoriteDelete(
+      List<String> stations, List<String> groups) async {
+    String url = '/hiqradio/favorite_delete';
+
+    Map<String, dynamic> param = HashMap();
+
+    param['favorites'] = stations;
+    param['group_names'] = groups;
 
     Response response = await dio.post(url, data: jsonEncode(param));
 
