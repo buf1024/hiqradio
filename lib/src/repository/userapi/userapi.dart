@@ -52,7 +52,7 @@ class UserApi {
   Future<void> initDio() async {
     var host = 'https://toyent.com';
     if (kDebugMode) {
-      host = 'http://10.0.0.18:4000';
+      host = 'https://toyent.com';
     }
     var baseUrl = '$host/api';
 

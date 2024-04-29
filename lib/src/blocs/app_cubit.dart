@@ -235,11 +235,12 @@ abstract class AppCubit extends Cubit<AppState> {
     if (token != null && token.isNotEmpty) {
       await repo.userApi.setAuthToken(token);
 
-      
-      var data = await repo.userApi.userIsLogin();
-      if (data['error'] == 0) {
-        isLogin = true;
-      }
+      try {
+        var data = await repo.userApi.userIsLogin();
+        if (data['error'] == 0) {
+          isLogin = true;
+        }
+      } catch (_) {}
     }
 
     String userEmail = '';
