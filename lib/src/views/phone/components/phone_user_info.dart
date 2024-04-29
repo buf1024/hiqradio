@@ -23,6 +23,7 @@ class PhoneUserInfo extends StatefulWidget {
 
 class _UserInfoState extends State<PhoneUserInfo> {
   bool isInit = false;
+  bool isTestSigning = false;
 
   Uint8List avatarData = Uint8List(0);
 
@@ -52,21 +53,43 @@ class _UserInfoState extends State<PhoneUserInfo> {
     }
   }
 
-  void initUserInfo(bool isLogin) async {
+  void initUserInfo() async {
     if (mounted && !isInit) {
       isInit = true;
 
-      if (isLogin) {
-        var data = await userApi.userInfo();
+      String? token = userApi.getAuthToken();
 
-        if (data['error'] == 0) {
-          context.read<AppCubit>().setUserLogin(true,
-              email: data['email'], userName: data['user_name']);
-          context.read<RecentlyCubit>().setUserLogin(true);
-          context.read<FavoriteCubit>().setUserLogin(true);
+      if (token != null && token.isNotEmpty) {
+        setState(() {
+          isTestSigning = true;
+        });
 
-          context.read<AppCubit>().startSync();
-        }
+        try {
+          var data = await userApi.userIsLogin();
+          if (data['error'] == 0) {
+            data = await userApi.userInfo();
+
+            if (data['error'] == 0) {
+              String? avatar = data['avatar'];
+              if (avatar != null) {
+                context.read<AppCubit>().setAvatar(avatar);
+              } else {
+                context.read<AppCubit>().setAvatar('');
+              }
+
+              context.read<AppCubit>().setUserLogin(true,
+                  email: data['email'], userName: data['user_name']);
+              context.read<RecentlyCubit>().setUserLogin(true);
+              context.read<FavoriteCubit>().setUserLogin(true);
+
+              context.read<AppCubit>().startSync();
+            }
+          }
+        } catch (_) {}
+
+        setState(() {
+          isTestSigning = false;
+        });
       }
     }
   }
@@ -76,11 +99,11 @@ class _UserInfoState extends State<PhoneUserInfo> {
     bool isLogin =
         context.select<AppCubit, bool>((value) => value.state.isLogin);
 
-    String userName =
-        context.select<AppCubit, String>((value) => value.state.userName);
+    // String userName =
+    //     context.select<AppCubit, String>((value) => value.state.userName);
 
-    String userEmail =
-        context.select<AppCubit, String>((value) => value.state.userEmail);
+    // String userEmail =
+    //     context.select<AppCubit, String>((value) => value.state.userEmail);
 
     Color dividerColor = Theme.of(context).dividerColor;
 
@@ -88,7 +111,7 @@ class _UserInfoState extends State<PhoneUserInfo> {
         context.select<AppCubit, int>((value) => value.state.avatarChgTag);
 
     getUserAvatar(avatarChgTag);
-    initUserInfo(isLogin);
+    initUserInfo();
 
     return InkClick(
       onTap: () {
@@ -118,42 +141,56 @@ class _UserInfoState extends State<PhoneUserInfo> {
                           ),
                   ),
                 )
-              : Container(
-                  width: 60.0,
-                  height: 60.0,
-                  padding: const EdgeInsets.only(left: 8.0, bottom: 3.0),
-                  decoration: BoxDecoration(
-                      border: Border.all(color: dividerColor),
-                      borderRadius: BorderRadius.circular(50)),
-                  child: const Icon(
-                    IconFont.notsignin,
-                    size: 40.0,
-                  ),
-                ),
-          Expanded(
-            child: isLogin
-                ? Container(
-                    margin: const EdgeInsets.only(
-                        left: 18.0, top: 2.0, bottom: 2.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          userName,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(
-                          height: 8.0,
-                        ),
-                        Text(
-                          userEmail,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+              : Stack(children: [
+                  Container(
+                    width: 60.0,
+                    height: 60.0,
+                    padding: const EdgeInsets.only(left: 8.0, bottom: 3.0),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: dividerColor),
+                        borderRadius: BorderRadius.circular(50)),
+                    child: const Icon(
+                      IconFont.notsignin,
+                      size: 40.0,
                     ),
-                  )
-                : Container(),
-          )
+                  ),
+                  if (isTestSigning)
+                    Center(
+                      child: Container(
+                        height: 60.0,
+                        width: 60.0,
+                        margin: const EdgeInsets.all(4.0),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.0,
+                          color: Theme.of(context).textTheme.bodyMedium!.color!,
+                        ),
+                      ),
+                    )
+                ]),
+          // Expanded(
+          //   child: isLogin
+          //       ? Container(
+          //           margin: const EdgeInsets.only(
+          //               left: 18.0, top: 2.0, bottom: 2.0),
+          //           child: Column(
+          //             crossAxisAlignment: CrossAxisAlignment.start,
+          //             children: [
+          //               Text(
+          //                 userName,
+          //                 overflow: TextOverflow.ellipsis,
+          //               ),
+          //               const SizedBox(
+          //                 height: 8.0,
+          //               ),
+          //               Text(
+          //                 userEmail,
+          //                 overflow: TextOverflow.ellipsis,
+          //               ),
+          //             ],
+          //           ),
+          //         )
+          //       : Container(),
+          // )
         ],
       ),
     );

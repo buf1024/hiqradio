@@ -34,6 +34,7 @@ class _UserInfoState extends State<UserInfo> {
   OverlayEntry? userOverlay;
 
   bool isInit = false;
+  bool isTestSigning = false;
 
   Uint8List avatarData = Uint8List(0);
 
@@ -53,7 +54,6 @@ class _UserInfoState extends State<UserInfo> {
       String? avatar = await context.read<AppCubit>().getUserAvatar();
 
       if (avatar != null && avatar.isNotEmpty) {
-        debugPrint('avatar not empty');
         avatarData = base64Decode(avatar);
       } else {
         avatarData = Uint8List(0);
@@ -62,28 +62,43 @@ class _UserInfoState extends State<UserInfo> {
     }
   }
 
-  void initUserInfo(bool isLogin) async {
+  void initUserInfo() async {
     if (mounted && !isInit) {
       isInit = true;
 
-      if (isLogin) {
-        var data = await userApi.userInfo();
+      String? token = userApi.getAuthToken();
 
-        if (data['error'] == 0) {
-          String? avatar = data['avatar'];
-          if (avatar != null) {
-            context.read<AppCubit>().setAvatar(avatar);
-          } else {
-            context.read<AppCubit>().setAvatar('');
+      if (token != null && token.isNotEmpty) {
+        setState(() {
+          isTestSigning = true;
+        });
+
+        try {
+          var data = await userApi.userIsLogin();
+          if (data['error'] == 0) {
+            data = await userApi.userInfo();
+
+            if (data['error'] == 0) {
+              String? avatar = data['avatar'];
+              if (avatar != null) {
+                context.read<AppCubit>().setAvatar(avatar);
+              } else {
+                context.read<AppCubit>().setAvatar('');
+              }
+
+              context.read<AppCubit>().setUserLogin(true,
+                  email: data['email'], userName: data['user_name']);
+              context.read<RecentlyCubit>().setUserLogin(true);
+              context.read<FavoriteCubit>().setUserLogin(true);
+
+              context.read<AppCubit>().startSync();
+            }
           }
+        } catch (_) {}
 
-          context.read<AppCubit>().setUserLogin(true,
-              email: data['email'], userName: data['user_name']);
-          context.read<RecentlyCubit>().setUserLogin(true);
-          context.read<FavoriteCubit>().setUserLogin(true);
-
-          context.read<AppCubit>().startSync();
-        }
+        setState(() {
+          isTestSigning = false;
+        });
       }
     }
   }
@@ -101,9 +116,7 @@ class _UserInfoState extends State<UserInfo> {
         context.select<AppCubit, int>((value) => value.state.avatarChgTag);
 
     getUserAvatar(avatarChgTag);
-    initUserInfo(isLogin);
-
-    debugPrint('login=$isLogin, isEmpty=${avatarData.isEmpty}');
+    initUserInfo();
 
     return InkClick(
         onTap: () => _onShowUser(ShowType.none, type),
@@ -125,17 +138,33 @@ class _UserInfoState extends State<UserInfo> {
                         ),
                 ),
               )
-            : Container(
-                width: 42.0,
-                height: 42.0,
-                margin: const EdgeInsets.all(5.0),
-                decoration: BoxDecoration(
-                    border: Border.all(color: dividerColor),
-                    borderRadius: BorderRadius.circular(50)),
-                child: const Icon(
-                  IconFont.notsignin,
-                  size: 26.0,
-                ),
+            : Stack(
+                children: [
+                  Container(
+                    width: 42.0,
+                    height: 42.0,
+                    margin: const EdgeInsets.all(5.0),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: dividerColor),
+                        borderRadius: BorderRadius.circular(50)),
+                    child: const Icon(
+                      IconFont.notsignin,
+                      size: 26.0,
+                    ),
+                  ),
+                  if (isTestSigning)
+                    Center(
+                      child: Container(
+                        height: 42.0,
+                        width: 42.0,
+                        margin: const EdgeInsets.all(4.0),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.0,
+                          color: Theme.of(context).textTheme.bodyMedium!.color!,
+                        ),
+                      ),
+                    )
+                ],
               ));
   }
 
@@ -1803,31 +1832,52 @@ class _UserDetailState extends State<_UserDetail> {
         ),
         InkClick(
           onTap: () async {
-            FilePickerResult? result =
-                await FilePicker.platform.pickFiles(type: FileType.image);
+            if (!isRequestAvatarModifying) {
+              FilePickerResult? result =
+                  await FilePicker.platform.pickFiles(type: FileType.image);
 
-            if (result != null) {
-              File file = File(result.files.single.path!);
-              requestModifyAvatar(file);
+              if (result != null) {
+                File file = File(result.files.single.path!);
+                requestModifyAvatar(file);
+              }
+              await windowManager.orderFront();
             }
-            await windowManager.orderFront();
           },
-          child: Container(
-            width: 80.0,
-            height: 80.0,
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(50),
-              child: avatarData.isEmpty
-                  ? const Image(
-                      image: AssetImage('assets/images/login.png'),
-                      fit: BoxFit.cover,
-                    )
-                  : Image.memory(
-                      avatarData,
-                      fit: BoxFit.cover,
+          child: Stack(
+            children: [
+              Center(
+                child: Container(
+                  width: 80.0,
+                  height: 80.0,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 8.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(50),
+                    child: avatarData.isEmpty
+                        ? const Image(
+                            image: AssetImage('assets/images/login.png'),
+                            fit: BoxFit.cover,
+                          )
+                        : Image.memory(
+                            avatarData,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                ),
+              ),
+              if (isRequestAvatarModifying)
+                Center(
+                  child: Container(
+                    height: 80.0,
+                    width: 80.0,
+                    padding: const EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.0,
+                      color: Theme.of(context).textTheme.bodyMedium!.color!,
                     ),
-            ),
+                  ),
+                ),
+            ],
           ),
         ),
         const SizedBox(

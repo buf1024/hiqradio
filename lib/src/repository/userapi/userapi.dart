@@ -49,10 +49,15 @@ class UserApi {
     dio.options.headers = headers;
   }
 
+  String? getAuthToken() {
+    var headers = dio.options.headers;
+    return headers['Authorization'];
+  }
+
   Future<void> initDio() async {
     var host = 'https://toyent.com';
     if (kDebugMode) {
-      host = 'https://toyent.com';
+      host = 'http://10.0.0.18:4000';
     }
     var baseUrl = '$host/api';
 

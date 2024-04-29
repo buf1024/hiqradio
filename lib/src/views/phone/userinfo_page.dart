@@ -1755,31 +1755,52 @@ class _UserDetailState extends State<_UserDetail> {
         ),
         InkClick(
           onTap: () async {
-            FilePickerResult? result =
-                await FilePicker.platform.pickFiles(type: FileType.image);
+            if (!isRequestAvatarModifying) {
+              FilePickerResult? result =
+                  await FilePicker.platform.pickFiles(type: FileType.image);
 
-            if (result != null) {
-              File file = File(result.files.single.path!);
-              requestModifyAvatar(file);
+              if (result != null) {
+                File file = File(result.files.single.path!);
+                requestModifyAvatar(file);
+              }
+              await windowManager.orderFront();
             }
-            await windowManager.orderFront();
           },
-          child: Container(
-            width: 100.0,
-            height: 100.0,
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(50),
-              child: avatarData.isEmpty
-                  ? const Image(
-                      image: AssetImage('assets/images/login.png'),
-                      fit: BoxFit.cover,
-                    )
-                  : Image.memory(
-                      avatarData,
-                      fit: BoxFit.cover,
+          child: Stack(
+            children: [
+              Center(
+                child: Container(
+                  width: 100.0,
+                  height: 100.0,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 8.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(50),
+                    child: avatarData.isEmpty
+                        ? const Image(
+                            image: AssetImage('assets/images/login.png'),
+                            fit: BoxFit.cover,
+                          )
+                        : Image.memory(
+                            avatarData,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                ),
+              ),
+              if (isRequestAvatarModifying)
+                Center(
+                  child: Container(
+                    height: 100.0,
+                    width: 100.0,
+                    padding: const EdgeInsets.all(10.0),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.0,
+                      color: Theme.of(context).textTheme.bodyMedium!.color!,
                     ),
-            ),
+                  ),
+                ),
+            ],
           ),
         ),
         const SizedBox(

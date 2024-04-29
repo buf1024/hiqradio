@@ -231,16 +231,16 @@ abstract class AppCubit extends Cubit<AppState> {
 
     String? token = sp.getString(kSpAppUserToken);
 
-    bool isLogin = false;
+    // bool isLogin = false;
     if (token != null && token.isNotEmpty) {
       await repo.userApi.setAuthToken(token);
 
-      try {
-        var data = await repo.userApi.userIsLogin();
-        if (data['error'] == 0) {
-          isLogin = true;
-        }
-      } catch (_) {}
+      // try {
+      //   var data = await repo.userApi.userIsLogin();
+      //   if (data['error'] == 0) {
+      //     isLogin = true;
+      //   }
+      // } catch (_) {}
     }
 
     String userEmail = '';
@@ -252,7 +252,7 @@ abstract class AppCubit extends Cubit<AppState> {
 
     emit(state.copyWith(
         userEmail: userEmail,
-        isLogin: isLogin,
+        // isLogin: isLogin,
         autoCache: autoCache ?? state.autoCache,
         isInit: true,
         playingStation: playingStation,
