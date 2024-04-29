@@ -1,23 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:data_table_2/data_table_2.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hiqradio/src/app/iconfont.dart';
 import 'package:hiqradio/src/blocs/app_cubit.dart';
 import 'package:hiqradio/src/blocs/favorite_cubit.dart';
 import 'package:hiqradio/src/blocs/recently_cubit.dart';
 import 'package:hiqradio/src/repository/repository.dart';
 import 'package:hiqradio/src/repository/userapi/userapi.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
-import 'package:hiqradio/src/views/desktop/utils/constant.dart';
 
-import 'package:intl/intl.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:window_manager/window_manager.dart';
+
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum ShowType { login, reward, register, userinfo, resetPass, none }
 
@@ -25,12 +23,10 @@ class UserInfoPage extends StatefulWidget {
   const UserInfoPage({super.key});
 
   @override
-  State<UserInfoPage> createState() => _UserInfoState();
+  State<UserInfoPage> createState() => _UserInfoPageState();
 }
 
-class _UserInfoState extends State<UserInfoPage> {
-  OverlayEntry? userOverlay;
-
+class _UserInfoPageState extends State<UserInfoPage> {
   bool isInit = false;
 
   Uint8List avatarData = Uint8List(0);
@@ -38,6 +34,9 @@ class _UserInfoState extends State<UserInfoPage> {
   int avatarChg = -1;
 
   UserApi userApi = RadioRepository.instance.userApi;
+
+  ShowType from = ShowType.none;
+  ShowType type = ShowType.none;
 
   @override
   void initState() {
@@ -61,19 +60,31 @@ class _UserInfoState extends State<UserInfoPage> {
     }
   }
 
-  void initUserInfo() async {
-    if (mounted && !isInit) {
+  void initPage(bool isLogin) async {
+    if (!isInit) {
       isInit = true;
+      setState(() {
+        type = isLogin ? ShowType.userinfo : ShowType.login;
+      });
 
-      var data = await userApi.userInfo();
+      if (isLogin) {
+        var data = await userApi.userInfo();
 
-      if (data['error'] == 0) {
-        context.read<AppCubit>().setUserLogin(true,
-            email: data['email'], userName: data['user_name']);
-        context.read<RecentlyCubit>().setUserLogin(true);
-        context.read<FavoriteCubit>().setUserLogin(true);
+        if (data['error'] == 0) {
+          String? avatar = data['avatar'];
+          if (avatar != null) {
+            context.read<AppCubit>().setAvatar(avatar);
+          } else {
+            context.read<AppCubit>().setAvatar('');
+          }
 
-        context.read<AppCubit>().startSync();
+          context.read<AppCubit>().setUserLogin(true,
+              email: data['email'], userName: data['user_name']);
+          context.read<RecentlyCubit>().setUserLogin(true);
+          context.read<FavoriteCubit>().setUserLogin(true);
+
+          context.read<AppCubit>().startSync();
+        }
       }
     }
   }
@@ -83,180 +94,80 @@ class _UserInfoState extends State<UserInfoPage> {
     bool isLogin =
         context.select<AppCubit, bool>((value) => value.state.isLogin);
 
-    Color dividerColor = Theme.of(context).dividerColor;
-
-    ShowType type = isLogin ? ShowType.userinfo : ShowType.login;
+    initPage(isLogin);
 
     int avatarChgTag =
         context.select<AppCubit, int>((value) => value.state.avatarChgTag);
 
     getUserAvatar(avatarChgTag);
-    initUserInfo();
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: InkClick(
-        onTap: () => _onShowUser(ShowType.none, type),
-        child: isLogin
-            ? Container(
-                width: 42.0,
-                height: 42.0,
-                margin: const EdgeInsets.all(5.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: avatarData.isEmpty
-                      ? const Image(
-                          image: AssetImage('assets/images/login.png'),
-                          fit: BoxFit.cover,
-                        )
-                      : Image.memory(
-                          avatarData,
-                          fit: BoxFit.cover,
-                        ),
-                ),
-              )
-            : Container(
-                width: 42.0,
-                height: 42.0,
-                margin: const EdgeInsets.all(5.0),
-                decoration: BoxDecoration(
-                    border: Border.all(color: dividerColor),
-                    borderRadius: BorderRadius.circular(50)),
-                child: const Icon(
-                  IconFont.notsignin,
-                  size: 26.0,
-                ),
-              ),
-      ),
+      appBar: _appBar(),
+      body: _getContent(),
     );
   }
 
-  void _onCloseContent(ShowType from, ShowType next) {
-    _closeShowUser();
-    if (ShowType.none != next) {
-      _onShowUser(from, next);
+  PreferredSizeWidget _appBar() {
+    Color scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
+    return AppBar(
+      backgroundColor: scaffoldBackgroundColor,
+      shadowColor: Colors.black.withOpacity(0),
+      centerTitle: true,
+      leading: InkClick(
+          child: const Icon(
+            Icons.arrow_back,
+            size: 22,
+          ),
+          onTap: () {
+            Navigator.of(context).pop();
+          }),
+    );
+  }
+
+  void jump(ShowType fromJump, ShowType nextType) {
+    setState(() {
+      from = fromJump;
+      type = nextType;
+    });
+
+    if (nextType == ShowType.none) {
+      Navigator.of(context).pop();
     }
   }
 
-  Widget? _getContent(ShowType from, ShowType type) {
+  Widget? _getContent() {
     switch (type) {
       case ShowType.login:
         return _UserLogin(
           from: from,
-          onClose: (from, next) => _onCloseContent(from, next),
+          onClose: (from, next) => jump(from, next),
         );
       case ShowType.reward:
         return _UserReward(
           from: from,
-          onClose: (from, next) => _onCloseContent(from, next),
+          onClose: (from, next) => jump(from, next),
         );
       case ShowType.register:
         return _UserRegister(
           from: from,
-          onClose: (from, next) => _onCloseContent(from, next),
+          onClose: (from, next) => jump(from, next),
         );
       case ShowType.userinfo:
         return _UserDetail(
           from: from,
-          onClose: (from, next) => _onCloseContent(from, next),
+          onClose: (from, next) => jump(from, next),
         );
 
       case ShowType.resetPass:
         return _UserPasswdReset(
           from: from,
-          onClose: (from, next) => _onCloseContent(from, next),
+          onClose: (from, next) => jump(from, next),
         );
 
       case ShowType.none:
         return null;
-    }
-  }
-
-  void _onShowUser(ShowType from, ShowType type) {
-    double width = type == ShowType.userinfo ? 600.0 : 300.0;
-    double posLeft = (MediaQuery.of(context).size.width - width) / 2;
-    double height = MediaQuery.of(context).size.height - kTitleBarHeight - 4;
-
-    userOverlay ??= OverlayEntry(
-      opaque: false,
-      builder: (context) {
-        // 猥琐发育
-        return Stack(
-          fit: StackFit.loose,
-          children: [
-            Container(
-              padding: const EdgeInsets.only(top: 0),
-              // padding: const EdgeInsets.only(top: kTitleBarHeight),
-              child: ModalBarrier(
-                onDismiss: () => _closeShowUser(),
-              ),
-            ),
-            Positioned(
-              top: kTitleBarHeight + 4,
-              left: posLeft,
-              width: width,
-              height: height,
-              child: StatefulBuilder(builder: (context, setState) {
-                return Material(
-                  color: Colors.black.withOpacity(0),
-                  child: Dialog(
-                    alignment: Alignment.center,
-                    insetPadding: const EdgeInsets.only(
-                        top: 0, bottom: 0, right: 0, left: 0),
-                    elevation: 2.0,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(8.0),
-                      ),
-                    ),
-                    child: Container(
-                        width: width,
-                        height: height,
-                        child: Column(
-                          children: [
-                            Container(
-                              height: kTitleBarHeight,
-                              width: width,
-                              child: Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 2.0, horizontal: 8.0),
-                                    child: InkClick(
-                                      onTap: () {
-                                        _closeShowUser();
-                                      },
-                                      child: const Icon(
-                                        IconFont.close,
-                                        size: 14.0,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              height: height - kTitleBarHeight,
-                              width: width,
-                              child: _getContent(from, type),
-                            ),
-                          ],
-                        )),
-                  ),
-                );
-              }),
-            ),
-          ],
-        );
-      },
-    );
-    Overlay.of(context).insert(userOverlay!);
-  }
-
-  void _closeShowUser() {
-    if (userOverlay != null) {
-      userOverlay!.remove();
-      userOverlay = null;
     }
   }
 }
@@ -286,6 +197,8 @@ class _UserLoginState extends State<_UserLogin> {
 
   bool isInit = false;
 
+  String userEmail = '';
+
   @override
   void initState() {
     super.initState();
@@ -301,11 +214,18 @@ class _UserLoginState extends State<_UserLogin> {
 
   void initLogin() async {
     if (mounted && !isInit) {
+      debugPrint('initLogin');
       isInit = true;
 
-      emailController.text =
-          context.select<AppCubit, String>((value) => value.state.userEmail);
       requestCaptcha();
+    }
+  }
+
+  void resetUserEmail(String email) {
+    if (userEmail != email) {
+      userEmail = email;
+
+      emailController.text = email;
     }
   }
 
@@ -350,6 +270,12 @@ class _UserLoginState extends State<_UserLogin> {
         var data = await userApi.userInfo();
         if (data['error'] == 0) {
           userName = data['user_name'];
+          String? avatar = data['avatar'];
+          if (avatar != null) {
+            context.read<AppCubit>().setAvatar(avatar);
+          } else {
+            context.read<AppCubit>().setAvatar('');
+          }
         }
       }
       context
@@ -379,68 +305,84 @@ class _UserLoginState extends State<_UserLogin> {
 
   @override
   Widget build(BuildContext context) {
+    String email =
+        context.select<AppCubit, String>((value) => value.state.userEmail);
+
     initLogin();
+    resetUserEmail(email);
     return Column(
       children: [
         const Spacer(),
         Row(
           children: [
             Container(
-              height: 26,
-              width: 80,
+              height: 32,
+              width: 100,
               padding: const EdgeInsets.only(right: 10.0),
               alignment: Alignment.centerRight,
-              child: Text("邮箱:"),
+              child: Text(
+                '${AppLocalizations.of(context)!.user_email}:',
+                style: TextStyle(fontSize: 16.0),
+              ),
             ),
             Container(
-              height: 26,
-              width: 180.0,
-              child: _textField(context, emailController, "注册的邮箱"),
+              height: 32,
+              width: 220.0,
+              child: _textField(context, emailController,
+                  AppLocalizations.of(context)!.user_email),
             )
           ],
         ),
-        SizedBox(
-          height: 6.0,
+        const SizedBox(
+          height: 12.0,
         ),
         Row(
           children: [
             Container(
-              height: 26,
-              width: 80,
+              height: 32,
+              width: 100,
               padding: const EdgeInsets.only(right: 8.0),
               alignment: Alignment.centerRight,
-              child: Text("密码:"),
+              child: Text(
+                '${AppLocalizations.of(context)!.user_passwd}:',
+                style: TextStyle(fontSize: 16.0),
+              ),
             ),
-            Container(
-              height: 26,
-              width: 180.0,
-              child: _textField(context, passwdController, "登录密码",
+            SizedBox(
+              height: 32,
+              width: 220.0,
+              child: _textField(context, passwdController,
+                  AppLocalizations.of(context)!.user_passwd,
                   obscureText: true),
             )
           ],
         ),
-        SizedBox(
-          height: 6.0,
+        const SizedBox(
+          height: 12.0,
         ),
         Row(
           children: [
             Container(
-              height: 26,
-              width: 80,
+              height: 32,
+              width: 100,
               padding: const EdgeInsets.only(right: 8.0),
               alignment: Alignment.centerRight,
-              child: Text("验证码:"),
+              child: Text(
+                '${AppLocalizations.of(context)!.user_captcha}:',
+                style: TextStyle(fontSize: 16.0),
+              ),
             ),
             Container(
-              height: 26,
-              width: 112.0,
+              height: 32,
+              width: 152.0,
               margin: const EdgeInsets.only(right: 8.0),
-              child: _textField(context, codeController, "验证码"),
+              child: _textField(context, codeController,
+                  '${AppLocalizations.of(context)!.user_captcha}:'),
             ),
             InkClick(
               onTap: () => requestCaptcha(),
               child: Container(
-                height: 26,
+                height: 32,
                 width: 60.0,
                 decoration: BoxDecoration(
                   border: Border.all(
@@ -461,8 +403,8 @@ class _UserLoginState extends State<_UserLogin> {
                           ),
                         )
                       : (captcha.isEmpty
-                          ? const Text(
-                              '刷新',
+                          ? Text(
+                              AppLocalizations.of(context)!.user_refresh,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 13.0, fontStyle: FontStyle.italic),
@@ -474,16 +416,19 @@ class _UserLoginState extends State<_UserLogin> {
           ],
         ),
         const SizedBox(
-          height: 6.0,
+          height: 12.0,
         ),
         Row(
           children: [
             Container(
-              height: 26,
-              width: 80,
+              height: 32,
+              width: 100,
               padding: const EdgeInsets.only(right: 8.0),
               alignment: Alignment.centerRight,
-              child: Text("自动注册:"),
+              child: Text(
+                "${AppLocalizations.of(context)!.user_auto_signup}:",
+                style: TextStyle(fontSize: 16.0),
+              ),
             ),
             Checkbox(
               splashRadius: 0,
@@ -510,20 +455,20 @@ class _UserLoginState extends State<_UserLogin> {
               },
             ),
             Text(
-              '使用其他app账号登录',
+              AppLocalizations.of(context)!.user_signup_using_other,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12.0, fontStyle: FontStyle.italic),
             )
           ],
         ),
         const SizedBox(
-          height: 6.0,
+          height: 12.0,
         ),
         Row(
           children: [
             Container(
-              height: 26,
-              width: 130,
+              height: 32,
+              width: 142,
               alignment: Alignment.centerRight,
               padding: const EdgeInsets.only(right: 12.0),
               child: InkClick(
@@ -531,8 +476,8 @@ class _UserLoginState extends State<_UserLogin> {
                   widget.onClose(ShowType.register, ShowType.resetPass);
                 },
                 child: Text(
-                  "忘记密码",
-                  style: TextStyle(
+                  AppLocalizations.of(context)!.user_forgot_passwd,
+                  style: const TextStyle(
                       fontSize: 12.0,
                       fontStyle: FontStyle.italic,
                       color: Colors.blueAccent),
@@ -540,25 +485,25 @@ class _UserLoginState extends State<_UserLogin> {
               ),
             ),
             Container(
-              height: 26,
-              width: 60.0,
+              height: 32,
+              width: 90.0,
               margin: const EdgeInsets.only(right: 8.0),
               child: MaterialButton(
                 color: Colors.deepPurpleAccent,
                 onPressed: () {
-                  widget.onClose!(widget.from, ShowType.reward);
+                  widget.onClose(widget.from, ShowType.reward);
                 },
                 child: Text(
-                  '注册',
+                  AppLocalizations.of(context)!.user_signup,
                   style: const TextStyle(
-                    fontSize: 12.0,
+                    fontSize: 16.0,
                   ),
                 ),
               ),
             ),
             Container(
-              height: 26,
-              width: 60.0,
+              height: 32,
+              width: 80.0,
               child: MaterialButton(
                 color: Colors.redAccent,
                 onPressed: () {
@@ -585,16 +530,16 @@ class _UserLoginState extends State<_UserLogin> {
                   }
                 },
                 child: Text(
-                  '登录',
+                  AppLocalizations.of(context)!.user_signin,
                   style: const TextStyle(
-                    fontSize: 12.0,
+                    fontSize: 16.0,
                   ),
                 ),
               ),
             )
           ],
         ),
-        Spacer(),
+        const Spacer(),
       ],
     );
   }
@@ -677,16 +622,28 @@ class _UserRewardState extends State<_UserReward> {
           padding: const EdgeInsets.all(12.0),
           child: Column(
             children: [
-              Text('赞赏'),
-              Text('是为了维持服务器的正常开销'),
-              Text('1分也是爱'),
-              Text('当然也是可以跳过的'),
+              Text(
+                '赞赏',
+                style: TextStyle(fontSize: 16.0),
+              ),
+              Text(
+                '是为了维持服务器的正常开销',
+                style: TextStyle(fontSize: 16.0),
+              ),
+              Text(
+                '1分也是爱',
+                style: TextStyle(fontSize: 16.0),
+              ),
+              Text(
+                '当然也是可以跳过的',
+                style: TextStyle(fontSize: 16.0),
+              ),
             ],
           ),
         ),
         const Spacer(),
         Container(
-          padding: EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(12.0),
           child: Row(
             children: [
               const Spacer(),
@@ -698,8 +655,8 @@ class _UserRewardState extends State<_UserReward> {
                   }
                   widget.onClose(ShowType.reward, next);
                 },
-                child: const Text(
-                  '跳过',
+                child: Text(
+                  AppLocalizations.of(context)!.user_skip,
                   style: TextStyle(fontSize: 12.0, color: Colors.blueAccent),
                 ),
               ),
@@ -847,41 +804,49 @@ class _UserRegisterState extends State<_UserRegister> {
         Row(
           children: [
             Container(
-              height: 26,
-              width: 80,
+              height: 32,
+              width: 100,
               padding: const EdgeInsets.only(right: 10.0),
               alignment: Alignment.centerRight,
-              child: Text("邮箱:"),
+              child: Text(
+                "${AppLocalizations.of(context)!.user_email}:",
+                style: TextStyle(fontSize: 16.0),
+              ),
             ),
             Container(
-              height: 26,
-              width: 180.0,
-              child: _textField(context, emailController, "注册的邮箱"),
+              height: 32,
+              width: 220.0,
+              child: _textField(context, emailController,
+                  AppLocalizations.of(context)!.user_email),
             )
           ],
         ),
         const SizedBox(
-          height: 6.0,
+          height: 12.0,
         ),
         Row(
           children: [
             Container(
-              height: 26,
-              width: 80,
+              height: 32,
+              width: 100,
               padding: const EdgeInsets.only(right: 8.0),
               alignment: Alignment.centerRight,
-              child: Text("验证码:"),
+              child: Text(
+                "${AppLocalizations.of(context)!.user_captcha}:",
+                style: TextStyle(fontSize: 16.0),
+              ),
             ),
             Container(
-              height: 26,
-              width: 112.0,
+              height: 32,
+              width: 152.0,
               margin: const EdgeInsets.only(right: 8.0),
-              child: _textField(context, codeController, "验证码"),
+              child: _textField(context, codeController,
+                  AppLocalizations.of(context)!.user_captcha),
             ),
             InkClick(
               onTap: () => requestCaptcha(),
               child: Container(
-                height: 26,
+                height: 32,
                 width: 60.0,
                 decoration: BoxDecoration(
                   border: Border.all(
@@ -902,8 +867,8 @@ class _UserRegisterState extends State<_UserRegister> {
                           ),
                         )
                       : (captcha.isEmpty
-                          ? const Text(
-                              '刷新',
+                          ? Text(
+                              AppLocalizations.of(context)!.user_refresh,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 13.0, fontStyle: FontStyle.italic),
@@ -915,18 +880,18 @@ class _UserRegisterState extends State<_UserRegister> {
           ],
         ),
         const SizedBox(
-          height: 6.0,
+          height: 12.0,
         ),
         Row(
           children: [
             Container(
-              height: 26,
-              width: 180,
+              height: 32,
+              width: 200,
               padding: const EdgeInsets.only(right: 8.0),
             ),
             Container(
-              height: 26,
-              width: 80.0,
+              height: 32,
+              width: 120.0,
               child: MaterialButton(
                 color: Colors.redAccent,
                 onPressed: () {
@@ -956,9 +921,9 @@ class _UserRegisterState extends State<_UserRegister> {
                         ),
                       )
                     : Text(
-                        '发送校验码',
+                        AppLocalizations.of(context)!.user_send_verify_code,
                         style: const TextStyle(
-                          fontSize: 12.0,
+                          fontSize: 16.0,
                         ),
                       ),
               ),
@@ -969,81 +934,92 @@ class _UserRegisterState extends State<_UserRegister> {
             ? Column(
                 children: [
                   const SizedBox(
-                    height: 6.0,
+                    height: 12.0,
                   ),
                   Row(
                     children: [
                       Container(
-                        height: 26,
-                        width: 80,
+                        height: 32,
+                        width: 100,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("校验码:"),
+                        child: Text(
+                          "${AppLocalizations.of(context)!.user_verify_code}:",
+                          style: const TextStyle(fontSize: 16.0),
+                        ),
                       ),
-                      Container(
-                        height: 26,
-                        width: 180.0,
+                      SizedBox(
+                        height: 32,
+                        width: 220.0,
                         child: _textField(
                           context,
                           verifyCodeController,
-                          "邮箱校验码",
+                          "${AppLocalizations.of(context)!.user_verify_code}:",
                         ),
                       )
                     ],
                   ),
                   const SizedBox(
-                    height: 6.0,
+                    height: 12.0,
                   ),
                   Row(
                     children: [
                       Container(
-                        height: 26,
-                        width: 80,
+                        height: 32,
+                        width: 100,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("密码:"),
+                        child: Text(
+                          "${AppLocalizations.of(context)!.user_passwd}:",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
                       ),
                       Container(
-                        height: 26,
-                        width: 180.0,
-                        child: _textField(context, passwdController, "登录密码",
+                        height: 32,
+                        width: 220.0,
+                        child: _textField(context, passwdController,
+                            AppLocalizations.of(context)!.user_passwd,
                             obscureText: true),
                       )
                     ],
                   ),
                   const SizedBox(
-                    height: 6.0,
+                    height: 12.0,
                   ),
                   Row(
                     children: [
                       Container(
-                        height: 26,
-                        width: 80,
+                        height: 32,
+                        width: 100,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("重输密码:"),
+                        child: Text(
+                          "${AppLocalizations.of(context)!.user_re_passwd}:",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
                       ),
                       Container(
-                        height: 26,
-                        width: 180.0,
-                        child: _textField(context, passwd2Controller, "重输登录密码",
+                        height: 32,
+                        width: 220.0,
+                        child: _textField(context, passwd2Controller,
+                            AppLocalizations.of(context)!.user_re_passwd,
                             obscureText: true),
                       )
                     ],
                   ),
                   const SizedBox(
-                    height: 6.0,
+                    height: 12.0,
                   ),
                   Row(
                     children: [
                       Container(
-                        height: 26,
-                        width: 200,
+                        height: 32,
+                        width: 230,
                         padding: const EdgeInsets.only(right: 8.0),
                       ),
                       Container(
-                        height: 26,
-                        width: 60.0,
+                        height: 32,
+                        width: 90.0,
                         margin: const EdgeInsets.only(right: 8.0),
                         child: MaterialButton(
                           color: Colors.deepPurpleAccent,
@@ -1096,9 +1072,9 @@ class _UserRegisterState extends State<_UserRegister> {
                                   ),
                                 )
                               : Text(
-                                  '注册',
+                                  AppLocalizations.of(context)!.user_signup,
                                   style: const TextStyle(
-                                    fontSize: 12.0,
+                                    fontSize: 16.0,
                                   ),
                                 ),
                         ),
@@ -1252,41 +1228,49 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
         Row(
           children: [
             Container(
-              height: 26,
-              width: 80,
+              height: 32,
+              width: 100,
               padding: const EdgeInsets.only(right: 10.0),
               alignment: Alignment.centerRight,
-              child: Text("邮箱:"),
+              child: Text(
+                "${AppLocalizations.of(context)!.user_email}:",
+                style: TextStyle(fontSize: 16.0),
+              ),
             ),
             Container(
-              height: 26,
-              width: 180.0,
-              child: _textField(context, emailController, "注册的邮箱"),
+              height: 32,
+              width: 220.0,
+              child: _textField(context, emailController,
+                  AppLocalizations.of(context)!.user_email),
             )
           ],
         ),
         const SizedBox(
-          height: 6.0,
+          height: 12.0,
         ),
         Row(
           children: [
             Container(
-              height: 26,
-              width: 80,
+              height: 32,
+              width: 100,
               padding: const EdgeInsets.only(right: 8.0),
               alignment: Alignment.centerRight,
-              child: Text("验证码:"),
+              child: Text(
+                "${AppLocalizations.of(context)!.user_captcha}:",
+                style: TextStyle(fontSize: 16.0),
+              ),
             ),
             Container(
-              height: 26,
-              width: 112.0,
+              height: 32,
+              width: 152.0,
               margin: const EdgeInsets.only(right: 8.0),
-              child: _textField(context, codeController, "验证码"),
+              child: _textField(context, codeController,
+                  AppLocalizations.of(context)!.user_captcha),
             ),
             InkClick(
               onTap: () => requestCaptcha(),
               child: Container(
-                height: 26,
+                height: 32,
                 width: 60.0,
                 decoration: BoxDecoration(
                   border: Border.all(
@@ -1307,8 +1291,8 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
                           ),
                         )
                       : (captcha.isEmpty
-                          ? const Text(
-                              '刷新',
+                          ? Text(
+                              AppLocalizations.of(context)!.user_refresh,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 13.0, fontStyle: FontStyle.italic),
@@ -1320,18 +1304,18 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
           ],
         ),
         const SizedBox(
-          height: 6.0,
+          height: 12.0,
         ),
         Row(
           children: [
             Container(
-              height: 26,
-              width: 180,
+              height: 32,
+              width: 200,
               padding: const EdgeInsets.only(right: 8.0),
             ),
             Container(
-              height: 26,
-              width: 80.0,
+              height: 32,
+              width: 120.0,
               child: MaterialButton(
                 color: Colors.redAccent,
                 onPressed: () {
@@ -1361,9 +1345,9 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
                         ),
                       )
                     : Text(
-                        '发送校验码',
+                        AppLocalizations.of(context)!.user_send_verify_code,
                         style: const TextStyle(
-                          fontSize: 12.0,
+                          fontSize: 16.0,
                         ),
                       ),
               ),
@@ -1374,61 +1358,68 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
             ? Column(
                 children: [
                   const SizedBox(
-                    height: 6.0,
+                    height: 12.0,
                   ),
                   Row(
                     children: [
                       Container(
-                        height: 26,
-                        width: 80,
+                        height: 32,
+                        width: 100,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("校验码:"),
+                        child: Text(
+                          "${AppLocalizations.of(context)!.user_verify_code}:",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
                       ),
                       Container(
-                        height: 26,
-                        width: 180.0,
+                        height: 32,
+                        width: 220.0,
                         child: _textField(
                           context,
                           verifyCodeController,
-                          "邮箱校验码",
+                          AppLocalizations.of(context)!.user_verify_code,
                         ),
                       )
                     ],
                   ),
                   const SizedBox(
-                    height: 6.0,
+                    height: 12.0,
                   ),
                   Row(
                     children: [
                       Container(
-                        height: 26,
-                        width: 80,
+                        height: 32,
+                        width: 100,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("密码:"),
+                        child: Text(
+                          "${AppLocalizations.of(context)!.user_passwd}:",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
                       ),
                       Container(
-                        height: 26,
-                        width: 180.0,
-                        child: _textField(context, passwdController, "登录密码",
+                        height: 32,
+                        width: 220.0,
+                        child: _textField(context, passwdController,
+                            AppLocalizations.of(context)!.user_passwd,
                             obscureText: true),
                       )
                     ],
                   ),
                   const SizedBox(
-                    height: 6.0,
+                    height: 12.0,
                   ),
                   Row(
                     children: [
                       Container(
-                        height: 26,
+                        height: 32,
                         width: 180,
                         padding: const EdgeInsets.only(right: 8.0),
                       ),
                       Container(
-                        height: 26,
-                        width: 80.0,
+                        height: 32,
+                        width: 100.0,
                         margin: const EdgeInsets.only(right: 8.0),
                         child: MaterialButton(
                           color: Colors.deepPurpleAccent,
@@ -1475,9 +1466,10 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
                                   ),
                                 )
                               : Text(
-                                  '重置密码',
+                                  AppLocalizations.of(context)!
+                                      .user_reset_passwd,
                                   style: const TextStyle(
-                                    fontSize: 12.0,
+                                    fontSize: 16.0,
                                   ),
                                 ),
                         ),
@@ -1773,8 +1765,8 @@ class _UserDetailState extends State<_UserDetail> {
             await windowManager.orderFront();
           },
           child: Container(
-            width: 80.0,
-            height: 80.0,
+            width: 100.0,
+            height: 100.0,
             padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(50),
@@ -1795,31 +1787,47 @@ class _UserDetailState extends State<_UserDetail> {
         ),
         Row(
           children: [
-            const Spacer(),
             Container(
-              height: 26,
-              width: 80,
+              height: 32,
+              width: 100,
               padding: const EdgeInsets.only(right: 10.0),
               alignment: Alignment.centerRight,
-              child: Text("邮箱:"),
+              child: Text(
+                "${AppLocalizations.of(context)!.user_email}:",
+                style: TextStyle(fontSize: 16.0),
+              ),
             ),
             Container(
-              height: 26,
-              width: 180.0,
+              height: 32,
+              width: 220.0,
               alignment: Alignment.centerLeft,
-              child: Text(userEmail),
+              child: Text(
+                userEmail,
+                style: TextStyle(fontSize: 16.0),
+              ),
             ),
+          ],
+        ),
+        const SizedBox(
+          height: 12.0,
+        ),
+        Row(
+          children: [
             Container(
-              height: 26,
-              width: 80,
+              height: 32,
+              width: 100,
               padding: const EdgeInsets.only(right: 10.0),
               alignment: Alignment.centerRight,
-              child: Text("用户名:"),
+              child: Text(
+                "用户名:",
+                style: TextStyle(fontSize: 16.0),
+              ),
             ),
             Container(
-              height: 26,
-              width: 180.0,
-              child: _textField(context, userNameController, "用户名",
+              height: 32,
+              width: 220.0,
+              child: _textField(context, userNameController,
+                  AppLocalizations.of(context)!.user_name,
                   readOnly: isRequestUserNameModifying,
                   focusNode: userNameFocusNode,
                   suffix: isRequestUserNameModifying
@@ -1835,7 +1843,6 @@ class _UserDetailState extends State<_UserDetail> {
                       : null,
                   onSubmitted: (_) => requestUserNameModify()),
             ),
-            const Spacer(),
           ],
         ),
         const SizedBox(
@@ -1844,11 +1851,11 @@ class _UserDetailState extends State<_UserDetail> {
         Row(
           children: [
             const SizedBox(
-              height: 26,
-              width: 120,
+              height: 32,
+              width: 100,
             ),
             Container(
-              height: 26,
+              height: 32,
               child: MaterialButton(
                 color:
                     !isPasswdModifying ? Colors.blueAccent : Colors.redAccent,
@@ -1897,17 +1904,19 @@ class _UserDetailState extends State<_UserDetail> {
                         ),
                       )
                     : Text(
-                        !isPasswdModifying ? '修改密码' : '提交',
+                        !isPasswdModifying
+                            ? AppLocalizations.of(context)!.user_modify_passwd
+                            : AppLocalizations.of(context)!.user_submit,
                         style: const TextStyle(
-                          fontSize: 12.0,
+                          fontSize: 16.0,
                         ),
                       ),
               ),
             ),
             isPasswdModifying && !isRequestPasswdModifying
                 ? Container(
-                    height: 26,
-                    margin: const EdgeInsets.only(left: 10.0, right: 190),
+                    height: 32,
+                    margin: const EdgeInsets.only(left: 44.0),
                     child: MaterialButton(
                       color: Colors.blueAccent,
                       onPressed: () {
@@ -1916,41 +1925,20 @@ class _UserDetailState extends State<_UserDetail> {
                         });
                       },
                       child: Text(
-                        '取消',
+                        AppLocalizations.of(context)!.cmm_cancel,
                         style: const TextStyle(
-                          fontSize: 12.0,
+                          fontSize: 16.0,
                         ),
                       ),
                     ),
                   )
-                : const SizedBox(
-                    width: 280,
-                  ),
-            Container(
-              height: 26,
-              child: MaterialButton(
-                color: Colors.redAccent,
-                onPressed: () {
-                  requestSignout();
-                },
-                child: isRequestSignouting
-                    ? Container(
-                        height: 26.0,
-                        width: 26.0,
-                        padding: const EdgeInsets.all(4.0),
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1.0,
-                          color: Theme.of(context).textTheme.bodyMedium!.color!,
-                        ),
-                      )
-                    : Text(
-                        '退出',
-                        style: const TextStyle(
-                          fontSize: 12.0,
-                        ),
-                      ),
-              ),
-            ),
+                : Container(),
+            !isPasswdModifying
+                ? Container(
+                    margin: const EdgeInsets.only(left: 35),
+                    child: _exitBtn(),
+                  )
+                : Container(),
             const Spacer(),
           ],
         ),
@@ -1962,100 +1950,116 @@ class _UserDetailState extends State<_UserDetail> {
                   ),
                   Row(
                     children: [
-                      const Spacer(),
                       Container(
-                        height: 26,
-                        width: 80,
+                        height: 32,
+                        width: 100,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("旧密码:"),
+                        child: Text(
+                          "${AppLocalizations.of(context)!.user_old_passwd}:",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
                       ),
-                      Container(
-                        height: 26,
-                        width: 180.0,
-                        child: _textField(context, oldPasswdController, "旧密码",
+                      SizedBox(
+                        height: 32,
+                        width: 220.0,
+                        child: _textField(context, oldPasswdController,
+                            AppLocalizations.of(context)!.user_old_passwd,
                             obscureText: true),
                       ),
-                      const SizedBox(
-                        width: 260,
-                      ),
-                      const Spacer(),
                     ],
                   ),
-                  SizedBox(
-                    height: 6.0,
+                  const SizedBox(
+                    height: 12.0,
                   ),
                   Row(
                     children: [
-                      const Spacer(),
                       Container(
-                        height: 26,
-                        width: 80,
+                        height: 32,
+                        width: 100,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("密码:"),
+                        child: Text(
+                          "${AppLocalizations.of(context)!.user_passwd}:",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
                       ),
                       Container(
-                        height: 26,
-                        width: 180.0,
-                        child: _textField(context, passwdController, "登录密码",
+                        height: 32,
+                        width: 220.0,
+                        child: _textField(context, passwdController,
+                            AppLocalizations.of(context)!.user_passwd,
                             obscureText: true),
                       ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 12.0,
+                  ),
+                  Row(
+                    children: [
                       Container(
-                        height: 26,
-                        width: 80,
+                        height: 32,
+                        width: 100,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("重输密码:"),
+                        child: Text(
+                          "${AppLocalizations.of(context)!.user_re_passwd}:",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
                       ),
                       Container(
-                        height: 26,
-                        width: 180.0,
-                        child: _textField(context, passwd2Controller, "重输登录密码",
+                        height: 32,
+                        width: 220.0,
+                        child: _textField(context, passwd2Controller,
+                            AppLocalizations.of(context)!.user_re_passwd,
                             obscureText: true),
                       ),
-                      const Spacer(),
                     ],
                   )
                 ],
               )
             : Container(),
-        const SizedBox(
-          height: 24.0,
-        ),
-        Row(
-          children: [
-            Container(
-              height: 26,
-              width: 120,
-              padding: const EdgeInsets.only(right: 8.0),
-              alignment: Alignment.centerRight,
-              child: Text(
-                '程序注册信息:',
-                style: TextStyle(
-                  fontSize: 12.0,
+        isPasswdModifying
+            ? Container(
+                margin: const EdgeInsets.only(top: 60),
+                child: Row(
+                  children: [
+                    const Spacer(),
+                    _exitBtn(),
+                    const Spacer(),
+                  ],
                 ),
-              ),
-            ),
-            const Spacer(),
-          ],
-        ),
-        Expanded(
-          child: _table(),
-        )
+              )
+            : Container()
       ],
     );
   }
 
-  Widget _empty() {
-    // bool isLoading =
-
-    return const Center(
-      child: Text(
-        'No products',
-        style: TextStyle(
-          fontSize: 15.0,
-        ),
+  Widget _exitBtn() {
+    return Container(
+      height: 32,
+      child: MaterialButton(
+        color: Colors.redAccent,
+        onPressed: () {
+          requestSignout();
+        },
+        child: isRequestSignouting
+            ? Container(
+                height: 26.0,
+                width: 26.0,
+                padding: const EdgeInsets.all(4.0),
+                child: CircularProgressIndicator(
+                  strokeWidth: 1.0,
+                  color: Theme.of(context).textTheme.bodyMedium!.color!,
+                ),
+              )
+            : Text(
+                AppLocalizations.of(context)!.user_quit,
+                style: const TextStyle(
+                  fontSize: 16.0,
+                ),
+              ),
       ),
     );
   }
@@ -2068,110 +2072,5 @@ class _UserDetailState extends State<_UserDetail> {
       // ignore: empty_catches
     } catch (e) {}
     return isOpen;
-  }
-
-  Widget _table() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-      child: DataTable2(
-        columnSpacing: 12,
-        horizontalMargin: 12,
-        dividerThickness:
-            0, // this one will be ignored if [border] is set above
-        bottomMargin: 10,
-        // minWidth: 900,
-        // sortColumnIndex: 4,
-        sortAscending: true,
-        sortArrowIcon: Icons.keyboard_arrow_up, // custom arrow
-        sortArrowAnimationDuration: const Duration(milliseconds: 500),
-        dataRowHeight: 35.0,
-        headingRowHeight: 35.0,
-        headingRowColor: MaterialStateProperty.resolveWith(
-            (states) => Colors.grey.withOpacity(0.1)),
-        columns: [
-          DataColumn2(label: Text('名称'), fixedWidth: 60.0),
-          DataColumn2(label: Text('描述')),
-          DataColumn2(label: Text('开通时间'), fixedWidth: 150.0),
-          DataColumn2(label: Text('操作'), fixedWidth: 50.0),
-        ],
-        empty: _empty(),
-
-        rows: products.asMap().entries.map(
-          (e) {
-            int index = e.key;
-            Map<String, dynamic> map = e.value;
-
-            String product = map['product'];
-            String desc = map['desc'];
-            String time = DateFormat("yyyy-MM-dd HH:mm:ss").format(
-                DateTime.fromMillisecondsSinceEpoch(map['update_time'] * 1000));
-
-            bool isOpen = isOpenProduct(product);
-
-            return DataRow2(
-              // selected: isSelected,
-              color: index.isEven
-                  ? MaterialStateProperty.all(Colors.grey.withOpacity(0.05))
-                  : null,
-              onSecondaryTapDown: (details) {},
-              onDoubleTap: () {},
-              cells: [
-                DataCell(
-                  Text(product),
-                ),
-                DataCell(
-                  Text(
-                    desc,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                DataCell(
-                  Text(
-                    time,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                DataCell(
-                  Container(
-                    height: 26,
-                    width: 50,
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(6.0),
-                    decoration: BoxDecoration(
-                        color: isOpen ? Colors.black45 : Colors.redAccent,
-                        borderRadius: BorderRadius.circular(4.0)),
-                    child: InkClick(
-                      onTap: () {
-                        if (!isOpen) {
-                          requestOpenProduct(product);
-                        }
-                      },
-                      child: !isRequestOpenProducting.contains(product)
-                          ? Text(
-                              isOpen ? '已注册' : '注册',
-                              style: const TextStyle(
-                                fontSize: 10.0,
-                              ),
-                            )
-                          : SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 1.0,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .color!,
-                              ),
-                            ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ).toList(),
-      ),
-    );
   }
 }

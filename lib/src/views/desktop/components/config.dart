@@ -69,14 +69,18 @@ class _ConfigState extends State<Config> {
         },
         child: ListTile(
             splashColor: Colors.black.withOpacity(0),
-            title: const Text(
+            title: Text(
               'Language',
               style: TextStyle(
                 fontSize: 14.0,
+                color: Theme.of(context).textTheme.bodyMedium!.color!,
               ),
             ),
             subtitle: Text(
               'Current: ${localeMap[locale]}',
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyMedium!.color!,
+              ),
             ),
             mouseCursor: SystemMouseCursors.click),
       ),
@@ -85,11 +89,17 @@ class _ConfigState extends State<Config> {
           title: Text(
             // '自动播放',
             AppLocalizations.of(context)!.cfg_auto_play,
-            style: const TextStyle(fontSize: 14.0),
+            style: TextStyle(
+                fontSize: 14.0,
+                color: Theme.of(context).textTheme.bodyMedium!.color!),
           ),
           subtitle: Text(
-              // '启动应用时自动播放上次电台'
-              AppLocalizations.of(context)!.cfg_auto_play_desc),
+            // '启动应用时自动播放上次电台'
+            AppLocalizations.of(context)!.cfg_auto_play_desc,
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyMedium!.color!,
+            ),
+          ),
           trailing: Checkbox(
             splashRadius: 0,
             checkColor: Theme.of(context).textTheme.bodyMedium!.color!,
@@ -119,12 +129,18 @@ class _ConfigState extends State<Config> {
           title: Text(
             // '缓存电台',
             AppLocalizations.of(context)!.cfg_cache_station,
-            style: const TextStyle(fontSize: 14.0),
+            style: TextStyle(
+              fontSize: 14.0,
+              color: Theme.of(context).textTheme.bodyMedium!.color!,
+            ),
           ),
           subtitle: Text(
             // '使用本地缓存电台(建议打开)',
             AppLocalizations.of(context)!.cfg_cache_station_desc,
-            style: const TextStyle(fontSize: 12.0),
+            style: TextStyle(
+              fontSize: 12.0,
+              color: Theme.of(context).textTheme.bodyMedium!.color!,
+            ),
           ),
           trailing: Checkbox(
             splashRadius: 0,
@@ -159,7 +175,10 @@ class _ConfigState extends State<Config> {
         ),
         subtitle: Text(
           '${ResManager.instance.version} by $kAuthor\n${AppLocalizations.of(context)!.cfg_cache} $cacheCount ${AppLocalizations.of(context)!.cmm_stations}',
-          style: const TextStyle(fontSize: 12.0),
+          style: TextStyle(
+            fontSize: 12.0,
+            color: Theme.of(context).textTheme.bodyMedium!.color!,
+          ),
         ),
         onTap: () {
           _onShowAboutDlg(locale);
@@ -241,8 +260,13 @@ class _ConfigState extends State<Config> {
                                         child: Text(
                                           AppLocalizations.of(context)!
                                               .cfg_about,
-                                          style:
-                                              const TextStyle(fontSize: 14.0),
+                                          style: TextStyle(
+                                            fontSize: 14.0,
+                                            color: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium!
+                                                .color!,
+                                          ),
                                         ),
                                       ),
                                       const Spacer(),
@@ -253,16 +277,31 @@ class _ConfigState extends State<Config> {
                                   padding: const EdgeInsets.only(
                                       top: 10.0, left: 10.0),
                                   child: Text(
-                                      'HiqRadio: ${AppLocalizations.of(context)!.hiqradio} by $kAuthor'),
+                                    'HiqRadio: ${AppLocalizations.of(context)!.hiqradio} by $kAuthor',
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .color!,
+                                    ),
+                                  ),
                                 ),
                                 Container(
                                   padding: const EdgeInsets.only(
                                       top: 10.0, left: 10.0),
                                   child: InkClick(
-                                    child: const Row(
+                                    child: Row(
                                       children: [
-                                        Text('Github:  '),
                                         Text(
+                                          'Github:  ',
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium!
+                                                .color!,
+                                          ),
+                                        ),
+                                        const Text(
                                           'https://github.com/buf1024/hiqradio',
                                           style: TextStyle(
                                             color: Colors.blue,
@@ -283,7 +322,15 @@ class _ConfigState extends State<Config> {
                                 Container(
                                   padding: const EdgeInsets.only(
                                       top: 5.0, left: 10.0, bottom: 10.0),
-                                  child: Text(ResManager.instance.version),
+                                  child: Text(
+                                    ResManager.instance.version,
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .color!,
+                                    ),
+                                  ),
                                 ),
                                 Expanded(
                                   child: SingleChildScrollView(
@@ -331,8 +378,12 @@ class _ConfigState extends State<Config> {
                               },
                               child: Text(
                                 AppLocalizations.of(context)!.cmm_confirm,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14.0,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .color!,
                                 ),
                               ),
                             ),
@@ -385,6 +436,8 @@ class _ConfigState extends State<Config> {
                   width: width,
                   height: height,
                   child: Dialog(
+                    backgroundColor: Theme.of(context).dividerColor,
+                    surfaceTintColor: Colors.transparent,
                     // alignment: Alignment.centerRight,
                     insetPadding: const EdgeInsets.only(
                         top: 0, bottom: 0, right: 0, left: 0),
@@ -427,7 +480,13 @@ class _ConfigState extends State<Config> {
                                     padding: const EdgeInsets.only(right: 2.0),
                                     child: Text(
                                       val,
-                                      style: const TextStyle(fontSize: 14.0),
+                                      style: TextStyle(
+                                        fontSize: 14.0,
+                                        color: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium!
+                                            .color!,
+                                      ),
                                     ),
                                   )
                                 ],

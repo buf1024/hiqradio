@@ -14,11 +14,12 @@ import 'package:hiqradio/src/repository/repository.dart';
 import 'package:hiqradio/src/repository/userapi/userapi.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/views/desktop/utils/constant.dart';
-import 'package:hiqradio/src/utils/err_manager.dart';
 
 import 'package:intl/intl.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:window_manager/window_manager.dart';
+
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum ShowType { login, reward, register, userinfo, resetPass, none }
 
@@ -50,15 +51,14 @@ class _UserInfoState extends State<UserInfo> {
   void getUserAvatar(int chgTag) async {
     if (chgTag != avatarChg) {
       String? avatar = await context.read<AppCubit>().getUserAvatar();
-      setState(() {
-        if (avatar != null && avatar.isNotEmpty) {
-          debugPrint('avatar not empty');
-          avatarData = base64Decode(avatar);
-        } else {
-          avatarData = Uint8List(0);
-        }
-        avatarChg = chgTag;
-      });
+
+      if (avatar != null && avatar.isNotEmpty) {
+        debugPrint('avatar not empty');
+        avatarData = base64Decode(avatar);
+      } else {
+        avatarData = Uint8List(0);
+      }
+      avatarChg = chgTag;
     }
   }
 
@@ -70,6 +70,13 @@ class _UserInfoState extends State<UserInfo> {
         var data = await userApi.userInfo();
 
         if (data['error'] == 0) {
+          String? avatar = data['avatar'];
+          if (avatar != null) {
+            context.read<AppCubit>().setAvatar(avatar);
+          } else {
+            context.read<AppCubit>().setAvatar('');
+          }
+
           context.read<AppCubit>().setUserLogin(true,
               email: data['email'], userName: data['user_name']);
           context.read<RecentlyCubit>().setUserLogin(true);
@@ -95,6 +102,8 @@ class _UserInfoState extends State<UserInfo> {
 
     getUserAvatar(avatarChgTag);
     initUserInfo(isLogin);
+
+    debugPrint('login=$isLogin, isEmpty=${avatarData.isEmpty}');
 
     return InkClick(
         onTap: () => _onShowUser(ShowType.none, type),
@@ -199,6 +208,8 @@ class _UserInfoState extends State<UserInfo> {
                 return Material(
                   color: Colors.black.withOpacity(0),
                   child: Dialog(
+                    backgroundColor: Theme.of(context).dividerColor,
+                    surfaceTintColor: Colors.transparent,
                     alignment: Alignment.center,
                     insetPadding: const EdgeInsets.only(
                         top: 0, bottom: 0, right: 0, left: 0),
@@ -208,12 +219,12 @@ class _UserInfoState extends State<UserInfo> {
                         Radius.circular(8.0),
                       ),
                     ),
-                    child: Container(
+                    child: SizedBox(
                         width: width,
                         height: height,
                         child: Column(
                           children: [
-                            Container(
+                            SizedBox(
                               height: kTitleBarHeight,
                               width: width,
                               child: Row(
@@ -349,6 +360,12 @@ class _UserLoginState extends State<_UserLogin> {
         var data = await userApi.userInfo();
         if (data['error'] == 0) {
           userName = data['user_name'];
+          String? avatar = data['avatar'];
+          if (avatar != null) {
+            context.read<AppCubit>().setAvatar(avatar);
+          } else {
+            context.read<AppCubit>().setAvatar('');
+          }
         }
       }
       context
@@ -389,12 +406,15 @@ class _UserLoginState extends State<_UserLogin> {
               width: 80,
               padding: const EdgeInsets.only(right: 10.0),
               alignment: Alignment.centerRight,
-              child: Text("邮箱:"),
+              child: Text(
+                '${AppLocalizations.of(context)!.user_email}:',
+              ),
             ),
-            Container(
+            SizedBox(
               height: 26,
               width: 180.0,
-              child: _textField(context, emailController, "注册的邮箱"),
+              child: _textField(context, emailController,
+                  AppLocalizations.of(context)!.user_email),
             )
           ],
         ),
@@ -408,17 +428,20 @@ class _UserLoginState extends State<_UserLogin> {
               width: 80,
               padding: const EdgeInsets.only(right: 8.0),
               alignment: Alignment.centerRight,
-              child: Text("密码:"),
+              child: Text(
+                '${AppLocalizations.of(context)!.user_passwd}:',
+              ),
             ),
-            Container(
+            SizedBox(
               height: 26,
               width: 180.0,
-              child: _textField(context, passwdController, "登录密码",
+              child: _textField(context, passwdController,
+                  AppLocalizations.of(context)!.user_passwd,
                   obscureText: true),
             )
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: 6.0,
         ),
         Row(
@@ -428,13 +451,16 @@ class _UserLoginState extends State<_UserLogin> {
               width: 80,
               padding: const EdgeInsets.only(right: 8.0),
               alignment: Alignment.centerRight,
-              child: Text("验证码:"),
+              child: Text(
+                '${AppLocalizations.of(context)!.user_captcha}:',
+              ),
             ),
             Container(
               height: 26,
               width: 112.0,
               margin: const EdgeInsets.only(right: 8.0),
-              child: _textField(context, codeController, "验证码"),
+              child: _textField(context, codeController,
+                  AppLocalizations.of(context)!.user_captcha),
             ),
             InkClick(
               onTap: () => requestCaptcha(),
@@ -460,10 +486,10 @@ class _UserLoginState extends State<_UserLogin> {
                           ),
                         )
                       : (captcha.isEmpty
-                          ? const Text(
-                              '刷新',
+                          ? Text(
+                              AppLocalizations.of(context)!.user_refresh,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 13.0, fontStyle: FontStyle.italic),
                             )
                           : Image.memory(captcha)),
@@ -482,7 +508,7 @@ class _UserLoginState extends State<_UserLogin> {
               width: 80,
               padding: const EdgeInsets.only(right: 8.0),
               alignment: Alignment.centerRight,
-              child: Text("自动注册:"),
+              child: Text("${AppLocalizations.of(context)!.user_auto_signup}:"),
             ),
             Checkbox(
               splashRadius: 0,
@@ -509,9 +535,10 @@ class _UserLoginState extends State<_UserLogin> {
               },
             ),
             Text(
-              '使用其他app账号登录',
+              AppLocalizations.of(context)!.user_signup_using_other,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12.0, fontStyle: FontStyle.italic),
+              style:
+                  const TextStyle(fontSize: 12.0, fontStyle: FontStyle.italic),
             )
           ],
         ),
@@ -530,8 +557,8 @@ class _UserLoginState extends State<_UserLogin> {
                   widget.onClose(ShowType.register, ShowType.resetPass);
                 },
                 child: Text(
-                  "忘记密码",
-                  style: TextStyle(
+                  AppLocalizations.of(context)!.user_forgot_passwd,
+                  style: const TextStyle(
                       fontSize: 12.0,
                       fontStyle: FontStyle.italic,
                       color: Colors.blueAccent),
@@ -545,17 +572,17 @@ class _UserLoginState extends State<_UserLogin> {
               child: MaterialButton(
                 color: Colors.deepPurpleAccent,
                 onPressed: () {
-                  widget.onClose!(widget.from, ShowType.reward);
+                  widget.onClose(widget.from, ShowType.reward);
                 },
                 child: Text(
-                  '注册',
+                  AppLocalizations.of(context)!.user_signup,
                   style: const TextStyle(
                     fontSize: 12.0,
                   ),
                 ),
               ),
             ),
-            Container(
+            SizedBox(
               height: 26,
               width: 60.0,
               child: MaterialButton(
@@ -584,7 +611,7 @@ class _UserLoginState extends State<_UserLogin> {
                   }
                 },
                 child: Text(
-                  '登录',
+                  AppLocalizations.of(context)!.user_signin,
                   style: const TextStyle(
                     fontSize: 12.0,
                   ),
@@ -593,7 +620,7 @@ class _UserLoginState extends State<_UserLogin> {
             )
           ],
         ),
-        Spacer(),
+        const Spacer(),
       ],
     );
   }
@@ -674,7 +701,7 @@ class _UserRewardState extends State<_UserReward> {
         ),
         Container(
           padding: const EdgeInsets.all(12.0),
-          child: Column(
+          child: const Column(
             children: [
               Text('赞赏'),
               Text('是为了维持服务器的正常开销'),
@@ -685,7 +712,7 @@ class _UserRewardState extends State<_UserReward> {
         ),
         const Spacer(),
         Container(
-          padding: EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(12.0),
           child: Row(
             children: [
               const Spacer(),
@@ -697,9 +724,10 @@ class _UserRewardState extends State<_UserReward> {
                   }
                   widget.onClose(ShowType.reward, next);
                 },
-                child: const Text(
-                  '跳过',
-                  style: TextStyle(fontSize: 12.0, color: Colors.blueAccent),
+                child: Text(
+                  AppLocalizations.of(context)!.user_skip,
+                  style:
+                      const TextStyle(fontSize: 12.0, color: Colors.blueAccent),
                 ),
               ),
             ],
@@ -850,12 +878,13 @@ class _UserRegisterState extends State<_UserRegister> {
               width: 80,
               padding: const EdgeInsets.only(right: 10.0),
               alignment: Alignment.centerRight,
-              child: Text("邮箱:"),
+              child: Text("${AppLocalizations.of(context)!.user_email}:"),
             ),
             Container(
               height: 26,
               width: 180.0,
-              child: _textField(context, emailController, "注册的邮箱"),
+              child: _textField(context, emailController,
+                  AppLocalizations.of(context)!.user_email),
             )
           ],
         ),
@@ -869,13 +898,14 @@ class _UserRegisterState extends State<_UserRegister> {
               width: 80,
               padding: const EdgeInsets.only(right: 8.0),
               alignment: Alignment.centerRight,
-              child: Text("验证码:"),
+              child: Text("${AppLocalizations.of(context)!.user_captcha}:"),
             ),
             Container(
               height: 26,
               width: 112.0,
               margin: const EdgeInsets.only(right: 8.0),
-              child: _textField(context, codeController, "验证码"),
+              child: _textField(context, codeController,
+                  AppLocalizations.of(context)!.user_captcha),
             ),
             InkClick(
               onTap: () => requestCaptcha(),
@@ -901,10 +931,10 @@ class _UserRegisterState extends State<_UserRegister> {
                           ),
                         )
                       : (captcha.isEmpty
-                          ? const Text(
-                              '刷新',
+                          ? Text(
+                              AppLocalizations.of(context)!.user_refresh,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 13.0, fontStyle: FontStyle.italic),
                             )
                           : Image.memory(captcha)),
@@ -955,7 +985,7 @@ class _UserRegisterState extends State<_UserRegister> {
                         ),
                       )
                     : Text(
-                        '发送校验码',
+                        AppLocalizations.of(context)!.user_send_verify_code,
                         style: const TextStyle(
                           fontSize: 12.0,
                         ),
@@ -977,15 +1007,16 @@ class _UserRegisterState extends State<_UserRegister> {
                         width: 80,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("校验码:"),
+                        child: Text(
+                            "${AppLocalizations.of(context)!.user_verify_code}:"),
                       ),
-                      Container(
+                      SizedBox(
                         height: 26,
                         width: 180.0,
                         child: _textField(
                           context,
                           verifyCodeController,
-                          "邮箱校验码",
+                          "${AppLocalizations.of(context)!.user_verify_code}:",
                         ),
                       )
                     ],
@@ -1000,12 +1031,14 @@ class _UserRegisterState extends State<_UserRegister> {
                         width: 80,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("密码:"),
+                        child: Text(
+                            "${AppLocalizations.of(context)!.user_passwd}:"),
                       ),
-                      Container(
+                      SizedBox(
                         height: 26,
                         width: 180.0,
-                        child: _textField(context, passwdController, "登录密码",
+                        child: _textField(context, passwdController,
+                            AppLocalizations.of(context)!.user_passwd,
                             obscureText: true),
                       )
                     ],
@@ -1020,12 +1053,14 @@ class _UserRegisterState extends State<_UserRegister> {
                         width: 80,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("重输密码:"),
+                        child: Text(
+                            "${AppLocalizations.of(context)!.user_re_passwd}:"),
                       ),
-                      Container(
+                      SizedBox(
                         height: 26,
                         width: 180.0,
-                        child: _textField(context, passwd2Controller, "重输登录密码",
+                        child: _textField(context, passwd2Controller,
+                            AppLocalizations.of(context)!.user_re_passwd,
                             obscureText: true),
                       )
                     ],
@@ -1095,7 +1130,7 @@ class _UserRegisterState extends State<_UserRegister> {
                                   ),
                                 )
                               : Text(
-                                  '注册',
+                                  AppLocalizations.of(context)!.user_signup,
                                   style: const TextStyle(
                                     fontSize: 12.0,
                                   ),
@@ -1255,12 +1290,13 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
               width: 80,
               padding: const EdgeInsets.only(right: 10.0),
               alignment: Alignment.centerRight,
-              child: Text("邮箱:"),
+              child: Text("${AppLocalizations.of(context)!.user_email}:"),
             ),
             Container(
               height: 26,
               width: 180.0,
-              child: _textField(context, emailController, "注册的邮箱"),
+              child: _textField(context, emailController,
+                  AppLocalizations.of(context)!.user_email),
             )
           ],
         ),
@@ -1274,13 +1310,14 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
               width: 80,
               padding: const EdgeInsets.only(right: 8.0),
               alignment: Alignment.centerRight,
-              child: Text("验证码:"),
+              child: Text("${AppLocalizations.of(context)!.user_captcha}:"),
             ),
             Container(
               height: 26,
               width: 112.0,
               margin: const EdgeInsets.only(right: 8.0),
-              child: _textField(context, codeController, "验证码"),
+              child: _textField(context, codeController,
+                  AppLocalizations.of(context)!.user_captcha),
             ),
             InkClick(
               onTap: () => requestCaptcha(),
@@ -1306,10 +1343,10 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
                           ),
                         )
                       : (captcha.isEmpty
-                          ? const Text(
-                              '刷新',
+                          ? Text(
+                              AppLocalizations.of(context)!.user_refresh,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 13.0, fontStyle: FontStyle.italic),
                             )
                           : Image.memory(captcha)),
@@ -1360,7 +1397,7 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
                         ),
                       )
                     : Text(
-                        '发送校验码',
+                        AppLocalizations.of(context)!.user_send_verify_code,
                         style: const TextStyle(
                           fontSize: 12.0,
                         ),
@@ -1382,15 +1419,16 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
                         width: 80,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("校验码:"),
+                        child: Text(
+                            "${AppLocalizations.of(context)!.user_verify_code}:"),
                       ),
-                      Container(
+                      SizedBox(
                         height: 26,
                         width: 180.0,
                         child: _textField(
                           context,
                           verifyCodeController,
-                          "邮箱校验码",
+                          AppLocalizations.of(context)!.user_verify_code,
                         ),
                       )
                     ],
@@ -1405,12 +1443,14 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
                         width: 80,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("密码:"),
+                        child: Text(
+                            "${AppLocalizations.of(context)!.user_passwd}:"),
                       ),
-                      Container(
+                      SizedBox(
                         height: 26,
                         width: 180.0,
-                        child: _textField(context, passwdController, "登录密码",
+                        child: _textField(context, passwdController,
+                            AppLocalizations.of(context)!.user_passwd,
                             obscureText: true),
                       )
                     ],
@@ -1474,7 +1514,8 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
                                   ),
                                 )
                               : Text(
-                                  '重置密码',
+                                  AppLocalizations.of(context)!
+                                      .user_reset_passwd,
                                   style: const TextStyle(
                                     fontSize: 12.0,
                                   ),
@@ -1800,7 +1841,7 @@ class _UserDetailState extends State<_UserDetail> {
               width: 80,
               padding: const EdgeInsets.only(right: 10.0),
               alignment: Alignment.centerRight,
-              child: Text("邮箱:"),
+              child: Text("${AppLocalizations.of(context)!.user_email}:"),
             ),
             Container(
               height: 26,
@@ -1813,12 +1854,13 @@ class _UserDetailState extends State<_UserDetail> {
               width: 80,
               padding: const EdgeInsets.only(right: 10.0),
               alignment: Alignment.centerRight,
-              child: Text("用户名:"),
+              child: Text("${AppLocalizations.of(context)!.user_name}:"),
             ),
-            Container(
+            SizedBox(
               height: 26,
               width: 180.0,
-              child: _textField(context, userNameController, "用户名",
+              child: _textField(context, userNameController,
+                  AppLocalizations.of(context)!.user_name,
                   readOnly: isRequestUserNameModifying,
                   focusNode: userNameFocusNode,
                   suffix: isRequestUserNameModifying
@@ -1896,7 +1938,9 @@ class _UserDetailState extends State<_UserDetail> {
                         ),
                       )
                     : Text(
-                        !isPasswdModifying ? '修改密码' : '提交',
+                        !isPasswdModifying
+                            ? AppLocalizations.of(context)!.user_modify_passwd
+                            : AppLocalizations.of(context)!.user_submit,
                         style: const TextStyle(
                           fontSize: 12.0,
                         ),
@@ -1915,7 +1959,7 @@ class _UserDetailState extends State<_UserDetail> {
                         });
                       },
                       child: Text(
-                        '取消',
+                        AppLocalizations.of(context)!.cmm_cancel,
                         style: const TextStyle(
                           fontSize: 12.0,
                         ),
@@ -1925,7 +1969,7 @@ class _UserDetailState extends State<_UserDetail> {
                 : const SizedBox(
                     width: 280,
                   ),
-            Container(
+            SizedBox(
               height: 26,
               child: MaterialButton(
                 color: Colors.redAccent,
@@ -1943,7 +1987,7 @@ class _UserDetailState extends State<_UserDetail> {
                         ),
                       )
                     : Text(
-                        '退出',
+                        AppLocalizations.of(context)!.user_quit,
                         style: const TextStyle(
                           fontSize: 12.0,
                         ),
@@ -1967,12 +2011,14 @@ class _UserDetailState extends State<_UserDetail> {
                         width: 80,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("旧密码:"),
+                        child: Text(
+                            "${AppLocalizations.of(context)!.user_old_passwd}:"),
                       ),
-                      Container(
+                      SizedBox(
                         height: 26,
                         width: 180.0,
-                        child: _textField(context, oldPasswdController, "旧密码",
+                        child: _textField(context, oldPasswdController,
+                            AppLocalizations.of(context)!.user_old_passwd,
                             obscureText: true),
                       ),
                       const SizedBox(
@@ -1992,12 +2038,14 @@ class _UserDetailState extends State<_UserDetail> {
                         width: 80,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("密码:"),
+                        child: Text(
+                            "${AppLocalizations.of(context)!.user_passwd}:"),
                       ),
-                      Container(
+                      SizedBox(
                         height: 26,
                         width: 180.0,
-                        child: _textField(context, passwdController, "登录密码",
+                        child: _textField(context, passwdController,
+                            AppLocalizations.of(context)!.user_passwd,
                             obscureText: true),
                       ),
                       Container(
@@ -2005,12 +2053,14 @@ class _UserDetailState extends State<_UserDetail> {
                         width: 80,
                         padding: const EdgeInsets.only(right: 8.0),
                         alignment: Alignment.centerRight,
-                        child: Text("重输密码:"),
+                        child: Text(
+                            "${AppLocalizations.of(context)!.user_re_passwd}:"),
                       ),
-                      Container(
+                      SizedBox(
                         height: 26,
                         width: 180.0,
-                        child: _textField(context, passwd2Controller, "重输登录密码",
+                        child: _textField(context, passwd2Controller,
+                            AppLocalizations.of(context)!.user_re_passwd,
                             obscureText: true),
                       ),
                       const Spacer(),
@@ -2030,8 +2080,8 @@ class _UserDetailState extends State<_UserDetail> {
               padding: const EdgeInsets.only(right: 8.0),
               alignment: Alignment.centerRight,
               child: Text(
-                '程序注册信息:',
-                style: TextStyle(
+                '${AppLocalizations.of(context)!.user_apps_info}:',
+                style: const TextStyle(
                   fontSize: 12.0,
                 ),
               ),
@@ -2088,10 +2138,16 @@ class _UserDetailState extends State<_UserDetail> {
         headingRowColor: MaterialStateProperty.resolveWith(
             (states) => Colors.grey.withOpacity(0.1)),
         columns: [
-          DataColumn2(label: Text('名称'), fixedWidth: 60.0),
-          DataColumn2(label: Text('描述')),
-          DataColumn2(label: Text('开通时间'), fixedWidth: 150.0),
-          DataColumn2(label: Text('操作'), fixedWidth: 50.0),
+          DataColumn2(
+              label: Text(AppLocalizations.of(context)!.user_app_name),
+              fixedWidth: 60.0),
+          DataColumn2(label: Text(AppLocalizations.of(context)!.user_app_desc)),
+          DataColumn2(
+              label: Text(AppLocalizations.of(context)!.user_app_time),
+              fixedWidth: 150.0),
+          DataColumn2(
+              label: Text(AppLocalizations.of(context)!.user_app_op),
+              fixedWidth: 50.0),
         ],
         empty: _empty(),
 
@@ -2147,7 +2203,10 @@ class _UserDetailState extends State<_UserDetail> {
                       },
                       child: !isRequestOpenProducting.contains(product)
                           ? Text(
-                              isOpen ? '已注册' : '注册',
+                              isOpen
+                                  ? AppLocalizations.of(context)!
+                                      .user_app_opened
+                                  : AppLocalizations.of(context)!.user_app_open,
                               style: const TextStyle(
                                 fontSize: 10.0,
                               ),

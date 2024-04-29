@@ -22,6 +22,7 @@ class RadioDao {
     }
     return null;
   }
+
   Future<FavGroup?> queryGroupById(int groupId) async {
     List<Map<String, Object?>> data = await db.query('fav_group',
         where: 'id = ?', whereArgs: [groupId], limit: 1);
@@ -42,6 +43,19 @@ class RadioDao {
 
   Future<List<FavGroup>?> queryGroups() async {
     List<Map<String, Object?>> data = await db.query('fav_group');
+    if (data.isNotEmpty) {
+      List<FavGroup> groups = [];
+      for (var map in data) {
+        groups.add(FavGroup.fromJson(map));
+      }
+      return groups;
+    }
+    return null;
+  }
+
+  Future<List<FavGroup>?> queryGroupsByTime(int createTime) async {
+    List<Map<String, Object?>> data = await db
+        .query('fav_group', where: 'create_time > ?', whereArgs: [createTime]);
     if (data.isNotEmpty) {
       List<FavGroup> groups = [];
       for (var map in data) {
@@ -512,8 +526,11 @@ class RadioDao {
     });
   }
 
-  Future<Map<String, dynamic>> insertRemoteSync(List<FavGroup> groups,
-      List<Recently> recently, List<Map<String, dynamic>> favorites) async {
+  Future<Map<String, dynamic>> insertRemoteSync(
+      int startTime,
+      List<FavGroup> groups,
+      List<Recently> recently,
+      List<Map<String, dynamic>> favorites) async {
     List<FavGroup> restGroups = List.empty(growable: true);
     List<FavGroup> newGroups = List.empty(growable: true);
     List<Recently> restRecently = List.empty(growable: true);
@@ -521,7 +538,7 @@ class RadioDao {
     List<Map<String, dynamic>> restFavorites = List.empty(growable: true);
     List<Map<String, dynamic>> newFavorites = List.empty(growable: true);
 
-    List<FavGroup>? dbFavGroups = await queryGroups();
+    List<FavGroup>? dbFavGroups = await queryGroupsByTime(startTime);
     if (groups.isNotEmpty) {
       if (dbFavGroups != null) {
         for (var group in groups) {
@@ -547,8 +564,11 @@ class RadioDao {
       }
     }
 
-    List<Map<String, Object?>> dbRecently =
-        await db.query('recently', orderBy: 'start_time desc', limit: 1);
+    List<Map<String, Object?>> dbRecently = await db.query('recently',
+        where: 'start_time > ?',
+        whereArgs: [startTime],
+        orderBy: 'start_time desc',
+        limit: 1);
 
     int dbRecentlyTime = 0;
     if (dbRecently.isNotEmpty) {
@@ -578,7 +598,9 @@ class RadioDao {
     }
 
     List<Map<String, Object?>> dbFavorites = await db.rawQuery(
-      'select a.name as group_name, b.stationuuid, b.create_time from fav_group a, favorite b where b.group_id = a.id ',
+      '''select a.name as group_name, b.stationuuid, b.create_time from 
+      fav_group a, favorite b where b.group_id = a.id 
+      and b.create_time > $startTime''',
     );
 
     if (favorites.isNotEmpty) {

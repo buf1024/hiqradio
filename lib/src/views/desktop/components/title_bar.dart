@@ -444,7 +444,7 @@ class _TitleBarState extends State<TitleBar> {
             children: [
               Container(
                 padding: const EdgeInsets.only(top: 0),
-              // padding: const EdgeInsets.only(top: kTitleBarHeight),
+                // padding: const EdgeInsets.only(top: kTitleBarHeight),
                 child: ModalBarrier(
                   onDismiss: () => _closeSearchOverlay(),
                 ),
@@ -502,7 +502,7 @@ class _TitleBarState extends State<TitleBar> {
             children: [
               Container(
                 padding: const EdgeInsets.only(top: 0),
-              // padding: const EdgeInsets.only(top: kTitleBarHeight),
+                // padding: const EdgeInsets.only(top: kTitleBarHeight),
                 child: ModalBarrier(
                   onDismiss: () => _closeSearchOptOverlay(),
                 ),
@@ -608,8 +608,10 @@ class _TitleBarState extends State<TitleBar> {
               top: kTitleBarHeight,
               right: 0,
               child: Material(
-                color: Colors.black.withOpacity(0),
+                // color: Colors.black.withOpacity(0),
                 child: Dialog(
+                  backgroundColor: Theme.of(context).dividerColor,
+                  surfaceTintColor: Colors.transparent,
                   alignment: Alignment.centerRight,
                   insetPadding: const EdgeInsets.only(
                       top: 0, bottom: 0, right: 0, left: 0),

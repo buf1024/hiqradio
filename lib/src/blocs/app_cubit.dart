@@ -116,7 +116,7 @@ abstract class AppCubit extends Cubit<AppState> {
 
     if (isLogin) {
       userSyncTimer = Timer.periodic(
-        const Duration(milliseconds: 1000 * 15),
+        const Duration(milliseconds: 1000 * 60 * 30),
         (timer) {
           startSync();
         },
@@ -130,7 +130,6 @@ abstract class AppCubit extends Cubit<AppState> {
   }
 
   void startSync() async {
-    debugPrint('startSync...');
     SharedPreferences sp = await SharedPreferences.getInstance();
 
     int startTime = 0;
@@ -138,7 +137,7 @@ abstract class AppCubit extends Cubit<AppState> {
     if (startTimeTmp != null) {
       startTime = startTimeTmp;
     }
-
+    debugPrint('startSync $startTime ...');
     var data = await repo.userApi.radioSync(startTime);
     if (data['error'] == 0) {
       List<FavGroup> groups =
@@ -152,7 +151,8 @@ abstract class AppCubit extends Cubit<AppState> {
 
       data['favorites'];
 
-      var rest = await repo.dao.insertRemoteSync(groups, recently, favorites);
+      var rest = await repo.dao
+          .insertRemoteSync(startTime, groups, recently, favorites);
 
       groups = rest['groups'];
       recently = rest['recently'];
@@ -173,6 +173,7 @@ abstract class AppCubit extends Cubit<AppState> {
       await sp.setInt(
           kSpAppRadioSyncStartTime, DateTime.now().millisecondsSinceEpoch);
     }
+    debugPrint('startSync end');
   }
 
   String errorText(int code) {
@@ -230,8 +231,15 @@ abstract class AppCubit extends Cubit<AppState> {
 
     String? token = sp.getString(kSpAppUserToken);
 
-    if (token != null) {
-      repo.userApi.setAuthToken(token);
+    bool isLogin = false;
+    if (token != null && token.isNotEmpty) {
+      await repo.userApi.setAuthToken(token);
+
+      
+      var data = await repo.userApi.userIsLogin();
+      if (data['error'] == 0) {
+        isLogin = true;
+      }
     }
 
     String userEmail = '';
@@ -243,6 +251,7 @@ abstract class AppCubit extends Cubit<AppState> {
 
     emit(state.copyWith(
         userEmail: userEmail,
+        isLogin: isLogin,
         autoCache: autoCache ?? state.autoCache,
         isInit: true,
         playingStation: playingStation,
@@ -261,7 +270,6 @@ abstract class AppCubit extends Cubit<AppState> {
     cacheCount = await repo.doCacheStations();
     emit(state.copyWith(isCaching: false, cacheCount: cacheCount));
   }
-
 
   void changeThemeMode(HiqThemeMode themeMode) async {
     if (themeMode != state.themeMode) {

@@ -54,7 +54,7 @@ class _MyPhoneStationState extends State<MyPhoneStation>
             child: Container(
           padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 6.0),
           child: _buildResult(),
-        )),
+        ),),
         // _playingStation()
       ],
     );

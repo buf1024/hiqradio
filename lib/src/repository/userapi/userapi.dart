@@ -37,11 +37,11 @@ class UserApi {
 
   UserApi._();
 
-  void setAuthToken(String token) async {
+  Future<void> setAuthToken(String token) async {
     if (!isInit) {
       await initDio();
     }
-
+    debugPrint('token=$token');
     var headers = dio.options.headers;
 
     token = 'Bearer $token';
@@ -52,7 +52,7 @@ class UserApi {
   Future<void> initDio() async {
     var host = 'https://toyent.com';
     if (kDebugMode) {
-      host = 'http://127.0.0.1:4000';
+      host = 'http://10.0.0.18:4000';
     }
     var baseUrl = '$host/api';
 
@@ -109,7 +109,16 @@ class UserApi {
     param['captcha'] = captcha;
     param['code'] = verifyCode;
 
+    Response response = await dio.post(url, data: jsonEncode(param));
 
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> userIsLogin() async {
+    String url = '/user/is_login';
+
+    Map<String, dynamic> param = HashMap();
+    debugPrint('headers = ${dio.options.headers}');
     Response response = await dio.post(url, data: jsonEncode(param));
 
     return response.data;

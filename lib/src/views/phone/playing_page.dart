@@ -738,7 +738,7 @@ class _PlayingPageState extends State<PlayingPage> {
     }
 
     return SizedBox(
-      height: 54.0,
+      height: 56.0,
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
         _funcShare(playingStation),
         _funcVolume(),

@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:hiqradio/src/app/iconfont.dart';
@@ -10,7 +12,6 @@ import 'package:hiqradio/src/blocs/search_cubit.dart';
 import 'package:hiqradio/src/models/station.dart';
 import 'package:hiqradio/src/utils/constant.dart';
 import 'package:hiqradio/src/utils/res_manager.dart';
-import 'package:hiqradio/src/views/components/gradient_text.dart';
 import 'package:hiqradio/src/views/components/ink_click.dart';
 import 'package:hiqradio/src/utils/nav.dart';
 import 'package:hiqradio/src/views/components/station_info.dart';
@@ -233,68 +234,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                 ),
                 // margin: EdgeInsets.all(0.0),
                 // padding:  EdgeInsets.fromLTRB(4.0, 4.0, 4.0, 2.0),
-                child: Row(
-                  children: [
-                    // SizedBox(
-                    //   height: 60,
-                    //   width: 60,
-                    //   child: Icon(
-                    //     IconFont.station,
-                    //     color: Theme.of(context).textTheme.bodyMedium!.color!,
-                    //     shadows: const [
-                    //       Shadow(blurRadius: 50.0, offset: Offset(0, 5)),
-                    //     ],
-                    //   ),
-                    // ),
-                    const PhoneUserInfo(),
-                    Text('data'),
-                    Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 4.0,
-                          ),
-                          // Text('When I was young'),
-                          GradientText(
-                            'When I was young',
-                            style: const TextStyle(
-                                fontSize: 13.0, fontStyle: FontStyle.italic),
-                            colors: const [
-                              Colors.blue,
-                              Colors.red,
-                              Colors.teal,
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 4.0,
-                          ),
-                          GradientText(
-                            'I\'d listen to the HIQ radio',
-                            style: const TextStyle(
-                                fontSize: 15.0, fontStyle: FontStyle.italic),
-                            colors: const [
-                              Colors.blue,
-                              Colors.red,
-                              Colors.teal,
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 4.0,
-                          ),
-                          GradientText(
-                            'Waiting for my……',
-                            style: const TextStyle(
-                                fontSize: 13.0, fontStyle: FontStyle.italic),
-                            colors: const [
-                              Colors.blue,
-                              Colors.red,
-                              Colors.teal,
-                            ],
-                          ),
-                        ])
-                  ],
-                ),
+                child: const PhoneUserInfo(),
               ),
             ),
             ..._buildConfigItem(),
@@ -520,6 +460,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
         mouseCursor: SystemMouseCursors.click,
         onTap: () {
           Navigator.of(context).pop();
+
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => const CarPlayingPage(),
@@ -871,7 +812,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                 ),
               ),
               child: SizedBox(
-                height: size.height * 0.7,
+                height: size.height * 0.9,
                 width: size.width - 20.0,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -933,6 +874,21 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                           ),
                         ),
                       ),
+                    ),
+                    Row(
+                      children: [
+                        const Spacer(),
+                        SizedBox(
+                          width: size.width * 0.7,
+                          height: size.width * 0.7,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10.0),
+                            child:
+                                Image.asset('assets/images/reward_qrcode.png'),
+                          ),
+                        ),
+                        const Spacer()
+                      ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -1150,7 +1106,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
                       _jumpPlayingPage(playingStation);
                     },
                     width: winSize.width - 106,
-                    height: 54,
+                    height: 60,
                     station: playingStation,
                   ),
                   onTap: () {

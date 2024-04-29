@@ -305,13 +305,13 @@ class StationRecord extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String sDuration = '';
-    if (record.endTime != null) {
-      var duration = DateTime.fromMillisecondsSinceEpoch(record.endTime!)
-          .difference(DateTime.fromMillisecondsSinceEpoch(record.startTime));
-      sDuration =
-          "${duration.inHours.toString().padLeft(2, '0')}:${duration.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(duration.inSeconds.remainder(60)).toString().padLeft(2, '0')}";
-    }
+    // String sDuration = '';
+    // if (record.endTime != null) {
+    //   var duration = DateTime.fromMillisecondsSinceEpoch(record.endTime!)
+    //       .difference(DateTime.fromMillisecondsSinceEpoch(record.startTime));
+    //   sDuration =
+    //       "${duration.inHours.toString().padLeft(2, '0')}:${duration.inMinutes.remainder(60).toString().padLeft(2, '0')}:${(duration.inSeconds.remainder(60)).toString().padLeft(2, '0')}";
+    // }
 
     return SizedBox(
       height: height,
@@ -388,15 +388,15 @@ class StationRecord extends StatelessWidget {
                       fontSize: 12, color: Colors.grey.withOpacity(0.8)),
                 ),
               ),
-              SizedBox(
-                width: width - height - 8.0,
-                child: Text(
-                  record.endTime != null ? '时长(估): $sDuration' : '',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      fontSize: 12, color: Colors.grey.withOpacity(0.8)),
-                ),
-              ),
+              // SizedBox(
+              //   width: width - height - 8.0,
+              //   child: Text(
+              //     record.endTime != null ? '时长(估): $sDuration' : '',
+              //     overflow: TextOverflow.ellipsis,
+              //     style: TextStyle(
+              //         fontSize: 12, color: Colors.grey.withOpacity(0.8)),
+              //   ),
+              // ),
               const Spacer(),
             ],
           )
