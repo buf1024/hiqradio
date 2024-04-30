@@ -127,6 +127,8 @@ abstract class AppCubit extends Cubit<AppState> {
         userSyncTimer = null;
       }
     }
+
+    repo.dao.setIsLogin(isLogin);
   }
 
   void startSync() async {

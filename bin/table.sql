@@ -37,25 +37,20 @@ create index `station_idx` on `station`(
 --     `stationuuid` VARCHAR(40) NOT NULL,
 --     `playlist_id` INTEGER
 -- );
-
 -- create index `playlist_detail_idx` on `playlist_detail`(stationuuid, playlist_id);
-
 -- CREATE TABLE `playlist` (
 --     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
 --     `create_time` INTEGER NOT NULL,
 --     `name` VARCHAR(255) NOT NULL,
 --     `desc` VARCHAR(1024) NULL
 -- );
-
 -- create index `playlist_name_idx` on `playlist`(name);
-
-
-
 CREATE TABLE `recently` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `stationuuid` VARCHAR(40) NOT NULL,
     `start_time` INTEGER NOT NULL,
-    `end_time` INTEGER NULL
+    `end_time` INTEGER NULL,
+    `is_login` INTEGER
 );
 
 create index `recently_idx` on `recently`(start_time, end_time);
@@ -74,7 +69,8 @@ CREATE TABLE `favorite` (
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `stationuuid` VARCHAR(40) NOT NULL,
     `group_id` INTEGER,
-    `create_time` INTEGER
+    `create_time` INTEGER,
+    `is_login` INTEGER
 );
 
 CREATE TABLE `fav_group` (
@@ -82,7 +78,8 @@ CREATE TABLE `fav_group` (
     `create_time` INTEGER NOT NULL,
     `name` VARCHAR(255) NOT NULL,
     `desc` VARCHAR(1024) NULL,
-    `is_def` INTEGER NULL
+    `is_def` INTEGER NULL,
+    `is_login` INTEGER
 );
 
 create index `fav_group_idx` on `fav_group`(name);

@@ -39,7 +39,8 @@ Future<void> createTables(Database db) async {
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `stationuuid` VARCHAR(40) NOT NULL,
     `start_time` INTEGER NOT NULL,
-    `end_time` INTEGER NULL
+    `end_time` INTEGER NULL,
+    `is_login` INTEGER
 )
 """);
   await db.execute("""create index `recently_idx` on `recently`(start_time, end_time)
@@ -58,7 +59,8 @@ Future<void> createTables(Database db) async {
     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `stationuuid` VARCHAR(40) NOT NULL,
     `group_id` INTEGER,
-    `create_time` INTEGER
+    `create_time` INTEGER,
+    `is_login` INTEGER
 )
 """);
   await db.execute("""CREATE TABLE `fav_group` (
@@ -66,7 +68,8 @@ Future<void> createTables(Database db) async {
     `create_time` INTEGER NOT NULL,
     `name` VARCHAR(255) NOT NULL,
     `desc` VARCHAR(1024) NULL,
-    `is_def` INTEGER NULL
+    `is_def` INTEGER NULL,
+    `is_login` INTEGER
 )
 """);
   await db.execute("""create index `fav_group_idx` on `fav_group`(name)
@@ -74,7 +77,7 @@ Future<void> createTables(Database db) async {
   await db.execute("""insert into
     `fav_group`(create_time, name, desc, is_def)
 values
-    (1714278075318, '默认', '默认的Favorite分组', 1);""");
+    (1714449071272, '默认', '默认的Favorite分组', 1);""");
   await db.execute("""insert into
     `cache`(check_time,tab)
 values

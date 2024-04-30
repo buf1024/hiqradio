@@ -5,11 +5,13 @@ class Recently extends Equatable {
   final String stationuuid;
   final int startTime;
   final int? endTime;
+  final int? isLogin;
 
   const Recently({
     this.id,
     required this.stationuuid,
     required this.startTime,
+    this.isLogin,
     this.endTime,
   });
 
@@ -19,20 +21,22 @@ class Recently extends Equatable {
       stationuuid: map['stationuuid'],
       startTime: map['start_time'],
       endTime: map['end_time'],
+      isLogin: map['is_login'],
     );
   }
 
-  Recently copyWith({
-    int? id,
-    String? stationuuid,
-    int? startTime,
-    int? endTime,
-  }) {
+  Recently copyWith(
+      {int? id,
+      String? stationuuid,
+      int? startTime,
+      int? endTime,
+      int? isLogin}) {
     return Recently(
       id: id ?? this.id,
       stationuuid: stationuuid ?? this.stationuuid,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
+      isLogin: isLogin ?? this.isLogin,
     );
   }
 
@@ -42,6 +46,7 @@ class Recently extends Equatable {
       'stationuuid': stationuuid,
       'start_time': startTime,
       'end_time': endTime,
+      'is_login': isLogin,
     };
     return map;
   }
@@ -52,5 +57,6 @@ class Recently extends Equatable {
         stationuuid,
         startTime,
         endTime,
+        isLogin,
       ];
 }

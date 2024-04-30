@@ -6,13 +6,15 @@ class FavGroup extends Equatable {
   final String name;
   final String? desc;
   final int isDef;
+  final int? isLogin;
 
   const FavGroup({
     this.id,
     required this.createTime,
     required this.name,
-    this.desc,
     required this.isDef,
+    this.desc,
+    this.isLogin,
   });
 
   factory FavGroup.fromJson(dynamic map) {
@@ -21,6 +23,7 @@ class FavGroup extends Equatable {
       createTime: map['create_time'],
       name: map['name'],
       desc: map['desc'],
+      isLogin: map['is_login'],
       isDef: map['is_def'],
     );
   }
@@ -31,6 +34,7 @@ class FavGroup extends Equatable {
     String? name,
     String? desc,
     int? isDef,
+    int? isLogin,
   }) {
     return FavGroup(
       id: id ?? this.id,
@@ -38,6 +42,7 @@ class FavGroup extends Equatable {
       name: name ?? this.name,
       desc: desc ?? this.desc,
       isDef: isDef ?? this.isDef,
+      isLogin: isLogin ?? this.isLogin,
     );
   }
 
@@ -48,6 +53,7 @@ class FavGroup extends Equatable {
       'name': name,
       'desc': desc,
       'is_def': isDef,
+      'is_login': isLogin,
     };
     return map;
   }
