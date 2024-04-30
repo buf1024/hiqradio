@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:hiqradio/src/models/cache.dart';
 import 'package:hiqradio/src/models/country.dart';
 import 'package:hiqradio/src/models/country_state.dart';
@@ -509,6 +510,7 @@ class RadioRepository {
       doneList ??= [];
 
       for (var code in codeNames) {
+        debugPrint('start cache $code');
         int index = doneList.indexWhere((element) => element == code);
         if (index > 0) {
           continue;
@@ -516,6 +518,7 @@ class RadioRepository {
         var stationList = await api.search(countrycode: code);
         List<Station> stations = [];
         for (var station in stationList as List) {
+          
           if (station['name'] != null ||
               (station['name'] as String).isNotEmpty ||
               station['url_resolved'] != null ||
@@ -529,6 +532,8 @@ class RadioRepository {
         }
         doneList.add(code);
         await sp.setStringList(kSpAppCheckCacheCodes, doneList);
+
+         debugPrint('done cache $code');
       }
       await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
       await sp.setStringList(kSpAppCheckCacheCodes, []);
