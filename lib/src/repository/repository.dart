@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:hiqradio/src/models/cache.dart';
 import 'package:hiqradio/src/models/country.dart';
 import 'package:hiqradio/src/models/country_state.dart';
@@ -486,12 +485,12 @@ class RadioRepository {
   }
 
   Future<int> doCacheStations() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
     Cache? cache = await dao.queryCache();
     bool needUpdate = false;
     if (cache == null) {
       needUpdate = true;
     } else {
-      SharedPreferences sp = await SharedPreferences.getInstance();
       int interval =
           sp.getInt(kSpAppCheckCacheInterval) ?? kDefCheckCacheInterval;
       int now = DateTime.now().millisecondsSinceEpoch;
@@ -502,12 +501,43 @@ class RadioRepository {
     if (needUpdate) {
       isCaching = true;
 
-      debugPrint('start cache searching...');
-      List<Station> stations = await search('', skipCache: true);
-      debugPrint('update cache stations size=${stations.length}');
-      await dao.insertStations(stations);
+      var codes = await api.countrycodes();
+      List<String> codeNames =
+          (codes as List).map((e) => e['name'] as String).toList();
 
+      List<String>? doneList = sp.getStringList(kSpAppCheckCacheCodes);
+      doneList ??= [];
+
+      for (var code in codeNames) {
+        int index = doneList.indexWhere((element) => element == code);
+        if (index > 0) {
+          continue;
+        }
+        var stationList = await api.search(countrycode: code);
+        List<Station> stations = [];
+        for (var station in stationList as List) {
+          if (station['name'] != null ||
+              (station['name'] as String).isNotEmpty ||
+              station['url_resolved'] != null ||
+              (station['url_resolved'] as String).isEmpty) {
+            continue;
+          }
+          stations.add(Station.fromJson(station));
+        }
+        if (stations.isNotEmpty) {
+          await dao.insertStations(stations);
+        }
+        doneList.add(code);
+        await sp.setStringList(kSpAppCheckCacheCodes, doneList);
+      }
       await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
+      await sp.setStringList(kSpAppCheckCacheCodes, []);
+      // 全量同步低网速不太可能实现了
+      // List<Station> stations = await search('', skipCache: true);
+      // debugPrint('update cache stations size=${stations.length}');
+      // await dao.insertStations(stations);
+
+      // await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
 
       isCaching = false;
     } else {

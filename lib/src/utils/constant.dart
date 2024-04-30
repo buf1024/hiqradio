@@ -42,6 +42,7 @@ const kSpTBLastSearch = 'TBLastSearchText';
 const kSpRCLastPageSize = 'RCLastPageSize';
 
 const kSpAppCheckCacheInterval = 'AppCheckCacheInterval';
+const kSpAppCheckCacheCodes = 'AppCheckCacheCodes';
 
 const kSpAppLocale = 'AppLocale';
 
