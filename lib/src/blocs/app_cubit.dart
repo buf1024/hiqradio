@@ -249,23 +249,28 @@ abstract class AppCubit extends Cubit<AppState> {
     if (userEmailTmp != null) {
       userEmail = userEmailTmp;
     }
-
-    emit(state.copyWith(
-        userEmail: userEmail,
-        // isLogin: isLogin,
-        autoCache: autoCache ?? state.autoCache,
-        isInit: true,
-        playingStation: playingStation,
-        themeMode: themeMode,
-        autoStart: autoStart,
-        autoStop: autoStop,
-        locale: locale,
-        isFavStation: isFavStation));
-
     if (autoStart && playingStation != null) {
       play(playingStation);
     }
 
+    _cacheStations();
+
+    emit(
+      state.copyWith(
+          userEmail: userEmail,
+          // isLogin: isLogin,
+          autoCache: autoCache ?? state.autoCache,
+          isInit: true,
+          playingStation: playingStation,
+          themeMode: themeMode,
+          autoStart: autoStart,
+          autoStop: autoStop,
+          locale: locale,
+          isFavStation: isFavStation),
+    );
+  }
+
+  void _cacheStations() async {
     int cacheCount = await repo.loadStationCount();
     emit(state.copyWith(isCaching: true, cacheCount: cacheCount));
     cacheCount = await repo.doCacheStations();

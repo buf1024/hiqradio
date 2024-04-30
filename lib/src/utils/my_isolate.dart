@@ -20,7 +20,7 @@ class MyIsolate {
   static Future<MyIsolate> create() async {
     MyIsolate api = MyIsolate._instance;
     if (!api.isInit) {
-      api.initMyIsolate();
+      await api.initMyIsolate();
     }
     return api;
   }
@@ -31,7 +31,7 @@ class MyIsolate {
     isInit = false;
   }
 
-  void initMyIsolate() async {
+  Future<void> initMyIsolate() async {
     ReceivePort receivePort = ReceivePort();
     isolate = await Isolate.spawn(_doIsolateWork, receivePort.sendPort);
 
