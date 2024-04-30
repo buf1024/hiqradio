@@ -41,7 +41,6 @@ class UserApi {
     if (!isInit) {
       await initDio();
     }
-    debugPrint('token=$token');
     var headers = dio.options.headers;
 
     token = 'Bearer $token';
@@ -123,7 +122,6 @@ class UserApi {
     String url = '/user/is_login';
 
     Map<String, dynamic> param = HashMap();
-    debugPrint('headers = ${dio.options.headers}');
     Response response = await dio.post(url, data: jsonEncode(param));
 
     return response.data;

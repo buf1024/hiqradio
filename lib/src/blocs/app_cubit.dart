@@ -273,10 +273,12 @@ abstract class AppCubit extends Cubit<AppState> {
   }
 
   void _cacheStations() async {
+    debugPrint('start cache...');
     int cacheCount = await repo.loadStationCount();
     emit(state.copyWith(isCaching: true, cacheCount: cacheCount));
     cacheCount = await repo.doCacheStations();
     emit(state.copyWith(isCaching: false, cacheCount: cacheCount));
+    debugPrint('done cache');
   }
 
   void changeThemeMode(HiqThemeMode themeMode) async {

@@ -619,7 +619,7 @@ class RadioDao {
 
       List<Map<String, Object?>> dbFavorites = await db.rawQuery(
         '''select a.name as group_name, b.stationuuid, b.create_time from 
-      fav_group a, favorite b where b.group_id = a.id and is_login = 0''',
+      fav_group a, favorite b where b.group_id = a.id and b.is_login = 0''',
       );
 
       if (favorites.isNotEmpty) {

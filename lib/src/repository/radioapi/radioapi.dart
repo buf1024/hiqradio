@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 
 class RadioApi {
   String userAgent = 'hiqradio/1.0';
@@ -31,6 +32,7 @@ class RadioApi {
       hosts.add(revAddr.host);
     }
     var baseUrl = 'https://${hosts[Random().nextInt(hosts.length)]}';
+    debugPrint('baseUrl: $baseUrl');
 
     dio.options.baseUrl = baseUrl;
     Map<String, dynamic> headers = HashMap();
@@ -143,6 +145,7 @@ class RadioApi {
     Response response = await dio.get(url);
     return response.data;
   }
+
   Future<dynamic> stationsByUuid({required String uuid}) async {
     // [{'changeuuid': 'abbf72c1-6ff9-4408-8402-3de417d3b52c',
     // 'stationuuid': '4a018de7-b452-4412-b86f-86254c5d53be',
@@ -379,7 +382,10 @@ class RadioApi {
     if (hidebroken != null) {
       queryParameters['hidebroken'] = hidebroken ? 'true' : 'false';
     }
+    var headers = dio.options.headers;
+    headers['Connection'] = 'keep-alive';
     Response response = await dio.get(url, queryParameters: queryParameters);
+    headers.remove('Connection');
     return response.data;
   }
 }

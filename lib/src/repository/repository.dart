@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:hiqradio/src/models/cache.dart';
 import 'package:hiqradio/src/models/country.dart';
 import 'package:hiqradio/src/models/country_state.dart';
@@ -463,7 +464,10 @@ class RadioRepository {
       List<Pair<Station, int>> s = [];
       var stations = map['stations'];
       for (var station in stations) {
-        s.add(Pair(Station.fromJson(station), station['create_time'] ?? (DateTime.now().millisecondsSinceEpoch / 1000) as int));
+        s.add(Pair(
+            Station.fromJson(station),
+            station['create_time'] ??
+                (DateTime.now().millisecondsSinceEpoch / 1000) as int));
       }
       data.add(Pair(g, s));
     }
@@ -486,8 +490,10 @@ class RadioRepository {
     }
     if (needUpdate) {
       isCaching = true;
+
+      debugPrint('start cache searching...');
       List<Station> stations = await search('', skipCache: true);
-      print('update cache stations size=${stations.length}');
+      debugPrint('update cache stations size=${stations.length}');
       await dao.insertStations(stations);
 
       await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
