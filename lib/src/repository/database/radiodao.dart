@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:hiqradio/src/models/cache.dart';
 import 'package:hiqradio/src/models/fav_group.dart';
 import 'package:hiqradio/src/models/recently.dart';
@@ -197,6 +198,16 @@ class RadioDao {
         [groupName]);
     if (data.isNotEmpty) {
       return data.map((e) => Station.fromJson(e)).toList();
+    }
+    return null;
+  }
+
+  Future<List<String>?> queryFavStationsNotCheck(String groupName) async {
+    List<Map<String, dynamic>> data = await db.rawQuery(
+        'select b.stationuuid as stationuuid from favorite b, fav_group c where  b.group_id = c.id and c.name = ?',
+        [groupName]);
+    if (data.isNotEmpty) {
+      return data.map((e) => e['stationuuid'] as String).toList();
     }
     return null;
   }
@@ -622,7 +633,7 @@ class RadioDao {
       fav_group a, favorite b where b.group_id = a.id and b.is_login = 0''',
       );
 
-      if (favorites.isNotEmpty) {
+      if (dbFavorites.isNotEmpty) {
         restFavorites = dbFavorites;
         newFavorites.addAll(dbFavorites);
       } else {
@@ -715,15 +726,23 @@ class RadioDao {
       }
     }
 
+    debugPrint(
+        'newGroup: ${newGroups.length}, newRecently: ${newRecently.length}, newFavorites: ${newFavorites.length}');
+
+    debugPrint(
+        'restGroup: ${restGroups.length}, restRecently: ${restRecently.length}, restFavorites: ${restFavorites.length}');
     await db.transaction((txn) async {
       await txn.delete('fav_group');
+      debugPrint('group: ${newGroups.length}');
       for (var group in newGroups) {
         var map = group.toJson();
         map['is_login'] = 1;
+
         await txn.insert('fav_group', map);
       }
 
       await txn.delete('recently');
+      debugPrint('recently: ${newRecently.length}');
       for (var recently in newRecently) {
         var map = recently.toJson();
         map['is_login'] = 1;
@@ -731,6 +750,7 @@ class RadioDao {
       }
 
       await txn.delete('favorite');
+      debugPrint('favorites: ${newFavorites.length}');
       for (var favorite in newFavorites) {
         var defFavGroupList = await txn.query('fav_group',
             where: 'name = ?', whereArgs: [favorite['group_name']]);
@@ -742,6 +762,7 @@ class RadioDao {
             'create_time': favorite['create_time'],
             'is_login': 1
           };
+
           await txn.insert('favorite', values);
         }
       }

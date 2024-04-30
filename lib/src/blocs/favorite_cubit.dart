@@ -113,9 +113,25 @@ class FavoriteCubit extends Cubit<FavoriteState> {
     FavGroup? group = await repo.loadGroup(groupName: groupName);
     List<Station> stations = [];
     if (group != null) {
-      List<Station>? ss = await repo.loadFavStations(group.name);
-      if (ss != null) {
-        stations = ss;
+      // List<Station>? ss = await repo.loadFavStations(group.name);
+      // if (ss != null) {
+      //   stations = ss;
+      // }
+
+      List<String>? uuids = await repo.loadFavStationsNotCheck(group.name);
+      if (uuids != null) {
+        for (var uuid in uuids) {
+          Station? s = await repo.dao.queryStation(uuid);
+          if (s == null) {
+            List<dynamic> list = await repo.api.stationsByUuid(uuid: uuid);
+            if (list.isEmpty) {
+              continue;
+            }
+            s = Station.fromJson(list[0]);
+            repo.dao.insertStation(s);
+          }
+          stations.add(s);
+        }
       }
     }
     emit(state.copyWith(group: group, stations: stations, isLoading: false));

@@ -55,9 +55,9 @@ class UserApi {
 
   Future<void> initDio() async {
     var host = 'https://toyent.com';
-    if (kDebugMode) {
-      host = 'http://10.0.0.18:4000';
-    }
+    // if (kDebugMode) {
+    //   host = 'http://10.0.0.18:4000';
+    // }
     var baseUrl = '$host/api';
 
     final Directory appDocDir = await getApplicationDocumentsDirectory();

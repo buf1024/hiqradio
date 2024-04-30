@@ -1080,10 +1080,10 @@ class _PopupContentState extends State<PopupContent> {
 
   @override
   Widget build(BuildContext context) {
-    return RawKeyboardListener(
+    return KeyboardListener(
       focusNode: focusNode,
-      onKey: (event) {
-        if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
+      onKeyEvent: (event) {
+        if (event.logicalKey == LogicalKeyboardKey.enter) {
           widget.onConfirmed.call(isModified, group);
         }
       },

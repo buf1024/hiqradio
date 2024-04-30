@@ -359,6 +359,10 @@ class RadioRepository {
     return await dao.queryFavStations(groupName);
   }
 
+  Future<List<String>?> loadFavStationsNotCheck(String groupName) async {
+    return await dao.queryFavStationsNotCheck(groupName);
+  }
+
   Future<void> addFavorite(Station station, int groupId) async {
     await dao.insertFavorite(station, groupId);
   }
@@ -403,9 +407,16 @@ class RadioRepository {
     List<Pair<Station, Recently>> data = [];
     for (var r in recently) {
       Station? station = await dao.queryStation(r.stationuuid);
-      if (station != null) {
-        data.add(Pair(station, r));
+      if (station == null) {
+        List<dynamic> list = await api.stationsByUuid(uuid: r.stationuuid);
+        if (list.isEmpty) {
+          continue;
+        }
+        station = Station.fromJson(list[0]);
+
+        dao.insertStation(station);
       }
+      data.add(Pair(station, r));
     }
     return data;
   }

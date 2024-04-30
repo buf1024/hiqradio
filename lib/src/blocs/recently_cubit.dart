@@ -24,7 +24,6 @@ class RecentlyCubit extends Cubit<RecentlyState> {
 
     emit(state.copyWith(isLoading: true, pageSize: pageSize));
     var recentlys = await repo.loadRecently();
-
     emit(state.copyWith(
       isLoading: false,
       recentlys: recentlys,
