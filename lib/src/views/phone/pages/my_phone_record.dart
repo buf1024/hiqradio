@@ -137,7 +137,7 @@ class _MyPhoneRecordState extends State<MyPhoneRecord>
             margin: const EdgeInsets.all(3.0),
             padding: const EdgeInsets.all(5.0),
             decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
+                color: Theme.of(context).canvasColor,
                 borderRadius: BorderRadius.circular(5.0)),
             child: Row(
               children: [

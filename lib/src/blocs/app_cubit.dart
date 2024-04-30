@@ -272,6 +272,7 @@ abstract class AppCubit extends Cubit<AppState> {
           locale: locale,
           isFavStation: isFavStation),
     );
+    debugPrint('done init');
   }
 
   void _cacheStations() async {

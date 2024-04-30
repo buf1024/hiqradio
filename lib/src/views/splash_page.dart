@@ -97,10 +97,10 @@ class _SplashPageState extends State<SplashPage> {
       int now = DateTime.now().millisecondsSinceEpoch;
       int cost = now - startMs;
       int delay = widget.maxInitMs - cost;
-      print('init app cost: $cost ms, delay: $delay ms');
-      if (delay > 0) {
-        await Future.delayed(Duration(milliseconds: delay));
-      }
+      debugPrint('init app cost: $cost ms, delay: $delay ms');
+      // if (delay > 0) {
+      //   await Future.delayed(Duration(milliseconds: delay));
+      // }
 
       _jump(isDesktop() ? const HomePage() : const PhoneHomePage());
     }
