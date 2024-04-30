@@ -502,51 +502,61 @@ class RadioRepository {
     if (needUpdate) {
       isCaching = true;
 
-      var codes = await api.countrycodes();
-      List<String> codeNames =
-          (codes as List).map((e) => e['name'] as String).toList();
+      bool? cacheFromRes = sp.getBool(kSpAppCheckCacheFromRes);
 
-      List<String>? doneList = sp.getStringList(kSpAppCheckCacheCodes);
-      doneList ??= [];
+      if (cacheFromRes == null) {
+        List<Station> stations = await ResManager.instance.getInitStations();
 
-      for (var code in codeNames) {
-        debugPrint('start cache $code');
-        int index = doneList.indexWhere((element) => element == code);
-        if (index > 0) {
-          continue;
-        }
-        var stationList = await api.search(countrycode: code);
-        debugPrint('$code station: ${(stationList as List).length}');
-        List<Station> stations = [];
-        for (var station in stationList) {
-          if (station['name'] == null ||
-              (station['name'] as String).isEmpty ||
-              station['url_resolved'] == null ||
-              (station['url_resolved'] as String).isEmpty) {
+        debugPrint('cache station from res: ${stations.length}');
+        await dao.insertStations(stations);
+        await sp.setBool(kSpAppCheckCacheFromRes, true);
+      } else {
+        var codes = await api.countrycodes();
+        List<String> codeNames =
+            (codes as List).map((e) => e['name'] as String).toList();
+
+        List<String>? doneList = sp.getStringList(kSpAppCheckCacheCodes);
+        doneList ??= [];
+
+        for (var code in codeNames) {
+          debugPrint('start cache $code');
+          int index = doneList.indexWhere((element) => element == code);
+          if (index > 0) {
             continue;
           }
-          stations.add(Station.fromJson(station));
-        }
-        if (stations.isNotEmpty) {
-          debugPrint('cache insert station: ${stations.length}');
-          await dao.insertStations(stations);
-          int count = await dao.queryStationCount();
-          callback(count);
-        }
-        doneList.add(code);
-        await sp.setStringList(kSpAppCheckCacheCodes, doneList);
+          var stationList = await api.search(countrycode: code);
+          debugPrint('$code station: ${(stationList as List).length}');
+          List<Station> stations = [];
+          for (var station in stationList) {
+            if (station['name'] == null ||
+                (station['name'] as String).isEmpty ||
+                station['url_resolved'] == null ||
+                (station['url_resolved'] as String).isEmpty) {
+              continue;
+            }
+            stations.add(Station.fromJson(station));
+          }
+          if (stations.isNotEmpty) {
+            debugPrint('cache insert station: ${stations.length}');
+            await dao.insertStations(stations);
+            int count = await dao.queryStationCount();
+            callback(count);
+          }
+          doneList.add(code);
+          await sp.setStringList(kSpAppCheckCacheCodes, doneList);
 
-        debugPrint('done cache $code');
+          debugPrint('done cache $code');
+        }
+
+        await sp.setStringList(kSpAppCheckCacheCodes, []);
+        // 全量同步低网速不太可能实现了
+        // List<Station> stations = await search('', skipCache: true);
+        // debugPrint('update cache stations size=${stations.length}');
+        // await dao.insertStations(stations);
+
+        // await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
       }
       await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
-      await sp.setStringList(kSpAppCheckCacheCodes, []);
-      // 全量同步低网速不太可能实现了
-      // List<Station> stations = await search('', skipCache: true);
-      // debugPrint('update cache stations size=${stations.length}');
-      // await dao.insertStations(stations);
-
-      // await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
-
       isCaching = false;
     } else {
       print('no need cache');

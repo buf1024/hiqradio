@@ -43,6 +43,7 @@ const kSpRCLastPageSize = 'RCLastPageSize';
 
 const kSpAppCheckCacheInterval = 'AppCheckCacheInterval';
 const kSpAppCheckCacheCodes = 'AppCheckCacheCodes';
+const kSpAppCheckCacheFromRes = 'kSpAppCheckCacheFromRes';
 
 const kSpAppLocale = 'AppLocale';
 

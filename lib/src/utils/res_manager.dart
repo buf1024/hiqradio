@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:hiqradio/src/models/station.dart';
 
 class LanguageInfo {
   final String name;
@@ -129,6 +130,12 @@ class ResManager {
     isInit = true;
   }
 
+  Future<List<Station>> getInitStations() async {
+    var jsStr = await rootBundle.loadString('assets/files/stations.json');
+    var data = jsonDecode(jsStr) as List<dynamic>;
+    return data.map((e) => Station.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
   String getLocationText(String? countrycode, String? countryState) {
     String flag = '';
     String country = '';
@@ -199,4 +206,3 @@ class ResManager {
   get localeMap => _localeMap;
   get version => _version;
 }
-
