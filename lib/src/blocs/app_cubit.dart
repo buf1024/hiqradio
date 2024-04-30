@@ -76,7 +76,7 @@ abstract class AppCubit extends Cubit<AppState> {
   Future<String?> getUserAvatar() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? s = sp.getString(kSpAppUserAvatar);
-  
+
     return s;
   }
 
@@ -277,12 +277,14 @@ abstract class AppCubit extends Cubit<AppState> {
   }
 
   void _cacheStations() async {
-    
     debugPrint('start cache...');
     int cacheCount = await repo.loadStationCount();
     emit(state.copyWith(isCaching: true, cacheCount: cacheCount));
-    
-    cacheCount = await repo.doCacheStations();
+
+    cacheCount = await repo.doCacheStations((cacheCount) {
+      debugPrint('cacheCount: $cacheCount');
+      emit(state.copyWith(cacheCount: cacheCount));
+    });
     emit(state.copyWith(isCaching: false, cacheCount: cacheCount));
     debugPrint('done cache');
   }

@@ -485,7 +485,7 @@ class RadioRepository {
     await dao.insertFavImport(data);
   }
 
-  Future<int> doCacheStations() async {
+  Future<int> doCacheStations(void Function(int) callback) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     Cache? cache = await dao.queryCache();
     bool needUpdate = false;
@@ -516,24 +516,27 @@ class RadioRepository {
           continue;
         }
         var stationList = await api.search(countrycode: code);
+        debugPrint('$code station: ${(stationList as List).length}');
         List<Station> stations = [];
-        for (var station in stationList as List) {
-          
-          if (station['name'] != null ||
-              (station['name'] as String).isNotEmpty ||
-              station['url_resolved'] != null ||
+        for (var station in stationList) {
+          if (station['name'] == null ||
+              (station['name'] as String).isEmpty ||
+              station['url_resolved'] == null ||
               (station['url_resolved'] as String).isEmpty) {
             continue;
           }
           stations.add(Station.fromJson(station));
         }
         if (stations.isNotEmpty) {
+          debugPrint('cache insert station: ${stations.length}');
           await dao.insertStations(stations);
+          int count = await dao.queryStationCount();
+          callback(count);
         }
         doneList.add(code);
         await sp.setStringList(kSpAppCheckCacheCodes, doneList);
 
-         debugPrint('done cache $code');
+        debugPrint('done cache $code');
       }
       await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
       await sp.setStringList(kSpAppCheckCacheCodes, []);
