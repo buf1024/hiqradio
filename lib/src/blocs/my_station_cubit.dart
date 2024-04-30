@@ -20,15 +20,22 @@ class MyStationCubit extends Cubit<MyStationState> {
   }
 
   void _saveLastSearch() async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    Map<String, dynamic> map = {};
-    map['search'] = state.searchText;
-    map['opt_country'] = state.selectedCountry;
-    map['opt_state'] = state.selectedState;
-    map['opt_language'] = state.selectedLanguage;
-    map['opt_tags'] = state.selectedTags;
+    if (state.searchText.isNotEmpty ||
+        state.selectedCountry.isNotEmpty ||
+        state.selectedState.isNotEmpty ||
+        state.selectedLanguage.isNotEmpty ||
+        state.selectedTags.isNotEmpty) {
+      SharedPreferences sp = await SharedPreferences.getInstance();
 
-    sp.setString(kSpMSLastSearch, jsonEncode(map));
+      Map<String, dynamic> map = {};
+      map['search'] = state.searchText;
+      map['opt_country'] = state.selectedCountry;
+      map['opt_state'] = state.selectedState;
+      map['opt_language'] = state.selectedLanguage;
+      map['opt_tags'] = state.selectedTags;
+
+      sp.setString(kSpMSLastSearch, jsonEncode(map));
+    }
   }
 
   void initSearch() async {
@@ -79,6 +86,13 @@ class MyStationCubit extends Cubit<MyStationState> {
       if (!state.isConditionChanged && name == state.searchText) {
         return state.stations;
       }
+    }
+    if (name.isEmpty &&
+        country.isEmpty &&
+        countryState.isEmpty &&
+        language.isEmpty &&
+        tags.isEmpty) {
+      return state.stations;
     }
     if (!state.isSearching) {
       _saveLastSearch();

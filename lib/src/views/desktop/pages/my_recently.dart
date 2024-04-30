@@ -30,6 +30,8 @@ class _MyRecentlyState extends State<MyRecently>
   FocusNode pageFocusNode = FocusNode();
   bool isPageEditing = false;
 
+  int syncTime = 0;
+
   @override
   void initState() {
     super.initState();
@@ -71,9 +73,24 @@ class _MyRecentlyState extends State<MyRecently>
     super.dispose();
   }
 
+  void monitorSync(int stateSyncTime) {
+    if (stateSyncTime != syncTime) {
+      context.read<RecentlyCubit>().loadRecently();
+
+      setState(() {
+        syncTime = stateSyncTime;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    int stateSyncTime =
+        context.select<AppCubit, int>((value) => value.state.syncTime);
+
+    monitorSync(stateSyncTime);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2.0),

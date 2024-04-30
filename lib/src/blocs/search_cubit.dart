@@ -16,6 +16,9 @@ class SearchCubit extends Cubit<SearchState> {
   }
 
   void _saveLastSearch(String searchText) async {
+    if (searchText.isEmpty) {
+      return;
+    }
     SharedPreferences sp = await SharedPreferences.getInstance();
     Map<String, dynamic> map = {};
     map['search'] = searchText;
@@ -67,7 +70,16 @@ class SearchCubit extends Cubit<SearchState> {
 
   Future<List<Station>> search(String name) async {
     name = name.trim();
+
     if (!state.isConditionChanged && name == state.searchText) {
+      return state.stations;
+    }
+
+    if (name.isEmpty &&
+        state.selectedCountry.isEmpty &&
+        state.selectedState.isEmpty &&
+        state.selectedLanguage.isEmpty &&
+        state.selectedTags.isEmpty) {
       return state.stations;
     }
 

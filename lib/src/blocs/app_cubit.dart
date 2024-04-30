@@ -172,8 +172,10 @@ abstract class AppCubit extends Cubit<AppState> {
         await repo.userApi.radioFavoriteNew(favorites);
       }
 
-      await sp.setInt(
-          kSpAppRadioSyncStartTime, DateTime.now().millisecondsSinceEpoch);
+      int syncTime = DateTime.now().millisecondsSinceEpoch;
+      await sp.setInt(kSpAppRadioSyncStartTime, syncTime);
+
+      emit(state.copyWith(syncTime: syncTime));
     }
     debugPrint('startSync end');
   }

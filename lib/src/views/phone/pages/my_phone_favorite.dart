@@ -29,6 +29,8 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
 
   OverlayEntry? overlay;
 
+  int syncTime = 0;
+
   @override
   void initState() {
     super.initState();
@@ -44,9 +46,24 @@ class _MyPhoneFavoriteState extends State<MyPhoneFavorite>
     scrollController.dispose();
   }
 
+  void monitorSync(int stateSyncTime) {
+    if (stateSyncTime != syncTime) {
+      context.read<RecentlyCubit>().loadRecently();
+
+      setState(() {
+        syncTime = stateSyncTime;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    int stateSyncTime =
+        context.select<AppCubit, int>((value) => value.state.syncTime);
+
+    monitorSync(stateSyncTime);
 
     List<Station> stations = context.select<FavoriteCubit, List<Station>>(
       (value) => value.state.stations,

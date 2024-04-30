@@ -24,6 +24,8 @@ class _MyPhoneRecentlyState extends State<MyPhoneRecently>
     with AutomaticKeepAliveClientMixin {
   ScrollController scrollController = ScrollController();
 
+  int syncTime = 0;
+
   @override
   void initState() {
     super.initState();
@@ -36,9 +38,24 @@ class _MyPhoneRecentlyState extends State<MyPhoneRecently>
     scrollController.dispose();
   }
 
+  void monitorSync(int stateSyncTime) {
+    if (stateSyncTime != syncTime) {
+      context.read<RecentlyCubit>().loadRecently();
+
+      setState(() {
+        syncTime = stateSyncTime;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    int stateSyncTime =
+        context.select<AppCubit, int>((value) => value.state.syncTime);
+
+    monitorSync(stateSyncTime);
 
     List<Pair<Station, Recently>> recentlys =
         context.select<RecentlyCubit, List<Pair<Station, Recently>>>(
