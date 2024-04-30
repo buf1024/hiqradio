@@ -1,3 +1,7 @@
+v1.0.1+2 2024/04/30
+- multi platform data sync function
+- many many bug fixed
+
 v1.0.1+2 2023/09/01
 - remove activate
 
