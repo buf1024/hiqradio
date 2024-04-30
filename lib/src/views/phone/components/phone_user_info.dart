@@ -159,7 +159,8 @@ class _UserInfoState extends State<PhoneUserInfo> {
                       child: Container(
                         height: 50.0,
                         width: 50.0,
-                        margin: const EdgeInsets.all(4.0),
+                        margin: const EdgeInsets.only(
+                            top: 4.0, right: 4.0, left: 6.0, bottom: 8.0),
                         child: CircularProgressIndicator(
                           strokeWidth: 2.0,
                           color: Theme.of(context).textTheme.bodyMedium!.color!,
