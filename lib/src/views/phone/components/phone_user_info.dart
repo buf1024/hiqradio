@@ -157,8 +157,8 @@ class _UserInfoState extends State<PhoneUserInfo> {
                   if (isTestSigning)
                     Center(
                       child: Container(
-                        height: 60.0,
-                        width: 60.0,
+                        height: 50.0,
+                        width: 50.0,
                         margin: const EdgeInsets.all(4.0),
                         child: CircularProgressIndicator(
                           strokeWidth: 2.0,
