@@ -322,10 +322,10 @@ class _UserLoginState extends State<_UserLogin> {
               alignment: Alignment.centerRight,
               child: Text(
                 '${AppLocalizations.of(context)!.user_email}:',
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             ),
-            Container(
+            SizedBox(
               height: 32,
               width: 220.0,
               child: _textField(context, emailController,
@@ -345,7 +345,7 @@ class _UserLoginState extends State<_UserLogin> {
               alignment: Alignment.centerRight,
               child: Text(
                 '${AppLocalizations.of(context)!.user_passwd}:',
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             ),
             SizedBox(
@@ -369,7 +369,7 @@ class _UserLoginState extends State<_UserLogin> {
               alignment: Alignment.centerRight,
               child: Text(
                 '${AppLocalizations.of(context)!.user_captcha}:',
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             ),
             Container(
@@ -406,7 +406,7 @@ class _UserLoginState extends State<_UserLogin> {
                           ? Text(
                               AppLocalizations.of(context)!.user_refresh,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 13.0, fontStyle: FontStyle.italic),
                             )
                           : Image.memory(captcha)),
@@ -427,7 +427,7 @@ class _UserLoginState extends State<_UserLogin> {
               alignment: Alignment.centerRight,
               child: Text(
                 "${AppLocalizations.of(context)!.user_auto_signup}:",
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             ),
             Checkbox(
@@ -457,7 +457,8 @@ class _UserLoginState extends State<_UserLogin> {
             Text(
               AppLocalizations.of(context)!.user_signup_using_other,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12.0, fontStyle: FontStyle.italic),
+              style:
+                  const TextStyle(fontSize: 12.0, fontStyle: FontStyle.italic),
             )
           ],
         ),
@@ -507,34 +508,46 @@ class _UserLoginState extends State<_UserLogin> {
               child: MaterialButton(
                 color: Colors.redAccent,
                 onPressed: () {
-                  String toastMsg = '';
-                  if (emailController.text.isEmpty) {
-                    toastMsg += 'email 为空\n';
-                  } else if (emailController.text.isNotEmpty &&
-                      !_isEmailValid(emailController.text)) {
-                    toastMsg += 'email 格式不正确\n';
-                  } else if (passwdController.text.isEmpty) {
-                    toastMsg += '密码为空\n';
-                  } else if (codeController.text.isEmpty) {
-                    toastMsg += '验证码为空\n';
-                  }
-                  if (toastMsg.isNotEmpty) {
-                    showToast(toastMsg,
-                        position: const ToastPosition(
-                          align: Alignment.bottomCenter,
-                        ),
-                        duration: const Duration(seconds: 5));
-                  } else {
-                    requestSignin(emailController.text, passwdController.text,
-                        codeController.text);
+                  if (!signinLoading) {
+                    String toastMsg = '';
+                    if (emailController.text.isEmpty) {
+                      toastMsg += 'email 为空\n';
+                    } else if (emailController.text.isNotEmpty &&
+                        !_isEmailValid(emailController.text)) {
+                      toastMsg += 'email 格式不正确\n';
+                    } else if (passwdController.text.isEmpty) {
+                      toastMsg += '密码为空\n';
+                    } else if (codeController.text.isEmpty) {
+                      toastMsg += '验证码为空\n';
+                    }
+                    if (toastMsg.isNotEmpty) {
+                      showToast(toastMsg,
+                          position: const ToastPosition(
+                            align: Alignment.bottomCenter,
+                          ),
+                          duration: const Duration(seconds: 5));
+                    } else {
+                      requestSignin(emailController.text, passwdController.text,
+                          codeController.text);
+                    }
                   }
                 },
-                child: Text(
-                  AppLocalizations.of(context)!.user_signin,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                  ),
-                ),
+                child: signinLoading
+                    ? Container(
+                        height: 26.0,
+                        width: 26.0,
+                        padding: const EdgeInsets.all(4.0),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1.0,
+                          color: Theme.of(context).textTheme.bodyMedium!.color!,
+                        ),
+                      )
+                    : Text(
+                        AppLocalizations.of(context)!.user_signin,
+                        style: const TextStyle(
+                          fontSize: 16.0,
+                        ),
+                      ),
               ),
             )
           ],
@@ -624,19 +637,19 @@ class _UserRewardState extends State<_UserReward> {
             children: [
               Text(
                 '赞赏',
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
               Text(
                 '是为了维持服务器的正常开销',
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
               Text(
                 '1分也是爱',
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
               Text(
                 '当然也是可以跳过的',
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             ],
           ),
@@ -692,7 +705,7 @@ class _UserRegisterState extends State<_UserRegister> {
   bool verifyCodeSending = false;
   bool verifyCodeSended = false;
 
-  bool signinLoading = false;
+  bool signupLoading = false;
 
   @override
   void initState() {
@@ -763,17 +776,17 @@ class _UserRegisterState extends State<_UserRegister> {
 
   void requestSignup(
       String email, String passwd, String captcha, String verifyCode) async {
-    if (signinLoading) {
+    if (signupLoading) {
       return;
     }
     setState(() {
-      signinLoading = true;
+      signupLoading = true;
     });
 
     var data = await userApi.userSignup(
         email: email, passwd: passwd, captcha: captcha, verifyCode: verifyCode);
     setState(() {
-      signinLoading = false;
+      signupLoading = false;
     });
     if (data['error'] == 0) {
       context.read<AppCubit>().setUserLogin(false, email: email);
@@ -810,7 +823,7 @@ class _UserRegisterState extends State<_UserRegister> {
               alignment: Alignment.centerRight,
               child: Text(
                 "${AppLocalizations.of(context)!.user_email}:",
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             ),
             Container(
@@ -833,7 +846,7 @@ class _UserRegisterState extends State<_UserRegister> {
               alignment: Alignment.centerRight,
               child: Text(
                 "${AppLocalizations.of(context)!.user_captcha}:",
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             ),
             Container(
@@ -971,7 +984,7 @@ class _UserRegisterState extends State<_UserRegister> {
                         alignment: Alignment.centerRight,
                         child: Text(
                           "${AppLocalizations.of(context)!.user_passwd}:",
-                          style: TextStyle(fontSize: 16.0),
+                          style: const TextStyle(fontSize: 16.0),
                         ),
                       ),
                       Container(
@@ -995,7 +1008,7 @@ class _UserRegisterState extends State<_UserRegister> {
                         alignment: Alignment.centerRight,
                         child: Text(
                           "${AppLocalizations.of(context)!.user_re_passwd}:",
-                          style: TextStyle(fontSize: 16.0),
+                          style: const TextStyle(fontSize: 16.0),
                         ),
                       ),
                       Container(
@@ -1024,7 +1037,7 @@ class _UserRegisterState extends State<_UserRegister> {
                         child: MaterialButton(
                           color: Colors.deepPurpleAccent,
                           onPressed: () {
-                            if (!signinLoading) {
+                            if (!signupLoading) {
                               String toastMsg = '';
                               if (emailController.text.isEmpty ||
                                   !_isEmailValid(emailController.text)) {
@@ -1058,7 +1071,7 @@ class _UserRegisterState extends State<_UserRegister> {
                               }
                             }
                           },
-                          child: signinLoading
+                          child: signupLoading
                               ? Container(
                                   height: 26.0,
                                   width: 26.0,
@@ -1234,7 +1247,7 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
               alignment: Alignment.centerRight,
               child: Text(
                 "${AppLocalizations.of(context)!.user_email}:",
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             ),
             Container(
@@ -1257,7 +1270,7 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
               alignment: Alignment.centerRight,
               child: Text(
                 "${AppLocalizations.of(context)!.user_captcha}:",
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             ),
             Container(
@@ -1369,7 +1382,7 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
                         alignment: Alignment.centerRight,
                         child: Text(
                           "${AppLocalizations.of(context)!.user_verify_code}:",
-                          style: TextStyle(fontSize: 16.0),
+                          style: const TextStyle(fontSize: 16.0),
                         ),
                       ),
                       Container(
@@ -1395,7 +1408,7 @@ class _UserPasswdResetState extends State<_UserPasswdReset> {
                         alignment: Alignment.centerRight,
                         child: Text(
                           "${AppLocalizations.of(context)!.user_passwd}:",
-                          style: TextStyle(fontSize: 16.0),
+                          style: const TextStyle(fontSize: 16.0),
                         ),
                       ),
                       Container(
@@ -1815,7 +1828,7 @@ class _UserDetailState extends State<_UserDetail> {
               alignment: Alignment.centerRight,
               child: Text(
                 "${AppLocalizations.of(context)!.user_email}:",
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             ),
             Container(
@@ -1824,7 +1837,7 @@ class _UserDetailState extends State<_UserDetail> {
               alignment: Alignment.centerLeft,
               child: Text(
                 userEmail,
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             ),
           ],
@@ -1841,7 +1854,7 @@ class _UserDetailState extends State<_UserDetail> {
               alignment: Alignment.centerRight,
               child: Text(
                 "用户名:",
-                style: TextStyle(fontSize: 16.0),
+                style: const TextStyle(fontSize: 16.0),
               ),
             ),
             Container(
@@ -1978,7 +1991,7 @@ class _UserDetailState extends State<_UserDetail> {
                         alignment: Alignment.centerRight,
                         child: Text(
                           "${AppLocalizations.of(context)!.user_old_passwd}:",
-                          style: TextStyle(fontSize: 16.0),
+                          style: const TextStyle(fontSize: 16.0),
                         ),
                       ),
                       SizedBox(
@@ -2002,7 +2015,7 @@ class _UserDetailState extends State<_UserDetail> {
                         alignment: Alignment.centerRight,
                         child: Text(
                           "${AppLocalizations.of(context)!.user_passwd}:",
-                          style: TextStyle(fontSize: 16.0),
+                          style: const TextStyle(fontSize: 16.0),
                         ),
                       ),
                       Container(
@@ -2026,7 +2039,7 @@ class _UserDetailState extends State<_UserDetail> {
                         alignment: Alignment.centerRight,
                         child: Text(
                           "${AppLocalizations.of(context)!.user_re_passwd}:",
-                          style: TextStyle(fontSize: 16.0),
+                          style: const TextStyle(fontSize: 16.0),
                         ),
                       ),
                       Container(

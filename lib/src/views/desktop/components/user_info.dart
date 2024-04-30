@@ -617,34 +617,46 @@ class _UserLoginState extends State<_UserLogin> {
               child: MaterialButton(
                 color: Colors.redAccent,
                 onPressed: () {
-                  String toastMsg = '';
-                  if (emailController.text.isEmpty) {
-                    toastMsg += 'email 为空\n';
-                  } else if (emailController.text.isNotEmpty &&
-                      !_isEmailValid(emailController.text)) {
-                    toastMsg += 'email 格式不正确\n';
-                  } else if (passwdController.text.isEmpty) {
-                    toastMsg += '密码为空\n';
-                  } else if (codeController.text.isEmpty) {
-                    toastMsg += '验证码为空\n';
-                  }
-                  if (toastMsg.isNotEmpty) {
-                    showToast(toastMsg,
-                        position: const ToastPosition(
-                          align: Alignment.bottomCenter,
-                        ),
-                        duration: const Duration(seconds: 5));
-                  } else {
-                    requestSignin(emailController.text, passwdController.text,
-                        codeController.text);
+                  if (!signinLoading) {
+                    String toastMsg = '';
+                    if (emailController.text.isEmpty) {
+                      toastMsg += 'email 为空\n';
+                    } else if (emailController.text.isNotEmpty &&
+                        !_isEmailValid(emailController.text)) {
+                      toastMsg += 'email 格式不正确\n';
+                    } else if (passwdController.text.isEmpty) {
+                      toastMsg += '密码为空\n';
+                    } else if (codeController.text.isEmpty) {
+                      toastMsg += '验证码为空\n';
+                    }
+                    if (toastMsg.isNotEmpty) {
+                      showToast(toastMsg,
+                          position: const ToastPosition(
+                            align: Alignment.bottomCenter,
+                          ),
+                          duration: const Duration(seconds: 5));
+                    } else {
+                      requestSignin(emailController.text, passwdController.text,
+                          codeController.text);
+                    }
                   }
                 },
-                child: Text(
-                  AppLocalizations.of(context)!.user_signin,
-                  style: const TextStyle(
-                    fontSize: 12.0,
-                  ),
-                ),
+                child: signinLoading
+                    ? Container(
+                        height: 26.0,
+                        width: 26.0,
+                        padding: const EdgeInsets.all(4.0),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1.0,
+                          color: Theme.of(context).textTheme.bodyMedium!.color!,
+                        ),
+                      )
+                    : Text(
+                        AppLocalizations.of(context)!.user_signin,
+                        style: const TextStyle(
+                          fontSize: 12.0,
+                        ),
+                      ),
               ),
             )
           ],
@@ -791,7 +803,7 @@ class _UserRegisterState extends State<_UserRegister> {
   bool verifyCodeSending = false;
   bool verifyCodeSended = false;
 
-  bool signinLoading = false;
+  bool signupLoading = false;
 
   @override
   void initState() {
@@ -862,17 +874,17 @@ class _UserRegisterState extends State<_UserRegister> {
 
   void requestSignup(
       String email, String passwd, String captcha, String verifyCode) async {
-    if (signinLoading) {
+    if (signupLoading) {
       return;
     }
     setState(() {
-      signinLoading = true;
+      signupLoading = true;
     });
 
     var data = await userApi.userSignup(
         email: email, passwd: passwd, captcha: captcha, verifyCode: verifyCode);
     setState(() {
-      signinLoading = false;
+      signupLoading = false;
     });
     if (data['error'] == 0) {
       context.read<AppCubit>().setUserLogin(false, email: email);
@@ -1111,7 +1123,7 @@ class _UserRegisterState extends State<_UserRegister> {
                         child: MaterialButton(
                           color: Colors.deepPurpleAccent,
                           onPressed: () {
-                            if (!signinLoading) {
+                            if (!signupLoading) {
                               String toastMsg = '';
                               if (emailController.text.isEmpty ||
                                   !_isEmailValid(emailController.text)) {
@@ -1145,7 +1157,7 @@ class _UserRegisterState extends State<_UserRegister> {
                               }
                             }
                           },
-                          child: signinLoading
+                          child: signupLoading
                               ? Container(
                                   height: 26.0,
                                   width: 26.0,
