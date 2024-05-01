@@ -487,29 +487,39 @@ class RadioRepository {
 
   Future<int> doCacheStations(void Function(int) callback) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    Cache? cache = await dao.queryCache();
+    Cache cache = await dao.queryCache();
     bool needUpdate = false;
-    if (cache == null) {
+
+    int interval =
+        sp.getInt(kSpAppCheckCacheInterval) ?? kDefCheckCacheInterval;
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if (now - cache.checkTime > interval) {
       needUpdate = true;
-    } else {
-      int interval =
-          sp.getInt(kSpAppCheckCacheInterval) ?? kDefCheckCacheInterval;
-      int now = DateTime.now().millisecondsSinceEpoch;
-      if (now - cache.checkTime > interval) {
-        needUpdate = true;
-      }
     }
+
     if (needUpdate) {
       isCaching = true;
 
-      bool? cacheFromRes = sp.getBool(kSpAppCheckCacheFromRes);
-
-      if (cacheFromRes == null) {
+      if (cache.checkTime == 0) {
         List<Station> stations = await ResManager.instance.getInitStations();
 
-        debugPrint('cache station from res: ${stations.length}');
-        await dao.insertStations(stations);
-        await sp.setBool(kSpAppCheckCacheFromRes, true);
+        int len = stations.length;
+        int iter = len ~/ dao.kBatchSize;
+        int rest = len % dao.kBatchSize;
+
+        debugPrint('cache station from res: $len');
+        for (var i = 0; i < iter; i++) {
+          int start = i * dao.kBatchSize;
+          int end = (i + 1) * dao.kBatchSize;
+          var ss = stations.sublist(start, end);
+          await dao.insertStations(ss);
+          int count = await dao.queryStationCount();
+          callback(count);
+        }
+        if (rest > 0) {
+          var ss = stations.sublist(iter*dao.kBatchSize);
+          await dao.insertStations(ss);
+        }
       } else {
         var codes = await api.countrycodes();
         List<String> codeNames =
@@ -556,7 +566,7 @@ class RadioRepository {
 
         // await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
       }
-      await dao.updateCache(cache!.id!, DateTime.now().millisecondsSinceEpoch);
+      await dao.updateCache(cache.id!, DateTime.now().millisecondsSinceEpoch);
       isCaching = false;
     } else {
       print('no need cache');

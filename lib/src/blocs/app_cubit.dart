@@ -282,7 +282,6 @@ abstract class AppCubit extends Cubit<AppState> {
     emit(state.copyWith(isCaching: true, cacheCount: cacheCount));
 
     cacheCount = await repo.doCacheStations((cacheCount) {
-      debugPrint('cacheCount: $cacheCount');
       emit(state.copyWith(cacheCount: cacheCount));
     });
     emit(state.copyWith(isCaching: false, cacheCount: cacheCount));

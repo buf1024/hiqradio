@@ -442,13 +442,11 @@ class RadioDao {
     return await db.rawQuery('select * from station $condition');
   }
 
-  Future<Cache?> queryCache() async {
+  Future<Cache> queryCache() async {
     List<Map<String, Object?>> data = await db.query('cache',
         where: 'tab = ?', whereArgs: ['station'], limit: 1);
-    if (data.isNotEmpty) {
-      return Cache.fromJson(data[0]);
-    }
-    return null;
+
+    return Cache.fromJson(data[0]);
   }
 
   Future<int> updateCache(int id, int checkTime) async {
