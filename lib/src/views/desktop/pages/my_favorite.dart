@@ -85,7 +85,9 @@ class _MyFavoriteState extends State<MyFavorite>
 
   void monitorSync(int stateSyncTime) {
     if (stateSyncTime != syncTime) {
-      context.read<RecentlyCubit>().loadRecently();
+      String? groupName = context.read<FavoriteCubit>().getLoadedGroup();
+      context.read<FavoriteCubit>().loadFavorite(groupName: groupName);
+      context.read<FavoriteCubit>().loadGroups();
 
       setState(() {
         syncTime = stateSyncTime;
