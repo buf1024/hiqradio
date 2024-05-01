@@ -92,8 +92,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   void _listenInitApp(BuildContext context, AppState state) async {
-    // if (state.isInit && !isJump) {
-    if (!isJump) {
+    if (state.isInit && !isJump) {
       isJump = true;
       int now = DateTime.now().millisecondsSinceEpoch;
       int cost = now - startMs;

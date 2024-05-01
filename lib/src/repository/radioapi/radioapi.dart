@@ -1,5 +1,5 @@
 import 'dart:collection';
-import 'dart:io';
+// import 'dart:io';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
@@ -23,20 +23,25 @@ class RadioApi {
   RadioApi._();
 
   Future<void> initDio() async {
-    var baseUrl = 'https://de1.api.radio-browser.info';
-    try {
-      List<String> hosts = [];
-      String hostName = 'all.api.radio-browser.info';
+    List<String> hosts = [
+      'at1.api.radio-browser.info',
+      'de1.api.radio-browser.info',
+      'nl1.api.radio-browser.info'
+    ];
+    // try {
+    //   List<String> hosts = [];
+    //   String hostName = 'all.api.radio-browser.info';
 
-      List<InternetAddress> addresses = await InternetAddress.lookup(hostName);
-      for (InternetAddress addr in addresses) {
-        InternetAddress revAddr = await addr.reverse();
-        hosts.add(revAddr.host);
-      }
-      baseUrl = 'https://${hosts[Random().nextInt(hosts.length)]}';
-    } catch (e) {
-      debugPrint('lookup error: $e');
-    }
+    //   List<InternetAddress> addresses = await InternetAddress.lookup(hostName);
+    //   for (InternetAddress addr in addresses) {
+    //     InternetAddress revAddr = await addr.reverse();
+    //     hosts.add(revAddr.host);
+    //   }
+
+    // } catch (e) {
+    //   debugPrint('lookup error: $e');
+    // }
+    var baseUrl = 'https://${hosts[Random().nextInt(hosts.length)]}';
     debugPrint('baseUrl: $baseUrl');
 
     dio.options.baseUrl = baseUrl;
