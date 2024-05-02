@@ -62,8 +62,8 @@ class _UserInfoState extends State<UserInfo> {
     }
   }
 
-  void initUserInfo() async {
-    if (mounted && !isInit) {
+  void initUserInfo(bool stateLogin) async {
+    if (mounted && !stateLogin && !isInit) {
       isInit = true;
 
       String? token = userApi.getAuthToken();
@@ -116,7 +116,7 @@ class _UserInfoState extends State<UserInfo> {
         context.select<AppCubit, int>((value) => value.state.avatarChgTag);
 
     getUserAvatar(avatarChgTag);
-    initUserInfo();
+    initUserInfo(isLogin);
 
     return InkClick(
         onTap: () => _onShowUser(ShowType.none, type),
