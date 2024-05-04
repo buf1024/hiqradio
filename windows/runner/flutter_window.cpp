@@ -29,7 +29,7 @@ bool FlutterWindow::OnCreate() {
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
     //this->Show();
-    "" // 启动隐藏
+    // 启动隐藏
   });
 
   return true;
