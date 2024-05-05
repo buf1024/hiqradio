@@ -94,7 +94,7 @@ class FavoriteCubit extends Cubit<FavoriteState> {
     await loadFavorite(groupName: state.group?.name);
 
     if (state.isLogin) {
-      await repo.userApi.radioFavoriteDelete([], [oldGroup]);
+      await repo.userApi.radioFavoriteDelete([station.stationuuid], []);
       List<Map<String, dynamic>> param = List.empty(growable: true);
       for (var group in newGroups) {
         Map<String, dynamic> map = {
@@ -104,6 +104,7 @@ class FavoriteCubit extends Cubit<FavoriteState> {
         };
         param.add(map);
       }
+      
       await repo.userApi.radioFavoriteNew(param);
     }
   }
