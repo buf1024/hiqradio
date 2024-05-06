@@ -117,7 +117,7 @@ abstract class AppCubit extends Cubit<AppState> {
 
     if (isLogin) {
       userSyncTimer = Timer.periodic(
-        const Duration(milliseconds: 1000 * 60 * 30),
+        const Duration(milliseconds: kDefSyncInterval),
         (timer) {
           startSync();
         },

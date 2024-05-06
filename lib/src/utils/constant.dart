@@ -18,13 +18,14 @@ const kTryDays = 30;
 const kMaxCacheDay = 15;
 
 const kMaxPageSize = 100;
-const kDefPageSize = 20;
+const kDefPageSize = 21;
 
 const kDefListSize = 50;
 const kMaxRecentSearch = 10;
 const kMaxPlayHis = 50;
 
 const kDefCheckCacheInterval = 30 * 24 * 60 * 60 * 1000;
+const kDefSyncInterval = 5 * 60 * 1000;
 
 const kDefSearchText = 'kids';
 
